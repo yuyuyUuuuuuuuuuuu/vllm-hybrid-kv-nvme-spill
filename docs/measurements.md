@@ -138,7 +138,8 @@ pins of requests waiting long for admission (MLA pins released after 5 s, state 
 
 `tests/bench_gpu.py`: real `SpillWorker`, production-shaped tensors on the GPU, 600k tokens' worth = 131 MLA + 4 mamba +
 2 DFlash blocks = 3,723,575,296 B per rank, O_DIRECT, 32 MiB pinned staging, CRC-32 per 8 MiB. One GB10 with its
-internal NVMe, one rank. Source: `results/bench_gpu.json`.
+internal NVMe, one rank. Source: `results/bench_gpu.json` (one attached run: write 1.554 s, read 1.382 s, kernel 228.3 GB/s alone,
+226.5 / 227.7 GB/s during write / read); the ranges below also include earlier review runs whose raw files are not attached.
 
 | Item | Result |
 |---|---|
@@ -148,7 +149,7 @@ internal NVMe, one rank. Source: `results/bench_gpu.json`.
 | Same kernel during a write / during a read | 226-231 GB/s (within −1%) |
 | Write / read time while the kernel runs | 3.4 s / 3.0 s (the I/O side slows down through GIL contention between Python threads) |
 
-In one sample run the kernel bandwidth went 232.8 → 230.6 / 231.2 GB/s. Actual restores in the rig average 12-30 blocks
+In one earlier review run (raw file not attached) the kernel bandwidth went 232.8 → 230.6 / 231.2 GB/s. Actual restores in the rig average 12-30 blocks
 (only what is missing: mainly mamba states and the trailing MLA blocks) = 0.3-0.8 GB, i.e. 0.1-0.4 s at these speeds. The
 worst case of reading all 600k tokens is ~1.5 s (~3 s under load), against 5-15 minutes for re-reading 600k tokens.
 
@@ -163,7 +164,7 @@ with f(key, rank). Experiment memory limit 8 GiB × 2 concurrent jobs.
 
 Source: `results/fix/m_off_s*.json`, `results/fix/m_on_s*.json`, `results/fix/aggregate_m_on.txt`.
 
-| Seed | DSH re-read OFF → ON | All re-read OFF → ON | Collapses OFF → ON | Stall estimate s | Finished | Restores started/admitted | Blocks read | Saved files verified / mismatches | Max pinned (total / connector-only) |
+| Seed | DSH re-read OFF → ON | All re-read OFF → ON | Collapses OFF → ON | Stall estimate s | Admissions | Restores started/admitted | Blocks read | Saved files verified / mismatches | Max pinned (total / connector-only) |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | 5,843,258 → 2,126,007 | 6,846,990 → 3,274,227 | 6 → 0 | 3,286 → 1,514 | 55 → 60 | 13/9 | 258 | 1,284 / 0 | 328 / 12 |
 | 2 | 7,772,703 → 2,135,765 | 9,155,187 → 3,892,501 | 9 → 0 | 4,398 → 1,833 | 52 → 69 | 20/12 | 395 | 1,320 / 0 | 329 / 11 |
@@ -489,7 +490,7 @@ Start-up cost (`tests/bench_persist.py`, production image; `results/ttl/bench_pe
 
 | Item | Time / size |
 |---|---|
-| site-packages digest (separate thread) | cold 4.4 s / warm 0.9-1.0 s |
+| site-packages digest (separate thread) | cold 4.4 s (one measurement in the production image, raw output not attached) / warm 0.9-1.0 s (`results/ttl/bench_persist*.json`) |
 | Rank start-up scan | 6,000 files 16 ms, 12,000 files 37 ms |
 | Index for 60 RPs / 5,220 files (≈132 GiB/rank) | 2.3 MB; build 4.4 ms per write; read + verify 6 ms; adoption decision 152 ms (once at start-up) |
 | Extreme case 300 RPs / 26,100 files | 11 MB; build 40 ms; adoption 314 ms |
@@ -560,7 +561,8 @@ noise)**. Running the same seed twice hits the prefix cache (TTFT 1.5-1.8 s) and
 and prefill.
 
 Real-traffic OFF baseline (before the switch): pure decode tok/s at concurrency 1/2/3/4: 40.3 / 59.4 / 71.2 / 95.9. The
-corresponding ON values were not yet filled in at the time of the record.
+first ON windows (about 4 h of active time in total over three releases) gave 42-44 tok/s at concurrency 1 and too few
+multi-request windows to compare; a comparison needs at least a day of real traffic.
 
 ### 8.4 Real-traffic observations
 

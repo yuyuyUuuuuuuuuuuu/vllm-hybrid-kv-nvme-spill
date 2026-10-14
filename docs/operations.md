@@ -118,8 +118,8 @@ The pinned staging buffers use 32 MiB × 2 (write and read) per rank. The KV poo
 
 **Why these deadlines** (worst-case estimate): restoring a whole 780k-token conversation is 4.7 GB ÷ 2.6 GB/s ≈ 1.8 s,
 ×2 for GIL contention, three conversations at once ≈ 11 s; 30 s leaves almost 3× margin. Saving the first three
-conversations is ≈ 14 GB; even if the NVMe drops to 1 GB/s after its SLC cache is exhausted that is ≈ 45 s; 120 s leaves
-2.6× margin. An expiry opens the breaker at once (latched until restart, behaves like OFF), so the design errs towards
+conversations is ≈ 14 GB; even if the NVMe drops to 1 GB/s after its SLC cache is exhausted that is ≈ 14 s (≈ 45 s at ~0.3 GB/s); 120 s leaves
+more than 2.6× margin even then. An expiry opens the breaker at once (latched until restart, behaves like OFF), so the design errs towards
 stopping when the disk is merely slow. Deadlines are measured from when the job is sent, including time queued on the
 rank.
 

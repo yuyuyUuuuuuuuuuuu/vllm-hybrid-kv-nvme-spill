@@ -71,11 +71,14 @@ then `init_none_hash`) and hash the same token list (3 blocks of 4,608 tokens + 
 
 | condition | `NONE_HASH` (first 16 bytes) | first block hash | Python `hash(str)` |
 |---|---|---|---|
-| `PERSIST=0` (= stock behaviour), process 1 | `f0dedd7822fce0562008db1ba09a8742` | `6762f18fb29c746d75999aa27c1d0bf3` | random |
-| `PERSIST=0`, process 2 | `18ea7c952da340828124a01e3cad555d` | `e1c55bc39575fa809afc9bcc6907afeb` | random |
+| `PERSIST=0` (= stock behaviour), process 1 | `86212d3b126f16a2dd808894d3da7006` | `cbdd1459e33529b4fc597bc7fff063d6` | random |
+| `PERSIST=0`, process 2 | `05f08029493c644d53f6dbbcf7f5bf4c` | `db4f7789ca2da63b27569dc1c6c64a5d` | random |
 | `PERSIST=1`, process 1 | `1f6065cfcc6f0c410597cad23ddd5644` | `d8dd5cb43c1f00e81e9d1a3f60be1c51` | random |
 | `PERSIST=1`, process 2 | `1f6065cfcc6f0c410597cad23ddd5644` | `d8dd5cb43c1f00e81e9d1a3f60be1c51` | random (differs from process 1) |
 | operator `PYTHONHASHSEED=77`, 2 processes | identical to each other, different from seed 5353 | identical | - |
+
+Values from `results/published-tree/hash_stability.txt` (runs 0-3). The `PERSIST=0` values are random by construction and
+differ in every run (e.g. `results/ttl/t_hash_stability.txt` has other ones); the `PERSIST=1` values repeat.
 
 The test also checks statically that in the production `core.py` the scheduler construction comes before
 `init_none_hash` (character offsets 5539 < 8733). Values above are from the run on this published tree
