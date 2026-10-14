@@ -4,6 +4,7 @@ __pycache__/
 tests/rig/work/
 tests/rig/work_old/
 tests/rig/work2/
+tests/rig/work_u4/
 rig-out/
 rig-scratch/
 test-out/

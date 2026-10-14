@@ -35,7 +35,8 @@ abort criteria and procedures to `docs/operations.md`.
 4. **What `--kv-transfer-config` changes:** vLLM's config hash (torch.compile is rebuilt on the first start),
    `requires_kv_delivery=False`, the `defer_block_free` above, and the hand-over of partial tails (empty in production,
    where fine-grained hits are disabled). Every connector hook runs only with `GLM53_NVME_SPILL=1`.
-5. **Pins while waiting, and wasted restores (review B8, not fixed).** See "Unfixed: B8" below.
+5. **Pins while waiting, and wasted restores (review B8).** Fixed in the finish release for the case where the
+   scheduler's policy skips the request anyway; what remains is described in "B8 after the fix" below.
 6. **No write at preemption/eviction time** (`docs/design.md` section 2.1). The RP is written right after the prompt
    is computed (can be deferred by HIGHWATER). So the first turn of a conversation (with `SAVE_POLICY=repeat`), and
    state evicted before the post-prompt write finishes (about 0.1-1.5 s), cannot be restored.
@@ -59,81 +60,100 @@ abort criteria and procedures to `docs/operations.md`.
     relocate live allocations (`tests/t_expandable_gpu.py`: addresses unchanged and bytes identical across
     `empty_cache`). A production start with expandable_segments on both arms is confirmed at the first A/B start.
 
-## Known risks of TTL and reuse across restarts (final version)
+## Known risks of TTL and reuse across restarts (final version, finish release, u4, u5)
 
-1. **If any part of the site-packages digest changes from start to start, every start wipes everything** (the safe
-   side, the same as without reuse). All production overlay patches should be deterministic (string replacement and
-   copies), but this cannot be confirmed before the second real restart. A start-up check expecting adoption after the
-   second restart shows it; on a mismatch the log names the part (site/env/model/...). The env digest was not computed
-   from the real production container environment (it could not be read from the test machine), so it too is only
-   confirmed at the second restart.
-2. **A conversation with `ttl_s=0` (do not keep) can get fewer GPU hits than with the connector off** (+113% re-reads in
-   the rig, see "Unfixed: B8" below). It is the same side effect of B8 that one-off requests already see (+23%).
-3. The index is at most `INDEX_EVERY_S` (5 s) old. RPs saved in the last 5 s before a crash are deleted as orphans at
-   the next start (the rig's three crash runs matched the clean-shutdown runs).
+1. **A value that changes from start to start in any identity part makes every start wipe everything** (the safe side,
+   the same as without reuse). This happened in production with the environment part: vLLM writes a random
+   `VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME` into each process's environment (`docs/design.md` 2.8.2); fixed in u4 by
+   excluding that name. Another, still unknown run-time generated value in the site / model / config / env parts would
+   again wipe at every start. The wipe reason now names the differing variable or file; check that name before adding
+   it to `_ENV_VOLATILE` (exclusion is by exact name only).
+2. **A conversation with `ttl_s=0` (do not keep) can still get fewer GPU hits than with the connector off under
+   overload.** After the B8 fix it is +2.5% in total (-1.2% per admission) in the normal TTL mix, but +30.7% in total
+   and **+16.5% per admission** in the overloaded rig (`docs/measurements.md` 7.9). See "B8 after the fix".
+3. **What a stop can still lose.** Since u5 the index is written as soon as the engine goes idle, by a timer after 2 s
+   without engine calls, and at a clean shutdown. A resume point is indexed only once every rank has confirmed its
+   save, so a stop (or crash) while a save is still unconfirmed loses that resume point and its files become orphans
+   at the next start. This includes a restart procedure that waits only until no request is running and then sends
+   SIGKILL: the save of the last prompt can still be in flight at that moment (writing a 600k-token resume point took 1.4
+   s). Under load (the engine never idle) the index can be up to `INDEX_EVERY_S` (5 s) old at a crash. Each loss costs
+   one normal prefill of that conversation.
 4. `PYTHONHASHSEED` is set in the environment of the scheduler (EngineCore) process. Child processes that process starts
    afterwards get a fixed `str` hash. The `str` hash randomization of Python itself, the API server and the workers is
    unchanged (measured). (EngineCore currently starts no child processes after start-up.)
 5. At start-up, while an index exists, waiting requests can be held for up to `ADOPT_DEADLINE_S` (60 s) (normally 1-2 s:
-   the rank scan finishes during model warm-up; the scheduler's site digest takes about 1 s warm and about 4 s cold).
-6. Adoption on the real two-node setup (rank 1's report arriving from the worker node through the executor) is
-   inferred from the rig's two simulated ranks and from production's existing worker-meta aggregation working (save
-   and restore answers). Check the `persist:` decision line and both ranks' `start-up scan:` lines after the first
-   restart.
+   the rank scan finishes during model warm-up; the scheduler's site digest takes about 1 s warm and about 4 s cold). In
+   production the decision came 4.95 s (u4) and 2.10 s (u5) after the first step.
+6. Adoption on the real two-node setup was confirmed in production with u4 and u5 (`docs/measurements.md` 8.6): both
+   ranks reported, the decision was taken once and the per-rank orphan deletions ran on both nodes.
 7. The benefit of writing the first turn (`TTL_SAVE_POLICY=all`) does not show up in the rig's load. Its cost is +2%
    bytes written.
+8. **Every code change wipes once.** Installing a connector whose "code" part differs (any executable change), or
+   changing any non-secret `GLM53_` / `VLLM_` / ... variable that is in the environment digest (for example toggling
+   `GLM53_EXPOSE_CACHE_RESET`), wipes the tier at the next start. Only comment / docstring changes of the connector and
+   changes of the connector's own knobs (`GLM53_NVME_SPILL_*`) keep the files.
+9. With `DEFAULT_TTL_S` set (86400 in our deployment), a conversation of a client that does not send the field and is
+   not used for that long is re-read at its next turn (before, it stayed until the capacity cap or a restart).
+10. The in-process quality probe (`--phase both`) needs the unauthenticated `/reset_prefix_cache` endpoint
+    (`GLM53_EXPOSE_CACHE_RESET=1`). Our production deployment closed it with the finish release; we use the restart
+    variant (`--phase prepare` / `--phase restart`, `--runs 4`) instead.
 
-## Unfixed: B8 (wasted restores before admission)
+## B8 after the fix (finish release)
 
-Found by the independent review (`docs/review-findings.md`) and left unfixed.
+Found by the independent review (`docs/review-findings.md`): a restore started for a request that is then not admitted
+pins blocks (MLA 5 s, states until admission) and, more importantly, evicts other requests' GPU cache when it takes
+fresh blocks. In the rig, seed 4 had 52 restores and 9 admissions; on average 20.2 restores started and 8.8 admitted per
+seed (`results/fix/aggregate_m_on.txt`).
 
-* A request whose resume point was restored but that is not yet admitted keeps its MLA blocks pinned for 5 s and its
-  state blocks pinned until admission (at most 64 blocks in total). A request that waits long behind the decode floor
-  loses its MLA blocks and re-reads what is missing at admission.
-* In the rig, seed 4 had 52 restores and 9 admissions; on average 20.2 restores started and 8.8 admitted per seed
-  (`results/fix/aggregate_m_on.txt`).
-* Correctness is unaffected, but in production it costs extra NVMe reads, and the fresh blocks allocated by
-  `get_new_blocks` evict other conversations' GPU cache.
-* We did not find a cheap fix: admission is decided by the scheduler after the restore, so it is not known in advance;
-  a longer `PIN_TIMEOUT_S` would hold other requests' blocks longer. The likely fix is not to restore ahead of time for
-  requests that are not expected to be admitted soon.
-* **Side effect on requests that are not saved.** Because restores for other conversations allocate and pin blocks
-  before admission, requests that rely only on the GPU cache lose their prefix earlier:
-  * one-off requests (never saved with `SAVE_POLICY=repeat`): re-read 1,065,397 -> 1,312,717 tokens, **+23%**
-    (4 h x 5 seeds of the fix-release re-run; computed by us from `results/fix/m_off_s*.json` and
-    `results/fix/m_on_s*.json`);
-  * a conversation sent with `ttl_s=0` in the mixed-TTL rig (4 conversations, 4 h x 5 seeds): re-read 245,654 (OFF)
-    -> 523,321 (ON), **+113%**, collapses 0.2 -> 1.8. In that load there were 21.2 restores, 4.8 admissions and 21.0
-    pin expiries per seed (final version; `results/ttl/final/aggregate.txt`, table "TTL mix", runs
-    `results/ttl/final/mx2_{off,on,nottl}_s*.json`).
-    The other three conversations improved by -38.5%, -22.8% and -41.2%; the total was -24.9%.
+The finish release (`docs/design.md` 2.9) does not start a restore in a step in which the decode-floor policy skips the
+request, and takes a restore's fresh blocks from NVMe-backed cached blocks first. Restores started / admitted per seed
+went from 20.2 / 8.8 to 9.8 / 9.4 (normal), 21.2 / 4.8 to 2.6 / 2.6 (TTL mix) and 448.2 / 7.2 to 11.6 / 11.0 (overloaded)
+(`results/finish/aggregate.txt`). What remains:
 
-## Open rig anomaly: `hit_hash_violations`
+* **Overload.** The `ttl_s=0` conversation of the overloaded TTL mix is still +30.7% vs OFF (+16.5% per admission,
+  collapses 10 -> 14). Eviction attribution (seed 1, `results/finish/bf_mxo_*_s1.json`): its blocks were evicted 200
+  times with OFF and 345 times with the fix; 116 of those by restores (when no NVMe-backed block is free, the rest is
+  taken in plain LRU order) and 71 (OFF: 22) by its own allocations. With the connector the rig admits 29% more DSH turns
+  and 23% more one-shot requests in the same 4 hours (OFF is stuck in large re-reads), so there is more competition for
+  the GPU cache. Removing this would need NVMe-backed blocks to be evicted first in **every** allocation
+  (`allocate_slots`), i.e. a change of `BlockPool`'s eviction order, at the cost that the client's conversations would
+  then be read back from NVMe at every turn. Not done.
+* **The rig measures skip mode; production runs mode 0 (off).** The B8 amplification came from skip mode's "no prefill
+  while another request decodes". In production the gate never fires (behaviour unchanged); restores that are not
+  followed by an admission are visible only through the stats line (`restores_started` versus `restores_admitted`). The
+  rig cannot run mode 0 (`docs/design.md` 2.9).
+* **One-shot requests.** The earlier "+23% re-read for one-shot requests" was a misreading: with the connector more
+  one-shot requests were admitted in the 4 hours (87 -> 109 over the 5 seeds); per admitted request the re-read was
+  61,230 (OFF) -> 60,216 (before the fix) -> 60,196 (after the fix, -1.7%).
 
-In the async + CRC-injection 0.5 h runs of the prune-release matrix, the rig's `hit_hash_violations` counter (a
-mismatch between the hit recorded at admission time and the actual admission) was occasionally 1: in 1 of 9 runs with
-K=2 and in **1 of 3 runs with K=0**, so it does not depend on pruning.
+## Resolved: the rig's `hit_hash_violations` anomaly
 
-The detail record (`results/prune/acv_k0_r1_s2.viol.json`): the recorded hit was 456,192 tokens (from the previous
-lookup) while the request's computed tokens were 446,976; the check tripped on the block one past the actual hit,
-which had no key yet. The content check over all blocks found 0 mismatches. Our reading is that the hit shrank while
-the request was waiting (the same pattern as the "lost hit" of our earlier re-read investigation) and the rig's record
-does not follow that. We judge it **not a correctness problem, but it is not explained** and remains open.
+In some async + CRC-injection 0.5 h runs of the prune-release matrix the rig's `hit_hash_violations` counter was 1
+(1 of 9 runs with K=2, 1 of 3 with K=0; detail record `results/prune/acv_k0_r1_s2.viol.json`). Cause, found in the
+finish release: **a bug in the rig's record, not in the connector.** The rig checked an admission's hit blocks before
+updating the recorded hit with that admission's value. For a request that was preempted and re-admitted it therefore
+compared the new block list against the hit of the previous admission (456,192 tokens = 99 blocks, while the
+re-admission hit 442,368 tokens and block 97 was a fresh block for the first chunk, without a key yet). Preemptions
+occurred only in asynchronous runs, and the rig's `preemptions` counter had never been incremented, so this was not
+visible. The rig now updates the hit first and counts preemptions, re-admissions and re-admissions whose hit shrank.
+Re-running the same conditions (async + CRC, seeds 2/3/4, 3 repetitions each) and the whole fault suite gave 0
+violations and 4 re-admissions, none with a smaller hit (`results/finish/aggregate.txt`, table (6)). The content check
+over all blocks had always found 0 mismatches.
 
-## Cosmetic log bug (fixed in the published version only)
+## Cosmetic log bug (fixed; in production since the finish release)
 
 The rank start-up log line `rank %d: dir=%s wiped=%d ...` formatted `wiped` with `%d`. With `PERSIST=1` the value is
 the string `'deferred'` (the wipe is decided later by the scheduler), so Python's logging reported a formatting error
-("--- Logging error ---") and the line was dropped. Nothing else is affected.
-
-The published version (`code/glm53_nvme_spill_connector.py`) uses `%s`. The production deployment (connector sha256
-`1762e23f...`, the final version) still has the bug **on purpose**: the connector file is part of the site-packages
-digest in the restart signature (`docs/design.md` section 2.8), so changing its bytes would change the signature and
-wipe the spill directory at the next restart. The bug is harmless, so we leave production as it is.
+("--- Logging error ---") and the line was dropped. Nothing else was affected. The final version in production
+(connector sha256 `1762e23f...`) kept the bug until the finish release, because changing the connector's bytes then
+changed the restart signature and would have wiped the spill directory. Since the finish release the identity covers
+the connector's syntax tree without docstrings instead of its bytes (`docs/design.md` 2.8.1).
 
 ## Other notes
 
 * The capacity defaults in the code (`GIB`, `MIN_FREE_GIB`) are not those of our deployment; size them for your disk,
   and check whether the spill directory shares a file system with the root file system.
-* Not measured: real drafter acceptance after a restore, and the cost of the executor waiting for every rank's output
-  on every step once a connector is configured (review item 4a). Both can only be measured in a real A/B.
+* Drafter acceptance after a restore was measured only with the quality probe (81k-token conversation, 4 runs per
+  probe, in-process and across a restart; `docs/measurements.md` 8.2 and 8.6), not on real traffic. The cost of the
+  executor waiting for every rank's output on every step was below the measurement noise in our idle-window speed A/B
+  (`docs/measurements.md` 8.3); a comparison on real multi-request traffic is still missing.

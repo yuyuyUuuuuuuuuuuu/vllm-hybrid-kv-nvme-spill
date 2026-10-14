@@ -1,0 +1,15 @@
+SAME c_on_s2: 829 fields, non-timing differences 0; index_bytes 387316 -> 398803
+SAME pr_clean_s2: 1043 fields, non-timing differences 0; index_bytes 387374 -> 398861
+SAME pr_clean_s3: 995 fields, non-timing differences 0; index_bytes 386894 -> 398381
+SAME pr_corrupt_index_s2: 1044 fields, non-timing differences 0; index_bytes 387304 -> 398791
+SAME pr_crash_s2: 1043 fields, non-timing differences 0; index_bytes 387374 -> 398861
+     timing: spill_before_restart.index_writes: 9 -> 10 (writes completed before the crash instant)
+SAME pr_crash_s4: 974 fields, non-timing differences 0; index_bytes 388034 -> 399521
+SAME pr_crc_file_s2: 1047 fields, non-timing differences 0; index_bytes 387378 -> 398865
+SAME pr_missing_file_s2: 1042 fields, non-timing differences 0; index_bytes 387377 -> 398864
+SAME pr_p0_s2: 1040 fields, non-timing differences 0; index_bytes None -> None
+SAME pr_rank1_sig_s2: 1044 fields, non-timing differences 0; index_bytes 387330 -> 398817
+SAME pr_sig_env_s2: 1044 fields, non-timing differences 0; index_bytes 387303 -> 398892
+     spill.persist_reason: 'scheduler signature differs: env' -> 'scheduler signature differs: env [added GLM53_RIG_PATCH_FLAG]'
+SAME pr_truncate_index_s2: 1044 fields, non-timing differences 0; index_bytes 387304 -> 398791
+SUMMARY 12/12 jobs identical apart from timings / index size / wipe-reason wording

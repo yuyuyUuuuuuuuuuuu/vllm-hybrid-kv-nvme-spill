@@ -1,0 +1,4 @@
+dg_mxo.env on 1 4 bf_mxo_on_s1 --no-drain
+dg_mx.env on 1 4 bf_mx2_on_s1 --no-drain
+dg_plain.env on 1 4 bf_m_on_s1 --no-drain
+dg_mxo.env off 1 4 bf_mxo_off_s1 --no-drain

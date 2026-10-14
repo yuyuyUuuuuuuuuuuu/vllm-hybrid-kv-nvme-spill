@@ -45,7 +45,7 @@ change: its `init_none_hash` is the older code quoted above (line numbers in the
 `code/glm53_nvme_spill_connector.py`:
 
 1. **Seed before vLLM uses it.** In the connector's constructor, scheduler role, with `GLM53_NVME_SPILL_PERSIST=1`
-   (default), lines 2689-2699: if `PYTHONHASHSEED` is not set in the process environment, set it to
+   (default), lines 3027-3037: if `PYTHONHASHSEED` is not set in the process environment, set it to
    `GLM53_NVME_SPILL_HASH_SEED` (default `5353`). Because `EngineCore` constructs the scheduler (and the connector)
    **before** it calls `init_none_hash` (`core.py:161` < `core.py:226`), vLLM then computes
    `NONE_HASH = hash_fn("5353")`, identical in every process. An operator-set `PYTHONHASHSEED` is kept as is.
@@ -54,9 +54,9 @@ change: its `init_none_hash` is the older code quoted above (line numbers in the
    still differs between processes). Setting `PYTHONHASHSEED` for the whole container would also disable `str` hash
    randomization in the API server; we did not do that. Child processes started later by that process inherit the
    variable.
-3. **Verify at start-up.** `SpillScheduler._check_hash` (line 2328) checks on the first steps that
+3. **Verify at start-up.** `SpillScheduler._check_hash` (line 2606) checks on the first steps that
    `NONE_HASH == hash_fn(PYTHONHASHSEED)` for the configured `prefix_caching_hash_algo`. If not (or if `NONE_HASH` is
-   never initialised within `ADOPT_DEADLINE_S`), `_persist_poll` (line 2358) wipes every rank's files and disables
+   never initialised within `ADOPT_DEADLINE_S`), `_persist_poll` (line 2636) wipes every rank's files and disables
    reuse across restarts for this run (the connector then behaves as with `PERSIST=0`: files are only used within the
    process lifetime). The `NONE_HASH` digest and the hash function name are part of the identity signature written to
    the index, so a different seed or hash function on the next start also leads to a full wipe, never to a wrong hit.
@@ -95,3 +95,66 @@ Effect in the replay rig (restart 2 h into a 4 h run, 10 min down, 5 seeds; `doc
   check at start-up that the resulting `NONE_HASH` is what you expect; do not assume it.
 - Put the seed / `NONE_HASH` digest and the hash function into whatever signature guards your persisted index, so a
   change invalidates the index instead of producing misses or, worse, hits on different content.
+
+## A second restart pitfall: a random value vLLM writes into the process environment
+
+Fixing `NONE_HASH` was not enough for reuse across restarts in production. After it, the second restart of an unchanged
+deployment still discarded everything: `persist: wipe every rank (rank signature differs (rank 0: env; rank 1: env))`.
+Our identity signature included a digest of the `VLLM_*` (and other) environment variables of each process, and that
+digest changed at every start.
+
+**Where it is (our tree):** `vllm/envs.py` defines
+
+```python
+"VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME": get_env_or_set_default(
+    "VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME",
+    lambda: f"VLLM_OBJECT_STORAGE_SHM_BUFFER_{uuid.uuid4().hex}",
+),
+```
+
+and `get_env_or_set_default` does `os.environ[env_name] = default_value` on the first read when the variable is unset.
+`enable_envs_cache()` reads every known vLLM variable, and it runs at the end of `EngineCore.__init__`
+(`v1/engine/core.py:248` in our tree) and of every worker process's initialization (`v1/executor/multiproc_executor.py:685`).
+So **after start-up every engine and worker process has a new random `VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME` in its own
+`os.environ`**, different in every process and at every start. (vLLM's own `compile_factors()`, which builds the
+torch.compile cache key from the environment, lists this name in its `ignored_factors`.) The value names the
+shared-memory segment of the multimodal processor cache; it has nothing to do with the KV cache.
+
+Two properties made it hard to see:
+
+* `/proc/<pid>/environ` (and `docker inspect`, `docker exec env` of a new process) show only the environment at exec
+  time, **not** values a process later wrote into its own `os.environ`. Inspecting the running container showed nothing
+  that changed between starts.
+* Whether a digest computed in the engine-core process sees the value depends on timing: our scheduler-side signature is
+  computed on a separate thread and happened to finish before `enable_envs_cache()` ran, so only the workers' signatures
+  differed. A test rig whose simulated workers never read the variable does not reproduce it at all.
+
+**Proof:** `tests/test_u4_env.py` (part `fresh`) starts two fresh interpreters, calls `vllm.envs.enable_envs_cache()` in
+each and computes the connector's environment digest: with the previous connector the two digests differ, with the
+current one they are equal, and without the `enable_envs_cache()` call both versions give equal digests. Part `audit`
+imports the modules a scheduler and a worker import, runs the trigger in two processes and lists every prefixed variable
+whose value differs: only `VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME`. (A static scan of the tree also found `VLLM_DIST_IDENT`,
+written at every start by the CPU worker only.)
+
+**Fix in the connector:** those two names are excluded from the environment digest **by exact name** (`_ENV_VOLATILE`);
+everything else stays strict. A wipe reason now names the differing variables (only names and 8-hex digests are
+recorded, never values), e.g. `env [added VLLM_X]`, so the next such value is found from one log line. Details:
+`docs/design.md` 2.8.2. In production the next restart adopted the saved files (`docs/measurements.md` 8.6).
+
+**If you derive any identity, cache key or fingerprint from a vLLM process's environment:**
+
+- exclude `VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME` (and in CPU-worker setups `VLLM_DIST_IDENT`), or better, compare an
+  explicit allow-list of variables instead of a prefix;
+- compute it in a way that does not depend on whether `enable_envs_cache()` already ran, and test it with two fresh
+  processes that both run `enable_envs_cache()`;
+- do not validate it by reading `/proc/<pid>/environ` or the container's configured environment;
+- record per-name digests next to the combined digest so that a mismatch can say what changed.
+
+## A related operational lesson: SIGKILL never runs the shutdown path
+
+Our launcher stops the engine containers with `docker rm -f`, i.e. SIGKILL. vLLM's `EngineCore.shutdown` (and with it
+every KV connector's `shutdown()`) runs only on a clean exit such as SIGTERM. A connector that writes its persistent
+index "at shutdown" therefore never does so in such a deployment. In our case the resume point confirmed by the engine's
+last step before it went idle was never indexed, and the next start deleted its files as orphans (3 of 4 adopted). The
+connector now writes the index when the engine goes idle, from a 2 s timer, and at shutdown (`docs/design.md` 2.8.3);
+afterwards a production restart adopted 4 of 4. Persistence must not rely on a shutdown hook.

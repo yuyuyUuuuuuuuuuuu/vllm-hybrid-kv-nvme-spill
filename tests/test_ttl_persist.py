@@ -786,8 +786,10 @@ def t_config(spill):
             os.environ.pop("GLM53_NVME_SPILL_" + k)
         os.environ["GLM53_NVME_SPILL_PERSIST"] = "0"
         check("cfg_persist_off", not spill.SpillConfig.from_env().persist)
-        check("knobs_appended", list(spill.KNOBS[-7:]) == ["PERSIST", "HASH_SEED", "INDEX_EVERY_S", "ADOPT_DEADLINE_S",
-                                                           "TTL_SWEEP_S", "TTL_SAVE_POLICY", "TTL_MIN_TOKENS"])
+        # appended in this order (2026-10-14); the finish release appends DEFAULT_TTL_S after them (test_finish.py)
+        check("knobs_appended", list(spill.KNOBS[-8:-1]) == ["PERSIST", "HASH_SEED", "INDEX_EVERY_S", "ADOPT_DEADLINE_S",
+                                                             "TTL_SWEEP_S", "TTL_SAVE_POLICY", "TTL_MIN_TOKENS"]
+              and spill.KNOBS[-1] == "DEFAULT_TTL_S")
     finally:
         for k in [k for k in os.environ if k.startswith("GLM53_NVME_SPILL_")]:
             os.environ.pop(k)

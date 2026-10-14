@@ -106,6 +106,10 @@ class SpillWorld:
         self.scheduler = scheduler
         self.conn = scheduler.connector
         self.sched = self.conn._sched
+        if hasattr(self.sched, "index_timer_enabled"):
+            # [u5 rig] the index timer runs on wall time; the replay runs on a simulated clock: off unless asked
+            # (NVMESPILL_RIG_INDEX_TIMER=1), so a run's on-disk index never depends on how fast the host ran it
+            self.sched.index_timer_enabled = os.environ.get("NVMESPILL_RIG_INDEX_TIMER", "") == "1"
         kvc_s = scheduler.kv_cache_config
         nb = kvc_s.num_blocks
         specs = [g.kv_cache_spec for g in kvc_s.kv_cache_groups]

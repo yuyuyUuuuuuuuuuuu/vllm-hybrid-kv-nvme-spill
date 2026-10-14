@@ -1,0 +1,71 @@
+dg_plain.env on 1 4 fz_m_on_s1 --no-drain
+dg_mx.env on 1 4 fz_mx2_on_s1 --no-drain
+dg_mxo.env on 1 4 fz_mxo_on_s1 --no-drain
+fin_rsp1.env on 1 4 fz_rs_p1_s1 --no-drain
+dg_plain.env on 2 4 fz_m_on_s2 --no-drain
+dg_mx.env on 2 4 fz_mx2_on_s2 --no-drain
+dg_mxo.env on 2 4 fz_mxo_on_s2 --no-drain
+fin_rsp1.env on 2 4 fz_rs_p1_s2 --no-drain
+dg_plain.env on 3 4 fz_m_on_s3 --no-drain
+dg_mx.env on 3 4 fz_mx2_on_s3 --no-drain
+dg_mxo.env on 3 4 fz_mxo_on_s3 --no-drain
+fin_rsp1.env on 3 4 fz_rs_p1_s3 --no-drain
+dg_plain.env on 4 4 fz_m_on_s4 --no-drain
+dg_mx.env on 4 4 fz_mx2_on_s4 --no-drain
+dg_mxo.env on 4 4 fz_mxo_on_s4 --no-drain
+fin_rsp1.env on 4 4 fz_rs_p1_s4 --no-drain
+dg_plain.env on 5 4 fz_m_on_s5 --no-drain
+dg_mx.env on 5 4 fz_mx2_on_s5 --no-drain
+dg_mxo.env on 5 4 fz_mxo_on_s5 --no-drain
+fin_rsp1.env on 5 4 fz_rs_p1_s5 --no-drain
+fin_x.env on 1 4 fz_x_on_s1 --no-drain
+fin_x.env on 2 4 fz_x_on_s2 --no-drain
+dt_nf1800.env on 1 4 dt_nf1800_s1 --no-drain
+dt_nf86400.env on 1 4 dt_nf86400_s1 --no-drain
+dt_nf0.env on 1 4 dt_nf0_s1 --no-drain
+dt_cap0.env on 1 4 dt_cap0_s1 --no-drain
+dt_cap86400.env on 1 4 dt_cap86400_s1 --no-drain
+dt_m86400.env on 1 4 dt_m86400_s1 --no-drain
+dt_nf1800.env on 2 4 dt_nf1800_s2 --no-drain
+dt_nf86400.env on 2 4 dt_nf86400_s2 --no-drain
+dt_nf0.env on 2 4 dt_nf0_s2 --no-drain
+dt_cap0.env on 2 4 dt_cap0_s2 --no-drain
+dt_cap86400.env on 2 4 dt_cap86400_s2 --no-drain
+dt_m86400.env on 2 4 dt_m86400_s2 --no-drain
+strict.env on 2 0.5 ff_c_on_s2
+hw.env on 5 0.5 ff_c_hw_s5
+f_missing.env on 2 0.5 ff_f_missing_s2
+f_crc.env on 3 0.5 ff_f_crc_s3
+f_save.env on 4 0.5 ff_f_save_s4
+a_plain.env on 2 0.5 ff_a_plain_s2
+a_abort.env on 4 0.5 ff_a_abort_s4
+a_crc.env on 3 0.5 ff_a_crc_s3
+n_noload.env on 2 0.5 ff_n_noload_s2
+a_rofs.env on 2 0.5 ff_a_rofs_s2
+a_rofs_os.env on 2 0.5 ff_a_rofs_os_s2
+h_load.env on 2 0.5 ff_h_load_s2
+h_loadlate.env on 2 0.5 ff_h_loadlate_s2
+h_save.env on 2 0.5 ff_h_save_s2
+k_load.env on 2 0.5 ff_k_load_s2
+k_save.env on 2 0.5 ff_k_save_s2
+race.env on 2 0.5 ff_race_new_s2
+pr_clean.env on 2 0.5 ff_pr_clean_s2
+pr_crash.env on 2 0.5 ff_pr_crash_s2
+pr_p0.env on 2 0.5 ff_pr_p0_s2
+pr_corrupt_index.env on 2 0.5 ff_pr_corrupt_index_s2
+pr_truncate_index.env on 2 0.5 ff_pr_truncate_index_s2
+pr_sig_env.env on 2 0.5 ff_pr_sig_env_s2
+pr_rank1_sig.env on 2 0.5 ff_pr_rank1_sig_s2
+pr_missing_file.env on 2 0.5 ff_pr_missing_file_s2
+pr_crc_file.env on 2 0.5 ff_pr_crc_file_s2
+pr_clean.env on 3 0.5 ff_pr_clean_s3
+pr_crash.env on 4 0.5 ff_pr_crash_s4
+hv_r1_s2.env on 2 0.5 ff_hv_r1_s2
+hv_r1_s3.env on 3 0.5 ff_hv_r1_s3
+hv_r1_s4.env on 4 0.5 ff_hv_r1_s4
+hv_r2_s2.env on 2 0.5 ff_hv_r2_s2
+hv_r2_s3.env on 3 0.5 ff_hv_r2_s3
+hv_r2_s4.env on 4 0.5 ff_hv_r2_s4
+hv_r3_s2.env on 2 0.5 ff_hv_r3_s2
+hv_r3_s3.env on 3 0.5 ff_hv_r3_s3
+hv_r3_s4.env on 4 0.5 ff_hv_r3_s4

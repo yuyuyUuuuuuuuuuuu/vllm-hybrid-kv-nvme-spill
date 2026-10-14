@@ -58,12 +58,25 @@ RIG_MODELS_DIR=/path/to/models RIG_PAR=1 tests/rig/run_jobs.sh /tmp/jobs.txt /tm
 file. No weights are read.
 
 - `jobs_*.txt` are the job lists behind `results/`: `jobs_main.txt` / `jobs_faults.txt` (results/fix),
-  `jobs_prune*.txt` (results/prune), `jobs_ttl_*.txt` (results/ttl, results/ttl/final, results/ttl/final_faults).
+  `jobs_prune*.txt` (results/prune), `jobs_ttl_*.txt` (results/ttl, results/ttl/final, results/ttl/final_faults),
+  `jobs_finish_final.txt` (results/finish: `fz_*`, `dt_*`, `ff_*`), `jobs_finish_bf.txt` / `jobs_finish_diag*.txt`
+  (eviction attribution `bf_*`, `dg_*`), `jobs_finish_main.txt` / `jobs_finish_g1.txt` (intermediate connectors: the
+  policy gate alone, results/finish/gate_only; not reproducible with the shipped code), `jobs_u4.txt` (results/u4),
+  `jobs_u5.txt` (results/u5). Results land in `rig-out/`; `tests/aggregate_finish.py`, `tests/compare_u4.py` and
+  `tests/compare_u5.py` take a results directory laid out like `results/` (`finish/`, `u4/`, `u5/` next to `fix/`,
+  `ttl/`).
 - `env/*.env` select the condition: fault injection (`NVMESPILL_FAULT=missing|crc|savefail|rofs|...`), hangs,
   async completion with per-rank latency (`NVMESPILL_ASYNC`, `NVMESPILL_LAT0/1`), branch stress
   (`NVMESPILL_BRANCH`), TTL fields (`NVMESPILL_TTL`), restarts (`NVMESPILL_RESTART_AT`, `_DOWN_S`, `_CRASH`,
-  `_INJECT`), connector knobs (`GLM53_NVME_SPILL_*`).
+  `_INJECT`), an idle-then-stop restart like production's (`NVMESPILL_RESTART_IDLE=1`, `_IDLE_S`, `_IDLE_PROBES`),
+  eviction attribution (`NVMESPILL_DIAG_EVICT=1`, observation only, `sim/diag.py`), connector knobs
+  (`GLM53_NVME_SPILL_*`). The connector's index timer (u5) runs on wall time and is off in the rig unless
+  `NVMESPILL_RIG_INDEX_TIMER=1` (the rig runs on a simulated clock).
 - A 4 h run needs more than 5 GiB of memory; we ran two 8 GiB containers at a time. A 0.5 h run takes 1.5 minutes.
-- Jobs named `*_oldcode*` need a work tree of the initial (pre-fix) connector at `work_old`, which is not shipped.
+- Jobs named `*_oldcode*` need a work tree of the initial (pre-fix) connector at `work_old`, and jobs named `*_u4code*`
+  one of the u4 connector at `work_u4`; neither is shipped.
+- The rig now counts preemptions, re-admissions and re-admissions whose hit shrank (`preemptions`, `readmissions`,
+  `readmit_hit_shrank` in the summary JSON) and checks an admission's hit blocks against that admission's hit (before the
+  finish release a re-admitted request was checked against its previous admission's hit, docs/limitations.md).
 - `../aggregate.py`, `../aggregate_prune.py`, `../aggregate_ttl.py` and `../summarize_faults.py` produce the
   `aggregate*.txt` / `faults_summary.txt` tables from a results directory.

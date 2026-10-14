@@ -1,0 +1,25 @@
+Rig jobs re-run from this tree (0.5 h each, one 8 GiB CPU container at a time), compared field by field with the
+recorded runs in results/u5/ (timing fields and index size excluded, as in tests/compare_u4.py):
+SAME u5_pr_idle_crash_s2: 1010 fields, non-timing differences 0
+SAME u5_pr_idle_clean_s2: 1010 fields, non-timing differences 0
+SAME u5_c_on_s2: 829 fields, non-timing differences 0
+SAME u5_pr_clean_s2: 1043 fields, non-timing differences 0
+ALL SAME
+
+The asynchronous fault run ff_hv_r1_s4 was re-run once from this tree before a final comment-only edit of the connector
+(same syntax tree, same identity part "code"), compared with results/finish/ff_hv_r1_s4.json:
+DIFF ff_hv_r1_s4: 875 fields, non-timing differences 406
+     admissions: 57 -> 58
+     drain_steps: 44360 -> 32428
+     dsh_admissions: 35 -> 36
+     dsh_by_branch.plain.admissions: 35 -> 36
+     dsh_by_branch.plain.falls: 3 -> 4
+     dsh_by_branch.plain.re_read: 3842009 -> 5157116
+     dsh_by_conv.0.falls: 1 -> 0
+     dsh_by_conv.0.re_read: 957359 -> 519599
+     dsh_by_conv.1.re_read: 1991029 -> 1943324
+     dsh_by_conv.2.admissions: 13 -> 14
+Asynchronous runs (NVMESPILL_ASYNC=1) complete in real thread order, so two runs of the same seed differ (compare the
+recorded repetitions ff_hv_r1_s4 / ff_hv_r2_s4 / ff_hv_r3_s4). Its correctness fields match: 0 unfinished, 0 invariant /
+hit_hash / accounting violations, 582/582 blocks free at the end, 0 content mismatches (4,693 blocks verified); this
+re-run had 2 preemptions and 2 re-admissions, none with a smaller hit.

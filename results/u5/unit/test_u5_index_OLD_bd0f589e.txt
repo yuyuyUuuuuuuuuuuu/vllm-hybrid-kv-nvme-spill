@@ -1,0 +1,3 @@
+PASS repro_old_last_rp_missing_from_index_at_idle index before=[4] at kill=[4] confirmed=[4, 5]
+PASS repro_old_sigkill_after_idle_loses_last_rp confirmed=[3, 4] pending_at_idle=False adopted=1 orphans=10 reason=adopted files 9->4
+SUMMARY 2/2 passed (old module: repro checks)

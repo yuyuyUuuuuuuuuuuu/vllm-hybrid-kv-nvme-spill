@@ -35,7 +35,9 @@ Values offered by the reference client:
 | 3 days | 259200 |
 
 A request without the field gets the server defaults, i.e. the behaviour before the contract existed:
-`SAVE_POLICY=repeat`, `MIN_TOKENS=65536`, no TTL, capacity LRU.
+`SAVE_POLICY=repeat`, `MIN_TOKENS=65536`, no TTL, capacity LRU. Since the finish release the operator can give these
+resume points an expiry too (`GLM53_NVME_SPILL_DEFAULT_TTL_S`, sliding, 86400 in our deployment; `docs/design.md` 2.10);
+the contract itself is unchanged.
 
 Never put secrets in the field. `session` is only the client's session id: no message text, keys or paths.
 

@@ -1,0 +1,12 @@
+dt_nf1800.env on 1 4 dt_nf1800_s1 --no-drain
+dt_nf86400.env on 1 4 dt_nf86400_s1 --no-drain
+dt_nf0.env on 1 4 dt_nf0_s1 --no-drain
+dt_cap0.env on 1 4 dt_cap0_s1 --no-drain
+dt_cap86400.env on 1 4 dt_cap86400_s1 --no-drain
+dt_m86400.env on 1 4 dt_m86400_s1 --no-drain
+dt_nf1800.env on 2 4 dt_nf1800_s2 --no-drain
+dt_nf86400.env on 2 4 dt_nf86400_s2 --no-drain
+dt_nf0.env on 2 4 dt_nf0_s2 --no-drain
+dt_cap0.env on 2 4 dt_cap0_s2 --no-drain
+dt_cap86400.env on 2 4 dt_cap86400_s2 --no-drain
+dt_m86400.env on 2 4 dt_m86400_s2 --no-drain

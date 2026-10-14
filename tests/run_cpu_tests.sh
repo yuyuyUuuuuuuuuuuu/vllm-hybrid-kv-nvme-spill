@@ -5,6 +5,8 @@
 # drafter config directories, read-only; only the two tests that build a VllmConfig read them).
 #   usage: RIG_MODELS_DIR=<dir> tests/run_cpu_tests.sh [test ...]     (default: all)
 #   tests: store sched_faults prune ttl_persist hash_stability alloc_conf bench_persist quality_probe
+#          finish u4_env u5_index
+# Container memory: CPU_TEST_MEM (default 4g; u4_env starts two more interpreters that import vLLM: 6g).
 # Logs: <repo>/test-out/<test>.txt; one "SUMMARY"/result line per test on stdout. test_start_sh.sh is separate
 # (host only, needs a launcher kit): tests/test_start_sh.sh <scratch> <kit dir> [<launcher dir>].
 set -uo pipefail
@@ -19,7 +21,8 @@ run() {   # run <name> <hashseed: 0|none> <python args...>
   [ -n "$MODELS" ] && mv=(-v "$MODELS:/mnt/models:ro")
   [ "$hs" = none ] && he=()
   rm -rf "$OUT/scratch/$name"
-  timeout 1800 docker run --rm --network none --memory 4g --memory-swap 4g --cpus 2 -u "$(id -u):$(id -g)" \
+  local mem="${MEM:-${CPU_TEST_MEM:-4g}}"
+  timeout 1800 docker run --rm --network none --memory "$mem" --memory-swap "$mem" --cpus 2 -u "$(id -u):$(id -g)" \
     --name "nvmespill-cpu-$name" --tmpfs /full:size=40m,uid="$(id -u)" \
     -v "$REPO:/w" -w /w -v "$OUT/scratch:/spill" "${mv[@]}" -e HOME=/tmp -e PYTHONDONTWRITEBYTECODE=1 "${he[@]}" \
     -e PYTHONPATH=/w/tests/rig/work -e VLLM_LOGGING_LEVEL=WARNING \
@@ -28,7 +31,7 @@ run() {   # run <name> <hashseed: 0|none> <python args...>
   rm -rf "$OUT/scratch/$name"
   echo "$name rc=$rc $(grep -E '^(SUMMARY|ALLOC)' "$OUT/$name.txt" | tr '\n' ' ')"
 }
-want="${*:-store sched_faults prune ttl_persist hash_stability alloc_conf bench_persist quality_probe}"
+want="${*:-store sched_faults prune ttl_persist hash_stability alloc_conf bench_persist quality_probe finish u4_env u5_index}"
 for t in $want; do
   case "$t" in
     store)          run store 0 tests/test_store.py --dir /spill/store --full-dir /full --device cpu ;;
@@ -38,6 +41,9 @@ for t in $want; do
     hash_stability) run hash_stability none tests/t_hash_stability.py --spill /spill/hash_stability ;;
     alloc_conf)     run alloc_conf 0 tests/t_alloc_conf.py published-tree ;;
     bench_persist)  run bench_persist 0 tests/bench_persist.py --dir /spill/bench_persist --rps 60 --blocks 170 --files 6000 ;;
+    finish)         run finish 0 tests/test_finish.py --dir /spill/finish ;;
+    u4_env)         MEM=6g run u4_env 0 tests/test_u4_env.py --dir /spill/u4_env ;;
+    u5_index)       run u5_index 0 tests/test_u5_index.py --dir /spill/u5_index ;;
     quality_probe)  python3 "$REPO/tests/test_quality_probe.py" > "$OUT/quality_probe.txt" 2>&1
                     echo "quality_probe rc=$? $(grep -E '^SUMMARY' "$OUT/quality_probe.txt")" ;;
     *) echo "unknown test $t" >&2; exit 2 ;;

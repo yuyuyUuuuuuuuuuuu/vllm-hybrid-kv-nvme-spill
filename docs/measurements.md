@@ -11,8 +11,11 @@ Code stages referred to below (see docs/design.md for what each contains):
 | fix release | fixes for the independent review findings B1-B8 (docs/review-findings.md) | e8c218eb… |
 | prune release | superseded-RP pruning (`KEEP_PER_CHAIN`) + capacity-cap LRU fix | d030f132… |
 | TTL+persist first cut | per-session TTL + reuse across restarts | — |
-| final version | epoch handling fixes on top of the first cut; what runs in production | 1762e23f… |
-| published version | final version + a log-format fix (docs/limitations.md) | — |
+| final version | epoch handling fixes on top of the first cut; in production until the finish release | 1762e23f… |
+| published version | final version + a log-format fix (docs/limitations.md); the first publication of this repository | — |
+| finish release | B8 policy gate + NVMe-backed blocks first for restores, `DEFAULT_TTL_S`, identity part "code", the log-format fix | eb2e1084… |
+| u4 | run-time generated environment names excluded from the identity; a wipe reason names what differs | bd0f589e… |
+| u5 | index written when the engine goes idle (+ timer, shutdown); runs in production; this repository's `code/` (comments and docstrings differ, same "code" digest) | 073a2e8c… |
 
 ## 1. Definitions
 
@@ -54,6 +57,9 @@ Unit counts at later stages:
 | fix release | `test_store.py` 19/19 (CPU), 18/18 (GPU); `test_sched_faults.py` 49/49 (the initial version fails the B6 send-order check); `t_alloc_conf.py` (initial tree → ValueError, fixed tree → accepted, NixlConnector still refused); `test_start_sh.sh` 15/15 (23 forwarded names); `test_quality_probe.py` 10/10; a review test (not shipped): initial version = I/O thread dies and the second job is never answered, fix release = thread survives and answers (`results/fix/t_writer_death_old.txt`, `results/fix/t_writer_death_new.txt`); GPU under `expandable_segments`: `test_store.py` 18/18, `t_expandable_gpu.py` 9/9 (`results/fix/unit_final.txt`, `results/fix/gpu_final.txt`) |
 | prune release | `test_prune.py` 74/74; 4 deliberate mutations (no in-use check, reference counts ignored, no branch protection, delete before ok) all detected (`results/prune/test_prune_unit.txt`, `results/prune/mutation_887e80c.txt`); `test_sched_faults.py` 49/49; `test_start_sh.sh` 15/15 (24 forwarded names) |
 | final version | `test_ttl_persist.py` 133/133, `test_sched_faults.py` 49/49, `test_prune.py` 74/74, `test_store.py` 18/18 (CPU) and 18/18 (GPU), `test_quality_probe.py` 13/13, `test_start_sh.sh` 15/15 (31 forwarded names), `t_hash_stability.py` 9/9 (`results/ttl/unit_*.txt`, `results/ttl/t_hash_stability.txt`, `results/ttl/test_store_gpu.txt`) |
+| finish release | `test_finish.py` 66/66 (in development, three deliberate mutations -- gate inverted, "NVMe-backed" always true, default TTL ignored -- were detected by 5 / 6 / 3 FAILs), `test_ttl_persist.py` 133/133, `test_sched_faults.py` 49/49, `test_prune.py` 74/74, `test_store.py` 18/18, `test_quality_probe.py` 22/22, `test_start_sh.sh` 15/15 (32 forwarded names), `t_hash_stability.py` 9/9 (`results/finish/unit/`). No GPU test: the worker's byte path did not change, only scheduler-side Python |
+| u4 | `test_u4_env.py` 52/52, `test_finish.py` 66/66, `test_ttl_persist.py` 133/133, `test_sched_faults.py` 49/49, `test_prune.py` 74/74, `test_store.py` 18/18, `test_start_sh.sh` 15/15, `t_hash_stability.py` 9/9 (`results/u4/unit/`) |
+| u5 | `test_u5_index.py` 25/25 (on the u4 connector with `--old`: 2/2 reproduce the bug), `test_u4_env.py` 52/52, `test_finish.py` 66/66, `test_ttl_persist.py` 133/133, `test_sched_faults.py` 49/49, `test_prune.py` 74/74, `test_store.py` 18/18, `test_start_sh.sh` 15/15, `t_hash_stability.py` 9/9 (`results/u5/unit/SUMMARY.txt`) |
 
 ## 3. The replay rig
 
@@ -347,7 +353,7 @@ checks show 0 mismatches. We read it as the rig's record not following a hit tha
 same pattern as the lost-hit events in our earlier re-read investigation), not as a correctness problem; it is not yet
 fully explained.
 
-## 7. TTL and reuse across restarts (TTL+persist first cut, final version)
+## 7. TTL and reuse across restarts (TTL+persist first cut, final version, finish release, u4, u5)
 
 The 4 h matrices (sections 7.2 and 7.3; `results/ttl/*.json`, `results/ttl/aggregate.txt`) ran on the TTL+persist first
 cut; the same seeds rerun on the final version are in `results/ttl/final/` (section 7.4). Rig: real Scheduler /
@@ -435,7 +441,9 @@ c0: 1h, idle 100 min after its third turn. c1: 1d, DSH auto-compaction at its se
   workload 21.2 restores started per seed, 4.8 admitted, 21.0 pin timeouts), evicting c3's GPU prefix first. The same
   mechanism already affects one-shot requests in the earlier releases (section 5.1 runs: one-shot re-reads OFF 1,065,397
   → ON 1,312,717 = +23%). A ttl 0 conversation joins that "not saved" side and pays the same cost. The fix would be B8
-  (do not restore ahead for a request unlikely to be admitted soon); see docs/limitations.md.
+  (do not restore ahead for a request unlikely to be admitted soon); see docs/limitations.md. **Fixed in the finish
+  release: +2.5% (section 7.9); the "+23%" for one-shot requests turned out to be a count effect (more admissions), per
+  admission it is −1.7%.**
 - Two epoch defects this rig found during development: (1) a newer-epoch request only **waiting in the queue** already
   dropped older-epoch RPs, so an older-epoch request still queued behind it could not restore (c1 +88 to +134%); epochs
   are now recorded at **admission and at save**. (2) Saves of an older epoch were discarded; they are now saved with a
@@ -492,14 +500,103 @@ Start-up cost (`tests/bench_persist.py`, production image; `results/ttl/bench_pe
 |---|---|
 | site-packages digest (separate thread) | cold 4.4 s (one measurement in the production image, raw output not attached) / warm 0.9-1.0 s (`results/ttl/bench_persist*.json`) |
 | Rank start-up scan | 6,000 files 16 ms, 12,000 files 37 ms |
-| Index for 60 RPs / 5,220 files (≈132 GiB/rank) | 2.3 MB; build 4.4 ms per write; read + verify 6 ms; adoption decision 152 ms (once at start-up) |
+| Index for 60 RPs / 5,220 files (≈132 GiB/rank) | 2.3 MB; build 14 ms the first time, 4.4 ms per write after that; read + verify 6 ms; adoption decision 152 ms (once at start-up) |
 | Extreme case 300 RPs / 26,100 files | 11 MB; build 40 ms; adoption 314 ms |
+
+### 7.9 Finish release: B8 fix, `DEFAULT_TTL_S`, fault suite
+
+Source: `results/finish/aggregate.txt` (`tests/aggregate_finish.py`; runs `results/finish/fz_*`, `ff_*`, `dt_*`, `bf_*`,
+`dg_*`, ablation `results/finish/gate_only/fm_*`). OFF and the previous ON (the final version, connector `1762e23f`) are
+the existing runs of the same seeds (`results/fix`, `results/ttl`, `results/ttl/final`). The rig's added observations
+(eviction attribution, preemption counts) do not change behaviour: `dg_mx_off_s1` / `dg_mx_on_s1` equal `ttl/final`
+`mx2_off_s1` / `mx2_on_s1` on every field.
+
+**Acceptance criterion** for the requests that are not saved (one-shot requests and the `ttl_s=0` conversation): not
+worse than OFF, i.e. over the 5 seeds **re-read per admitted request within OFF + 10%** and **collapses within OFF + 1**.
+Per admission, because with the connector more requests are admitted in the 4 hours (more throughput), so totals grow
+with the count (this is how the earlier "+23%" for one-shot requests was a misreading). 10% is about one collapse over
+the 5 seeds: one collapse of the 150k-token `ttl_s=0` conversation ≈ 150k tokens over its 53 admissions ≈ +2.8k per
+admission ≈ +12% of OFF's 23.2k per admission; smaller differences cannot be told apart from seed-to-seed timing.
+
+| 4 h × 5 seeds (`--no-drain`) | OFF | previous ON (final version) | **finish release** | Verdict |
+|---|---|---|---|---|
+| Normal load: DSH re-read / collapses | 6,372,224 / 7.2 | 2,106,460 (−66.9%) / 0 | **2,107,833 (−66.9%) / 0** | kept |
+| Normal load: one-shot requests admitted / re-read per admission | 87 / 61,230 | 109 / 60,216 | **112 / 60,196 (−1.7%)** | pass (total +26.6% from +29% admissions) |
+| TTL mix: `ttl_s=0` conversation (c3) total / per admission / collapses | 245,654 / 23,175 / 1 | 523,321 (+113%) / 46,725 / 9 | **251,743 (+2.5%) / 22,886 (−1.2%) / 1** | **pass** |
+| TTL mix: one-shot re-read per admission | 59,949 | 59,917 | **60,421 (+0.8%)** | pass |
+| TTL mix: all DSH | 3,559,729 | 2,673,731 (−24.9%) | **2,392,179 (−32.8%)** | better |
+| Overloaded TTL mix: c3 total / per admission / collapses | 960,341 / 117,115 / 10 | 1,947,951 (+102.8%) / 221,358 / 25 | **1,255,162 (+30.7%) / 136,431 (+16.5%) / 14** | **fail (improved)** |
+| Overloaded: one-shot re-read per admission | 58,835 | 60,084 | **61,025 (+3.7%)** | pass |
+| Overloaded: all DSH / collapses | 7,785,404 / 51 | 4,668,625 (−40.0%) / 31 | **3,276,702 (−57.9%) / 14** | better |
+| Restart at 2 h (PERSIST=1): DSH re-read after the restart | (PERSIST=0) 2,028,530 | 174,139 (−91.4%) | **173,362 (−91.5%)** | kept |
+| Async + rank latency skew (2 seeds): DSH re-read | — | 2,132,851 / 2,144,981 | **2,142,829 / 2,123,858**, 0 collapses, 0 content mismatches | kept |
+
+(The rows' percentages are as printed by `tests/aggregate_finish.py`; in the overloaded run "OFF" is the TTL+persist
+first cut's OFF arm of the same seeds, `results/ttl/mx_off_s*.json`.)
+
+- Restores started / admitted per seed: normal 20.2 / 8.8 → **9.8 / 9.4**, TTL mix 21.2 / 4.8 → **2.6 / 2.6**, overloaded
+  448.2 / 7.2 → **11.6 / 11.0**; blocks read under overload 8,226 → 836. Restores that are not followed by an admission
+  have almost disappeared. Content checks: 0 mismatches in every run.
+- Ablation (seed 1, `gate_only/` = the policy gate alone): the gate alone takes the TTL mix's c3 from 921,498 to 377,754
+  (OFF 358,219) and its restores from 14 to 3. Taking NVMe-backed blocks first then improves the overloaded run (c3
+  1,697,442 → 1,343,609, DSH 3,735,074 → 3,381,241); normal load and the TTL mix are identical with and without it.
+- Why the overloaded `ttl_s=0` conversation is still worse than OFF: `docs/limitations.md`, "B8 after the fix".
+
+**`DEFAULT_TTL_S` (4 h × 2 seeds):** in a mix without client fields, 0 and 86400 are **identical on every field** (in 4
+hours no resume point stays unused for a day). With an 8 GiB cap, c0 / c3 without fields and c1 1d / c2 3d (12 and 19
+evictions in seeds 1 and 2), 0 and 86400 are again identical on every field (the eviction order is unchanged); the
+normal load with 86400 equals `fz_m_on` (default 0) on every field. With 1800 s, the resume points of c0, idle for 100
+minutes, expire (seed 1: 6, 12.06 GiB; seed 2: 5, 9.49 GiB); c0's turn after the idle period re-reads (444,473 →
+868,409, the same as OFF), while the other conversations are unchanged in seed 1 (−1.3% in seed 2): the expiry works and
+does not push out other classes.
+
+**Fault suite (0.5 h, drained, strict per-step invariants), finish release:** 28 runs + 9 `hit_hash` re-runs (async + CRC,
+seeds 2/3/4, 3 repetitions each), table (6) of the aggregate: 0 unfinished requests, 0 invariant / `hit_hash` /
+accounting violations in every run; pins remain only in `h_load` / `k_load` (5 quarantined blocks by design, a late
+write must not land in a reused block; 17 before, the different block choice changed the number); content mismatches
+only in the negative control `n_noload` (2,121 detected, so the check works); race probe files 2,650/0. The restart
+faults (corrupt / truncated index, env / rank signature mismatch, missing file, CRC, crash, `PERSIST=0`) give the same
+decisions as in section 7.7. Preemptions occurred only in asynchronous runs (4 re-admissions in total, none with a
+smaller hit), see `docs/limitations.md`, "Resolved: the rig's `hit_hash_violations` anomaly".
+
+### 7.10 u4 in the rig
+
+`tests/compare_u4.py` (`results/u4/compare_u4.txt`): the 12 restart-fault jobs re-run with u4 equal the finish-release
+runs of the same jobs on every field except timings and the index size (the per-name breakdown adds about 11.5 KB, e.g.
+387,374 → 398,861 bytes). The env-mismatch job now reports the name:
+`scheduler signature differs: env` → `scheduler signature differs: env [added GLM53_RIG_PATCH_FLAG]`. (In one crash job
+the index writes counted before the crash instant were 9 → 10, a timing difference of the writer thread.) The rig could
+not reproduce the production bug itself: its simulated workers never read `VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME`
+(`tests/test_u4_env.py` reproduces it with two real interpreters instead).
+
+### 7.11 u5 in the rig
+
+`tests/compare_u5.py` (`results/u5/compare_u5.txt`):
+
+- Regression: the same 12 jobs with u5 equal the u4 runs on every field except timings, the index size and the u5 index
+  counters (the rig's drain loop asks `has_pending_push_work`, so u5 also writes the index when the drain ends).
+- Idle-then-stop restart (`pr_idle_*`, 0.5 h: at 15 min arrivals stop, the engine steps until idle, idles 20 s, then two
+  probe-like requests of 81k tokens are run to idle, then the restart; the TTL fields of section 7.3):
+
+| Run | Connector | RPs ok before the stop | In the index at the stop | Adopted | Expired during the downtime | Lost | Orphan files |
+|---|---|---|---|---|---|---|---|
+| `pr_idle_crash_s2` (SIGKILL) | u4 | 8 | 7 | 7 | 0 | **1** | 46 |
+| `pr_idle_crash_s3` | u4 | 8 | 7 | 7 | 0 | **1** | 46 |
+| `pr_idle_crash_s4` | u4 | 8 | 7 | 6 | 1 | **1** | 58 |
+| `pr_idle_crash_s2` | u5 | 8 | 8 | 8 | 0 | 0 | 0 |
+| `pr_idle_crash_s3` | u5 | 8 | 8 | 8 | 0 | 0 | 0 |
+| `pr_idle_crash_s4` | u5 | 8 | 8 | 7 | 1 | 0 | 12 |
+| `pr_idle_clean_s2` (clean stop) | u5 | 8 | 8 | 8 | 0 | 0 | 0 |
+
+"Lost" = ok before the stop − adopted − expired (a resume point whose 1 h TTL ran out during the downtime is dropped by
+the TTL rule, not lost; its files are the 12 orphans of the u5 seed-4 run). With u5 the index was written twice at idle in
+each run; content checks 0 mismatches. The u4 rows ran on the u4 connector (`*_u4code` jobs, work tree not shipped).
 
 ## 8. Production A/B
 
 Deployment: GLM-5.3-Flash on two GB10 nodes with TP=2 (the head node = rank 0, the worker node = rank 1), client DSH.
-Timeline: ON from 2026-10-13 (fix release); prune release later on 2026-10-13; final version from 2026-10-14. The record
-summarized here ends on 2026-10-14.
+Timeline: ON from 2026-10-13 (fix release); prune release later on 2026-10-13; final version from 2026-10-14; finish
+release, u4 and u5 on 2026-10-14 (u5 is what runs now). The record summarized here ends on 2026-10-14.
 
 ### 8.1 Configuration
 
@@ -509,7 +606,8 @@ summarized here ends on 2026-10-14.
 | `GLM53_NVME_SPILL_DIR` | `$SPILL_DIR`, same absolute path on both nodes | the in-container path must match on both ranks |
 | `GLM53_NVME_SPILL_GIB` | 200 per rank | the spill directory shares the root filesystem, so we required `2×(GIB+MIN_FREE_GIB) ≤ free space` on each node |
 | `GLM53_NVME_SPILL_MIN_FREE_GIB` | 150 | leaves room for logs, Docker and the model cache |
-| `GLM53_EXPOSE_CACHE_RESET` | 1 | needed by the quality probe; exposes `/reset_prefix_cache` without the API key (anyone reaching the port can drop every conversation's GPU cache), so it should be turned off after probing |
+| `GLM53_EXPOSE_CACHE_RESET` | 1 until the finish release, then removed (off) | needed by the in-process quality probe; exposes `/reset_prefix_cache` without the API key (anyone reaching the port can drop every conversation's GPU cache). Closed with the finish release; the probe across a restart does not need it |
+| `GLM53_NVME_SPILL_DEFAULT_TTL_S` | 86400 (from the finish release) | resume points of requests without the client field expire after a day unused (`docs/design.md` 2.10) |
 | other knobs | defaults | `MIN_TOKENS=65536 MIN_GAIN=16384 SAVE_POLICY=repeat PIN_TIMEOUT_S=5 SAVE_DEADLINE_S=120 LOAD_DEADLINE_S=30 BREAKER_FAILS=6` etc. (docs/operations.md) |
 
 Both arms keep the launcher's allocator setting (`expandable_segments:True`); only this connector is exempted from
@@ -582,28 +680,63 @@ multi-request windows to compare; a comparison needs at least a day of real traf
 - A cosmetic defect in the final version: the rank's `dir=` start-up line formats `wiped=%d` with the string `deferred`,
   so Python logging drops that line. Behavior is unaffected; fixed in the published version (docs/limitations.md). We did
   not redeploy for it, because changing the connector bytes changes the persist signature and the next restart would
-  wipe instead of demonstrating adoption.
+  wipe instead of demonstrating adoption. (The fix went into production with the finish release.)
 - **TTL arrival confirmed (2026-10-14):** the first save after the client started sending the field landed in the 1d
   class (`ttl_rps=0/0/1/0/0 ttl_gib=0.00/0.00/1.54/...`; the client's default is 86400 s = 1d), 1.54 GiB/rank (du 1.6G on
   both nodes), and `index.json` (29 KB) was written. `write_failed=0`, breaker closed.
+- **First restores on real traffic (2026-10-14, final version):** at one check `restores_ok=2 failed=0 fallback=0`,
+  `saves_ok=40 failed=0`, 11 resume points, disk 8.04 GiB/rank; at a later check `restores_ok=7 failed=0`,
+  `saves_ok=84 failed=0`, 12 resume points, disk 8.65 GiB/rank, `ttl_rps=2/0/10/0/0`; no alert, breaker closed.
 
 ### 8.5 Restart frequency
 
 In our deployment a restart typically happens every 2-3 days, and many times a day while the serving stack itself is being
 changed. The loss per restart without reuse ≈ the first re-read of 2-3 long DSH conversations (1.5-2.0 M tokens in total ≈ 12-17
-min of generation stall). Two further restarts during the A/B installed the prune release and the final version.
+min of generation stall). Further restarts during the A/B installed the prune release, the final version, the finish
+release, u4 and u5, plus one test restart per version for section 8.6.
 
-### 8.6 Not yet measured in production (as of 2026-10-14, the record's last entry)
+### 8.6 Reuse across production restarts (finish release, u4, u5; 2026-10-14)
 
-- **Adoption across a restart.** No restart had happened since the final version was installed; that install's first
-  start wiped by design (no index). The second restart, checked with `EXPECT_ADOPT=1` (docs/operations.md), will show
-  whether the site-packages and environment digests are stable in the real containers.
-- The quality probe across a restart (`--phase prepare` / `--phase restart`).
-- Pruning on real traffic: the record contains no prune event yet (long conversations were rare after the prune release
-  was installed).
+**Production, not the rig.** Two nodes, TP=2, the deployment of section 8.1. Each new version's first start wipes once
+by design (its code differs); the following restart shows whether adoption works. Between the two restarts the quality
+probe's prepare phase saved resume points of an 81k-token conversation (`--phase prepare --runs 4`, 4 salts), with the
+server otherwise idle. Restarts were done with our launcher's stop / start (`docker rm -f`, i.e. SIGKILL, then start).
+
+| Start | Connector | `persist:` decision (log) | Files deleted |
+|---|---|---|---|
+| first start of the finish release | eb2e1084 | `wipe every rank (scheduler signature differs: code,env,site,version)` (expected: code and environment changed) | rank 0: 356 |
+| second start of the finish release | eb2e1084 | **`wipe every rank (rank signature differs (rank 0: env; rank 1: env))`** although nothing changed; the scheduler signature matched. Cause: `VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME` (`docs/design.md` 2.8.2) | rank 0: 165 |
+| first start of u4 | bd0f589e | `wipe every rank (scheduler signature differs: code, version)` (expected) | — |
+| second start of u4 | bd0f589e | **`adopted 3 resume points (69 files, 1.60 GiB/rank) from the previous run; dropped 0 expired + 0 incomplete; orphan files deleted per rank {0: 23, 1: 23}; decision 4.95 s after the first step`** -- the first adoption across a production restart. The 4th resume point (the last one saved before the idle stop) was not in the index; its files were the orphans (`docs/design.md` 2.8.3) | 23 per rank |
+| first start of u5 | 073a2e8c | `wipe` (code, version; expected) | — |
+| second start of u5 | 073a2e8c | before the stop: `persist: index written (idle: 4 resume points, 92 files, ...)`; after: **`adopted 4 resume points (92 files, 2.14 GiB/rank) from the previous run; dropped 0 expired + 0 incomplete; orphan files deleted per rank {}; decision 2.10 s after the first step`** | none |
+
+Our operator start-up check expecting adoption passed after the second start of u4 and of u5 (for u5 also the check
+that every saved resume point was in the index). After the finish release was installed the scheduler line showed
+`policy_gate=1 default_ttl_s=86400`, and `/reset_prefix_cache` answered 404 (the unauthenticated endpoint is closed).
+
+**Quality probe across the restart** (`code/spill_quality_probe.py --phase restart`, 4 runs, the 81k-token conversation;
+R = restored from the adopted files, H = GPU hit, F1 / F2 = full prefill; the verdict is on the 4-run means):
+
+| Version | Restore proven | R−H per run (full prefill F1−H) | Mean KL R/F1 | H/F1 | F2/F1 | Mean acceptance R / H | Verdict |
+|---|---|---|---|---|---|---|---|
+| u4 | 3 of 4 (the 4th run: `cached_tokens=0`, its resume point lost to the index gap) | 0.81 / 0.45 / −0.13 s for the 3 restored runs (25.7 / 24.3 / 23.5 s) | 0.0014 | 0.0025 | 0.0039 | 0.419 / 0.447 | restore FAIL (3/4), kl PASS, acceptance PASS |
+| **u5** | **4 of 4** | −0.14 / 1.02 / 0.55 / −1.46 s (25.2 / 26.6 / 26.5 / 23.8 s) | **0.0038** | 0.0069 | 0.0042 | **0.448 / 0.414** | **restore PASS (4/4), kl PASS, acceptance PASS** |
+
+A restored 81k-token prefix came back in about the time of a GPU hit (R−H between −1.46 and +1.02 s) instead of the 24-27
+s of a full prefill, and its output fell in the band of the GPU hit and of a second full prefill.
+
+### 8.7 Not yet measured in production (as of the record's last entry, 2026-10-14)
+
+- Adoption of real conversations' resume points across a restart, checked on its own (section 8.6 used the probe's
+  resume points).
+- Pruning on real traffic: the record contains no explicit prune event. Disk stayed at 8.04 → 8.65 GiB/rank while saves
+  went from 40 to 84 (section 8.4), which is consistent with pruning but not a direct observation.
+- The B8 counters (`restores_started` / `restores_admitted`) over a long period. With `GLM53_MIXED_PREFILL_CHUNK=0` the
+  policy gate cannot fire (`docs/design.md` 2.9).
 - The real-traffic ON values of the yardsticks in section 8.3 (stall share, ≥ 100k ingests, decode tok/s by
-  concurrency), and restore counts, durations and failures over a long period.
-- Real-traffic effect of `TTL_SAVE_POLICY=all` and of ttl 0 (section 7.5).
+  concurrency; the few hours recorded so far give partial values with too few windows to compare, section 8.3), and restore counts, durations and failures over a long period.
+- Real-traffic effect of `TTL_SAVE_POLICY=all`, of ttl 0 and of `DEFAULT_TTL_S`.
 
 ## 9. NVMe capacity and write volume
 

@@ -1,0 +1,2 @@
+dg_mx.env on 1 4 g1_mx_on_s1 --no-drain
+dg_plain.env on 1 4 g1_m_on_s1 --no-drain

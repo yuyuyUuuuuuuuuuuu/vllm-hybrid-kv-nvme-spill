@@ -89,5 +89,46 @@ try:
     check("restart_without_state_refused", False)
 except SystemExit:
     check("restart_without_state_refused", True)
+# --- several runs (2026-10-14 finish): prepare N salts, restart measures each, averaged verdict
+calls.clear()
+st3 = os.path.join(tempfile.mkdtemp(), "st3.json")
+sys.argv = ["p", "--phase", "prepare", "--state", st3, "--ctx", "100", "--q1", "20", "--q2", "5", "--settle", "0",
+            "--runs", "3"]
+rc = q.main()
+s3 = _json.load(open(st3))
+check("prepare_runs3_writes_3_tags_6_requests", rc == 0 and len(s3["tags"]) == 3 and len(set(s3["tags"])) == 3
+      and len(calls) == 6 and [c[2] for c in calls] == [t + "-S" for t in s3["tags"] for _ in (0, 1)] and not resets,
+      f"{s3['tags']}")
+calls.clear()
+sys.argv = ["p", "--phase", "restart", "--state", st3, "--log-cmd", "true {since} {until}"]
+rc = q.main()
+rs = [c[2] for c in calls if c[1] == 512 and c[2].endswith("-S")]
+check("restart_runs3_measures_every_tag_no_reset", not resets and rs == [t + "-S" for t in s3["tags"] for _ in (0, 1)],
+      f"{rs}")
+check("restart_runs3_fails_without_restore_evidence", rc == 1)
+sys.argv = ["p", "--phase", "both", "--runs", "2"]
+try:
+    q.main()
+    check("runs_with_phase_both_refused", False)
+except SystemExit:
+    check("runs_with_phase_both_refused", True)
+
+
+def run(kl_r, kl_h, kl_f2, ok=True, acc_r=0.7, acc_h=0.7):
+    return {"tag": "t", "ok_restore": ok, "why": "w",
+            "cmp": {"R": {"kl": kl_r}, "H": {"kl": kl_h}, "F2": {"kl": kl_f2}},
+            "res": {"R": {"acc": acc_r}, "H": {"acc": acc_h}}}
+
+
+v = q.aggregate_verdict([run(0.02, 0.01, 0.02), run(0.05, 0.02, 0.03), run(0.01, 0.02, 0.02), run(0.02, 0.01, 0.01)])
+check("aggregate_one_noisy_run_mean_in_band_passes", v[0] and v[2] and v[3], v[4])
+v = q.aggregate_verdict([run(0.05, 0.01, 0.01)] * 4)
+check("aggregate_mean_above_band_fails", v[0] and not v[2], v[4])
+v = q.aggregate_verdict([run(0.01, 0.01, 0.01), run(0.01, 0.01, 0.01, ok=False)])
+check("aggregate_one_unproven_restore_fails", not v[0], v[1])
+v = q.aggregate_verdict([run(0.01, 0.01, 0.01, acc_r=0.60, acc_h=0.70)] * 4)
+check("aggregate_acceptance_drop_fails", not v[3], v[4])
+v = q.aggregate_verdict([run(0.01, 0.01, 0.01, acc_r=float("nan"), acc_h=0.7), run(0.01, 0.01, 0.01, acc_r=0.69)])
+check("aggregate_nan_acceptance_ignored", v[3], v[4])
 print(f"SUMMARY {sum(R)}/{len(R)} passed")
 sys.exit(0 if all(R) else 1)

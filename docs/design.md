@@ -82,6 +82,26 @@ puts them back when the next turn arrives.
   with a restart in the middle, DSH re-reads after the restart went from 2,028,530 to 174,139 (-91%; first turn of each
   conversation after the restart 1,903,966 -> 24,823), collapses 3 -> 0, bytes written -41%. Without a restart the
   4 h x 5 seed result stays at -66.9% with 0 collapses. (`results/ttl/aggregate.txt`, `results/ttl/final/`.)
+* Finish release, u4 and u5 (2026-10-14; this repository's `code/` is u5, the version running in production):
+  * **B8 fixed** (section 2.9): no restore is started in a step in which the scheduler's decode-floor policy skips the
+    request anyway, and a restore takes its fresh blocks from cached blocks whose bytes are on NVMe before blocks that
+    exist only in GPU memory. In the rig's TTL mix the conversation sent with `ttl_s=0` went from +113% re-read vs OFF
+    to +2.5% (-1.2% per admission); DSH -66.9% with 0 collapses and -91.5% after a restart are kept
+    (`results/finish/aggregate.txt`). Under overload the `ttl_s=0` conversation is still +30.7% (+16.5% per
+    admission), see `docs/limitations.md`.
+  * `DEFAULT_TTL_S` (section 2.10): resume points of requests without the client field can expire too.
+  * The identity's "code" part is the connector's syntax tree without docstrings (section 2.8.1), so a comment-only
+    change no longer wipes the files at the next start.
+  * **u4** (section 2.8.2): vLLM writes a random `VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME` into each process's environment
+    on first read, so the worker's environment digest changed at every start and **every production restart wiped**
+    the tier. The name is excluded (exact match), and a mismatch now names the variables that differ.
+  * **u5** (section 2.8.3): the index is also written when the engine goes idle (plus a 2 s safety timer and a
+    synchronous write at shutdown). Our production stop is `docker rm -f` (SIGKILL), so the connector's shutdown hook
+    never ran and the resume point confirmed by the engine's last step before an idle stop was never indexed.
+  * **Production:** with u5 a restart adopted all 4 saved resume points (92 files, 2.14 GiB/rank, 0 orphan files),
+    and the quality probe across that restart proved the restore in 4/4 runs with KL and acceptance PASS
+    (`docs/measurements.md` 8.6). With u4 the same procedure adopted 3 of 4 (the 4th was lost to the index gap that
+    u5 closes).
 
 ## 1. Why not vLLM's OffloadingConnector
 
@@ -228,7 +248,7 @@ construction).
   field**: `ttl_s` must be a real int in 0..7 days, `session` a str of 1-64 characters, `epoch` an int >= 0 (bool,
   float, string or out-of-range values are **ignored for that field only**; no exception is raised and a request is
   never failed). Requests without the field (other clients) get the default = previous behaviour (no TTL, capacity
-  LRU).
+  LRU), or, since the finish release, the optional server default `DEFAULT_TTL_S` (section 2.10).
 * An RP holds `ttl_s`, `last_used` (wall clock, persisted in the index), `session` and `epoch`. **Sliding**: the first
   lookup of a request that extends the RP, the start of a restore, and a repeated save of the same RP set `last_used`
   to now. A request with an explicit `ttl_s>0` updates the RP's `ttl_s` to its own value (changing 1 day to 3 days
@@ -262,7 +282,8 @@ construction).
   requests of child sessions (which inherit the TTL and send their own session).
 * Appended to the end of the stats line: `expired=` `epoch_dropped=` `ttl0_skipped=` `ttl_rps=none/1h/1d/3d/exp`
   (counts) `ttl_gib=...` (GiB of files referenced by each class) `ttl_classes=` `persist=` `adopted=` `adopted_gib=`
-  `index_age_s=`. The order of the existing fields is unchanged (monitoring reads `key=value`).
+  `index_age_s=`, and since the finish release `restores_started=` `restores_admitted=` `restores_deferred_policy=`
+  (section 2.9). The order of the existing fields is unchanged (monitoring reads `key=value`).
 
 ### 2.8 Reuse across restarts (final version, `PERSIST`, default 1)
 
@@ -284,7 +305,8 @@ previous behaviour). The `NONE_HASH` digest is part of the signature. The detail
   Written to `.tmp`, fsync, rename, directory fsync (on a separate thread, every `INDEX_EVERY_S` = 5 s and only when
   something changed; immediately for ttl 0, the breaker and the start-up decision). Written synchronously on a clean
   shutdown (`EngineCore.shutdown` -> `connector.shutdown`). After a crash the last index remains (see "stale index"
-  below).
+  below). **Since u5 it is also written at once when the engine goes idle** (section 2.8.3): a stop by SIGKILL
+  (`docker rm -f`) never runs the shutdown hook, so persistence must not rely on it.
 * The id of the save that wrote a file (`<boot>-<job>`) is put into the file header (JSON key `w`) and passed to the
   load job as the expected value. On mismatch the load fails, the RPs that use that file are dropped, and the request
   takes the normal prefill. This prevents **mixing KV from two different computations across ranks**, for example when
@@ -309,12 +331,14 @@ previous behaviour). The `NONE_HASH` digest is part of the signature. The detail
   mamba_ssm_cache_dtype / prefix_caching_hash_algo / prefix_match_unit, speculative method / model / number of tokens,
   TP / PP / world); KV layout (page bytes and sharing layers of each tensor, spec repr and layer names of each group),
   file bytes per group, hash_block_size; **the content of every `*.py` and the size of every `.so` in site-packages**
-  (the image's vLLM + every overlay patch applied at start-up + this connector itself; 27,914 files on the production
-  image, 4.4 s cold / 0.4-1.0 s warm, on a separate thread); the model and drafter directories (name, size and mtime of
-  every file, content for files of 1 MiB or less); part of the environment (a digest of names and values of
-  `GLM53_` / `EXL3_` / `TF_` / `VLLM_` / `DFLASH` / `MTP_` / `SPEC_` / `KV_CACHE` / `QUANTIZATION` / `PREFIX_MATCH` /
-  ... variables, excluding keys, tokens, passwords, logging, ports, hosts/IPs and this connector's own knobs); the
-  `NONE_HASH` digest and the hash function name. A rank's signature adds its rank number, row layout and header
+  (the image's vLLM + every overlay patch applied at start-up; 27,914 files on the production image, 4.4 s cold /
+  0.4-1.0 s warm, on a separate thread; since the finish release this connector's own file is counted by name only and
+  covered by the part "code" = its syntax tree without docstrings, section 2.8.1); the model and drafter directories
+  (name, size and mtime of every file, content for files of 1 MiB or less); part of the environment (a digest of names
+  and values of `GLM53_` / `EXL3_` / `TF_` / `VLLM_` / `DFLASH` / `MTP_` / `SPEC_` / `KV_CACHE` / `QUANTIZATION` /
+  `PREFIX_MATCH` / ... variables, excluding keys, tokens, passwords, logging, ports, hosts/IPs, this connector's own
+  knobs and, since u4, the run-time generated names of section 2.8.2); the `NONE_HASH` digest and the hash function
+  name. A rank's signature adds its rank number, row layout and header
   signature (each rank compares with its own previous value). The number of blocks in the KV pool is not included
   (a file holds only the page rows of one block, so it stays valid when the pool grows or shrinks by a few blocks; the
   header signature is likewise built from page bytes).
@@ -325,6 +349,187 @@ previous behaviour). The `NONE_HASH` digest is part of the signature. The detail
 * When the breaker opens, the index is rewritten empty (the next start adopts nothing and deletes every file as an
   orphan). `PERSIST=0` = previous behaviour (each rank deletes all its files at start-up, the index is neither read
   nor written, `PYTHONHASHSEED` is not touched).
+
+#### 2.8.1 The identity's "code" part (finish release)
+
+Before the finish release the site-packages digest hashed every `.py` byte for byte, so a one-character comment fix of
+the connector wiped the NVMe tier at the next start. Comments, docstrings, blank lines and line breaks never reach the
+bytecode, and the connector does not read its own `__doc__` (nor does anything else), so versions that differ only in
+those behave identically. The connector's own file is therefore counted by name in the site digest, and a separate
+part "code" holds the sha256 of the module's syntax tree with every module / class / function docstring removed,
+dumped without positions (`_code_digest`). Any change of an executable token (a name, a constant -- log format
+strings included --, an operator, a default, an import, an annotation) changes "code" and wipes, as before. Every other
+`.py` in site-packages stays byte-strict (a comment change in another file still wipes).
+
+`tests/test_finish.py`: 5 edits of comments, docstrings, blank lines and line breaks leave "code" unchanged; 7 kinds
+of edit change it (log format, constant, name, operator, default, how a key is built, a string that is not
+a docstring); with a fake site-packages only the connector is left to "code" and every other file stays strict.
+
+The environment digest still covers every `GLM53_` etc. variable except secrets, logging, ports and this connector's own
+knobs, so toggling an unrelated `GLM53_` variable (for example `GLM53_EXPOSE_CACHE_RESET`) also wipes (kept on the strict
+side). This repository's `code/glm53_nvme_spill_connector.py` differs from the production u5 file only in comments and
+docstrings, so its "code" digest is the same as production's (`results/provenance_connector.txt`).
+
+#### 2.8.2 Run-time generated environment values; naming what differs (u4)
+
+**Production symptom (2026-10-14):** the second restart after installing the finish release changed nothing, yet the
+log said `persist: wipe every rank (rank signature differs (rank 0: env; rank 1: env))` (the scheduler's signature
+matched).
+
+**Cause:** vLLM's `envs.py` defines `VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME` with
+`get_env_or_set_default(..., lambda: f"VLLM_OBJECT_STORAGE_SHM_BUFFER_{uuid.uuid4().hex}")`: **the first read writes a
+random value into `os.environ`.** `enable_envs_cache()` (at the end of `EngineCore.__init__` and of `WorkerProc.__init__`)
+reads every vLLM variable, so every process has a different value at every start, and an environment digest that covers
+all `VLLM_` variables changes every time. `/proc/<pid>/environ` of the worker shows only the environment at exec time,
+so the value is invisible from outside. The scheduler side matched only because its signature (computed on a separate
+thread) happened to finish before `enable_envs_cache()` ran (a race). Our CPU rig did not reproduce it, because its
+simulated workers never read the variable. Proof: `tests/test_u4_env.py` part `fresh`: two fresh interpreters each run
+`enable_envs_cache()`; with the finish-release connector the environment digests differ, with u4 they are equal; a
+control that does not call `enable_envs_cache()` gives the same value for both versions.
+
+**Fix:** the names in `_ENV_VOLATILE` are excluded **by exact name**; every other variable under the prefixes stays
+strict (similar names such as `VLLM_OBJECT_STORAGE_SHM_BUFFER_NAMEX` too; unit-tested). The excluded names:
+
+* `VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME` (above; it names the shared-memory segment of the multimodal processor cache and
+  has nothing to do with the KV cache);
+* `VLLM_DIST_IDENT` (`v1/worker/cpu_worker.py` writes the distributed-init file name / port at every start; CPU workers
+  only, so not in production, listed for the CPU rigs).
+
+Audit: a static scan of the production vLLM tree, the overlays and the image's site-packages for run-time writes into
+`os.environ` of names under the prefixes. All other writes are constants or deterministic configuration values (for
+example `VLLM_WORKER_MULTIPROC_METHOD=spawn`, `VLLM_ENABLE_V1_MULTIPROCESSING=0`); `_VLLM_INTERNAL_*` names start with `_`
+and do not match the prefixes; Ray / XPU / ROCm / benchmark-only paths do not run here. Dynamically, two fresh
+interpreters import the modules a scheduler and a worker import, run `enable_envs_cache()` and compare the prefixed
+variables: the only name whose value differs between the two processes is `VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME`
+(`test_u4_env.py` part `audit`).
+
+**Diagnostics:** each identity part now carries a breakdown "name -> first 8 hex digits of the value's sha256" (the
+environment variable names, each config field, python / torch / vllm, each model and drafter file, the top-level
+entries of site-packages (vllm to its second level), each layout tensor and group). **Values are never stored**, and
+the environment breakdown holds the same names as the digest, so variables with secret-like names are not in it
+either. The scheduler stores its own breakdown and each rank sends its own in the start-up report; the index keeps them
+as `sched_detail` / `rank_detail`. They are **not used for the decision** and are not signed. A wipe reason now names
+what differs, for example `scheduler signature differs: env [changed VLLM_X / added GLM53_Y / removed EXL3_Z]` or
+`rank signature differs (rank 1: env [added VLLM_U4_RANK_FLAG])`; an index without a breakdown (written by an older
+version) gives `env [no per-name record in the index]`. Size: about 10 KB per process on the production image (312
+site groups). The index format and `INDEX_VERSION` are unchanged (readers ignore the new keys). Installing u4 changes the
+code, so its first start wipes once (`scheduler signature differs: code, version`); adoption works from the next restart.
+
+**General lesson for vLLM users:** any identity, cache key or fingerprint derived from a vLLM process's environment must
+exclude `VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME` (and any other value a process generates for itself), and must not be
+validated by reading `/proc/<pid>/environ`, which does not show such values.
+
+#### 2.8.3 Writing the index before the engine goes idle (u5)
+
+**Production symptom (2026-10-14):** the quality probe's prepare phase saved 4 resume points; the last index write came
+4 s before the 4th save, the engine then went idle, and the stop (`docker rm -f`) came 30 s after that save. The next
+start logged `adopted 3 resume points ... orphan files deleted per rank {0: 23, 1: 23}`, and the probe's 4th run found
+no restore (`cached_tokens=0`).
+
+**Cause (from the code):** (1) the index was written only from `build_meta` (the start of an engine step), throttled to
+`INDEX_EVERY_S`. The rank answers that confirmed the 4th resume point were processed in the last step's
+`update_connector_output`; once `has_pending()` returns False, EngineCore blocks in `input_queue.get(block=True)`
+(`while not self.has_work()` in `core.py`), and the next `build_meta` only comes with the next request. (2) The clean
+shutdown write (`Scheduler.shutdown` -> `connector.shutdown` -> forced index write) runs on SIGTERM (signal handler ->
+`_handle_shutdown` -> the `finally` of `run_engine_core` -> `EngineCore.shutdown`), but our launcher stops containers
+with `docker rm -f` (SIGKILL), so **it had never run**. The newest resume point (the latest turn of the conversation
+that was active right before a restart, i.e. the most valuable one) was missing from the index, and its files were
+deleted as orphans at the next start.
+
+**Fix:**
+
+* When `has_pending()` returns False (nothing left for the workers; vLLM's `Scheduler.has_requests()` asks right before
+  the engine blocks idle, and again before exiting on SIGTERM), a changed index is written **at once, without
+  throttling** (`_flush_index("idle")`, handed to the existing writer thread: `.tmp` -> fsync -> rename -> directory
+  fsync as before). While a save is in flight `has_pending()` is True, so only resume points confirmed by every rank are
+  ever indexed (unchanged rule). Exceptions never reach vLLM (a warning and `index_write_failed`; retried at the next
+  opportunity).
+* Safety net: a timer thread on the scheduler side (0.5 s tick) writes a changed index when the engine has made no
+  connector call (`build_meta` / answers) for `INDEX_IDLE_S` = 2 s (an engine whose idle path does not ask
+  `has_pending`, or one long step). Every scheduler-side entry point (`get_num_new_matched_tokens`,
+  `update_state_after_alloc`, `build_connector_meta`, `update_connector_output`, `request_finished(_all_groups)`,
+  `has_pending_push_work`, bind) holds `SpillScheduler.lock` (an RLock), so the timer only sees consistent state between
+  two calls. The CPU replay rig runs on a simulated clock, so the timer is off there (`NVMESPILL_RIG_INDEX_TIMER=1`
+  turns it on).
+* Clean shutdown: the timer is stopped (joined outside the lock), then the last index is written synchronously under the
+  lock. EngineCore only gets there after `has_work()` turned False (no save in flight), so on SIGTERM every answer has
+  been processed.
+* Each idle / timer / shutdown write logs one line after the rename:
+  `persist: index written (idle: N resume points, M files, B bytes on disk)`.
+* No new knob (`KNOBS` unchanged, so the launcher patch is unchanged); index format and adoption rules unchanged.
+
+**Tests:** `tests/test_u5_index.py` 25/25; run against the u4 connector with `--old` it reproduces the bug 2/2 (the
+resume point confirmed by the last step is missing from the index after the idle period; with two real ranks and a
+SIGKILL restart: 1 adopted, 10 orphans). Rig `pr_idle_*` (`NVMESPILL_RESTART_IDLE=1`: arrivals stop, the engine steps
+while `has_requests()` exactly as EngineCore does, idles 20 s, then two probe-like requests of 81k tokens with
+`max_tokens` 1, then SIGKILL): with u4 all 3 seeds lose one resume point (46-58 orphan files); with u5 the 3 seeds plus
+a clean-stop variant lose none (`results/u5/compare_u5.txt`, `tests/compare_u5.py`).
+
+**Operational lesson:** a container stopped with SIGKILL never runs `connector.shutdown()` (nor any other shutdown
+hook), so anything that must survive a restart has to be persisted before the stop, not by the shutdown path.
+
+### 2.9 No restore ahead of a request the scheduler will not admit (B8, finish release)
+
+* Problem (review finding B8): a restore starts when the scheduler's waiting-queue loop asks the connector, but right
+  after that the decode-floor policy of our launcher (`[glm53-decode-floor:v5]`) may skip the request (skip mode: no
+  prefill is admitted while other requests decode; fair mode: it is not this request's prefill turn in this step). For
+  the skipped request `get_new_blocks` evicted other requests' cached blocks, after 5 s (`PIN_TIMEOUT_S`) the MLA pins
+  were released, the blocks were evicted while waiting, and the restore was read again -- repeatedly (rig seed 4: 52
+  restores for 9 admissions). A conversation that is not on NVMe (`ttl_s=0`) relies on the GPU cache alone, so its
+  prefix was evicted and it did worse than OFF (+113%, `docs/measurements.md` 7.5).
+* Fix 1 (policy gate): right before starting a restore, `get_num_new_matched_tokens` calls
+  `_policy_skips(request, rp.n_tokens)` and returns `None` **only when it is certain** that the policy skips this request
+  in this step (the same outcome as the policy's own skip: the request just moves to the skipped-waiting list). The
+  policy state is only read (the module variable `_GLM53_MIXED` of `vllm/v1/core/sched/scheduler.py`, the per-step
+  record opened by `begin_step` at the top of `schedule()`): skip mode = "a request was decoding at the start of the
+  step" (`had_decode`; conservative by one step only when the only decoding request is preempted in this step), fair
+  mode = "a contention step and this request has no grant and is not selected", off / cap mode = never. **Our production
+  runs with `GLM53_MIXED_PREFILL_CHUNK=0` = off, so the gate never fires there and production behaviour is unchanged.**
+  Anything unexpected (no module, a missing attribute, an exception) -> False = restore as before. Not an operator knob;
+  tests use `SpillConfig.policy_gate` / `NVMESPILL_TEST_NO_POLICY_GATE`.
+* Fix 2 (**a restore takes NVMe-backed blocks first**, `_take_blocks`): `get_new_blocks` takes from the head of the free
+  queue (never used, then LRU), so a restore pushed out prefixes that exist only in GPU memory (a `ttl_s=0`
+  conversation, a one-shot request, a prefix not yet written). Fresh blocks for a restore are now taken (1) from free
+  blocks that never had a key, (2) from cached free blocks **whose bytes are in an ok file on this tier** (the primary
+  key names the file), in LRU order, (3) from the rest in plain LRU order if still short. A backed block evicted this
+  way costs one read on a later hit, not a recompute. The mechanics equal `get_new_blocks` (removed from the queue, keys
+  dropped, ref_cnt 0 -> 1), tested on the real `BlockPool` (`test_finish.py`). This applies to restores only; the
+  normal allocation order (`allocate_slots`) stays vLLM's (making it NVMe-first globally would need a `BlockPool`
+  change, not done). Not an operator knob (`NVMESPILL_TEST_NO_BACKED_FIRST` for tests).
+* Stats line: `restores_started=` `restores_admitted=` `restores_deferred_policy=` appended (our monitor raises a WATCH
+  when started minus admitted grows by more than 3 in 10 minutes).
+* Correctness: `test_finish.py` drives the real policy class with 4,000 random states: whenever the gate says "skip", the
+  policy returns 0 (sound); in skip mode they agree exactly; in mode 0 and cap mode the gate never fires. Rig results:
+  `docs/measurements.md` 7.9.
+* Rig versus production (**important**): the rig does not set `GLM53_MIXED_PREFILL_CHUNK`, so it runs the default skip
+  mode (inherited from the rig of our earlier re-read investigation), while production uses 0 (off). The amplification of
+  B8 (restores repeated for a request that is not admitted) comes from skip mode's "no prefill while decoding"; with off,
+  only block shortage and the token budget can delay admission after a restore. The rig cannot produce mode-0 numbers:
+  with mode 0 the OFF arm's queue overflows to 438 requests (the rig's time model is not calibrated for mode 0) and the ON
+  arm stops on a rig-specific assertion (`results/finish/dg_mx0_off_s1.json`). In production the B8 counters
+  (`restores_started` versus `restores_admitted`) are the check.
+
+### 2.10 Expiry for resume points of requests without the client field (`DEFAULT_TTL_S`, finish release)
+
+* Resume points of requests without `kv_transfer_params.glm53_spill` (batch jobs, headless clients: the "no TTL" class)
+  used to expire only at the capacity cap (first after expired ones) or at a restart. With
+  `GLM53_NVME_SPILL_DEFAULT_TTL_S` (seconds, 0-7 days; empty / 0 = no expiry, as before) they expire like an explicit TTL,
+  **this long after their last use** (sliding: the first lookup of a request that extends the RP, the start of a
+  restore, and a repeated save of the same RP extend it). Expired RPs are not used for restores, are deleted by the
+  cleanup (`TTL_SWEEP_S`) and are dropped at adoption after a restart.
+* Unchanged: (a) the **save policy** (still `SAVE_POLICY=repeat`; this is not an explicit "keep", so the first turn is not
+  written); (b) the **eviction order at the cap**: expired / old epoch -> **this class (unexpired)** -> explicit TTLs,
+  shortest first -> LRU (the position of the previous "no TTL" class, so batch requests do not push out the client's
+  conversations). The RP's `ttl_s` stays `None` (index format unchanged); only the expiry test uses the default. An
+  expired default-class RP that the conversation saves again is revived (explicit-TTL RPs are revived only by a request
+  that asks to keep them, as before).
+* The first class of the stats line's `ttl_classes=` is labelled `default` when a default is set (`none` otherwise); the
+  scheduler start-up line shows `default_ttl_s=`.
+* Our production value is 86400.
+* Tests (`test_finish.py`): with default 0 an RP survives 7 days unused; default 100 s slides; expired RPs are not
+  restored; the cleanup removes only that class; a repeated save revives; `SAVE_POLICY=repeat` writes no first turn; the
+  cap eviction order is identical for default 0 and 86400; an expired default-class RP is evicted first; adoption after a
+  restart drops expired ones; configuration checks. Rig: `docs/measurements.md` 7.9.
 
 ## 3. File map
 
@@ -351,5 +556,9 @@ previous behaviour). The `NONE_HASH` digest is part of the signature. The detail
 | `tests/t_restart_gpu.py` | (Final version) on a GB10 with production page sizes: save -> adopt -> restore across a separate process (= restart) is byte-identical, and identical to an in-process restore |
 | `tests/bench_persist.py` | (Final version) time to build / write / read the index, the adoption decision, the rank start-up scan and the site-packages digest |
 | `tests/aggregate_ttl.py`, `tests/rig/jobs_ttl_*.txt`, `tests/rig/env/{ttl3,ttl3r,ttlmix,rsp0,rsp1,rscr,rsoff,plain,pr_*}.env` | (Final version) replay and summaries for mixed TTLs (`NVMESPILL_TTL`, `NVMESPILL_EXTRA_CONV`, `NVMESPILL_IDLE`, `NVMESPILL_COMPACT`) and a restart in the middle (`NVMESPILL_RESTART_AT`, `_DOWN_S`, `_CRASH`, `_INJECT`). The DSH field reaches the request through vLLM's path (`SamplingParams.extra_args`) |
-| `results/` | Per-run summaries and aggregates (`results/fix/`, `results/prune/`, `results/ttl/`, `results/ttl/final/`, `results/ttl/final_faults/`, `results/published-tree/`) |
+| `tests/test_finish.py` | (Finish release) B8 policy gate against the real decode-floor policy class (4,000 random states), restore gating, NVMe-backed-first block choice on the real `BlockPool`, `DEFAULT_TTL_S`, the "code" identity part |
+| `tests/test_u4_env.py` | (u4) run-time generated environment values: two fresh interpreters with `enable_envs_cache()`, an audit of every prefixed variable, exclusion by exact name, the per-name breakdown (names and short digests only), naming the differing variable in a wipe reason (scheduler and rank) |
+| `tests/test_u5_index.py` | (u5) the resume point confirmed by the last step is in the index after an idle period, with the timer, under the lock, at shutdown, never raising; `--old` reproduces the bug on the u4 connector; 2 real ranks + SIGKILL restart |
+| `tests/aggregate_finish.py`, `tests/compare_u4.py`, `tests/compare_u5.py`, `tests/rig/sim/diag.py`, `tests/rig/jobs_finish_*.txt`, `tests/rig/jobs_u4.txt`, `tests/rig/jobs_u5.txt`, `tests/rig/env/{dg,dt,fin,hv,pr_idle}*.env` | (Finish release, u4, u5) rig matrices and summaries; eviction attribution (`NVMESPILL_DIAG_EVICT`, observation only); preemption / re-admission counts; idle-then-SIGKILL restart (`NVMESPILL_RESTART_IDLE`, `_IDLE_S`, `_IDLE_PROBES`) |
+| `results/` | Per-run summaries and aggregates (`results/fix/`, `results/prune/`, `results/ttl/`, `results/ttl/final/`, `results/ttl/final_faults/`, `results/finish/`, `results/u4/`, `results/u5/`, `results/published-tree/`, `results/published-tree-u5/`) |
 | `THIRD_PARTY_NOTICES.md` | Design sources: TensorFold Spill-Tier (Apache-2.0) |

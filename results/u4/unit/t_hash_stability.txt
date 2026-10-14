@@ -1,0 +1,14 @@
+PASS parent_env_has_no_pythonhashseed 
+PASS prod_core_order_scheduler_before_init_none_hash 5539 < 8733
+  run 0: {'none_hash': '1f6065cfcc6f0c410597cad23ddd5644', 'first': 'd8dd5cb43c1f00e81e9d1a3f60be1c51', 'last': 'cd6fa6d567e5aa305b8e97cf64065b88', 'n': 12, 'str_hash': 5865570241348397502, 'env_before': None, 'env_after': '5353', 'check': [True, 'sha256:cb19f0c5c558ff77'], 'seed_source': 'connector'}
+  run 1: {'none_hash': '1f6065cfcc6f0c410597cad23ddd5644', 'first': 'd8dd5cb43c1f00e81e9d1a3f60be1c51', 'last': 'cd6fa6d567e5aa305b8e97cf64065b88', 'n': 12, 'str_hash': -1423091061207881248, 'env_before': None, 'env_after': '5353', 'check': [True, 'sha256:cb19f0c5c558ff77'], 'seed_source': 'connector'}
+  run 2: {'none_hash': 'd660fe4bc09b4f329f3dc94e504ebcb8', 'first': 'e4ee10851b148513a3adf55090416884', 'last': 'b17bd586f487da94ba9550e52aa5cbf9', 'n': 12, 'str_hash': 7072425643371966978, 'env_before': None, 'env_after': None, 'check': [False, 'sha256:e6ba17cf345e8670'], 'seed_source': '-'}
+  run 3: {'none_hash': 'b62f5e2b6e86ffcd20d6096f83b6c61e', 'first': 'd200ff4d975f451e8de66fa5667f4b2b', 'last': 'b08da486fa43bf657b3681369754cbe7', 'n': 12, 'str_hash': 374832749133709422, 'env_before': None, 'env_after': None, 'check': [False, 'sha256:03bf85fbaa8d6d06'], 'seed_source': '-'}
+PASS persist_off_block_hashes_differ_between_processes (stock vLLM without PYTHONHASHSEED: random NONE_HASH)
+PASS persist_off_check_reports_unstable [False, 'sha256:e6ba17cf345e8670']
+PASS persist_on_block_hashes_identical_between_processes 
+PASS persist_on_seed_set_by_connector 
+PASS persist_on_check_reports_stable [True, 'sha256:cb19f0c5c558ff77']
+PASS python_str_hash_still_randomized 5865570241348397502 vs -1423091061207881248
+PASS operator_seed_respected_and_stable 
+SUMMARY 9/9 passed

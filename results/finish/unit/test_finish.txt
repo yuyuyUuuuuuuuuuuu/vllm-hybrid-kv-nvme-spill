@@ -1,0 +1,752 @@
+PASS code_digest_of_module_file_equals_copy d06d88fb4b76016d
+PASS code_digest_unchanged_comment_added 
+PASS code_digest_unchanged_module_docstring_changed 
+PASS code_digest_unchanged_function_docstring_changed 
+PASS code_digest_unchanged_blank_lines_added 
+PASS code_digest_unchanged_line_break_reformatted 
+PASS code_digest_changes_log_format_string 
+PASS code_digest_changes_constant 
+PASS code_digest_changes_name 
+PASS code_digest_changes_operator 
+PASS code_digest_changes_default 
+PASS code_digest_changes_key_derivation 
+PASS code_digest_changes_string_in_code_not_docstring 
+PASS site_digest_ignores_connector_bytes 053c520dda2d4a02/3 053c520dda2d4a02/3 053c520dda2d4a02/3
+PASS site_digest_counts_connector_by_name 053c520dda2d4a02/3
+PASS code_part_sees_connector_code_change 
+PASS site_digest_strict_for_other_files_even_comments 053c520dda2d4a02/3 -> 43e84ef7e3f3fe56/3
+PASS identity_has_code_part d06d88fb4b76016d
+PASS identity_version_is_finish 2026-10-14.finish.1/f1/i1
+PASS policy_gate_sound_mode_skip n=987 gated=747 unsound=0
+PASS policy_gate_exact_in_skip_mode mismatch=0
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=0 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=673594 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1242.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=1 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=501642 target=256 est_s=0.197 fit=none eta_est_s=1286.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=3 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=877567 target=256 est_s=0.197 fit=none eta_est_s=2250.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=4 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=667241 target=256 est_s=0.197 fit=none eta_est_s=1710.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=5 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=619881 target=256 est_s=0.197 fit=none eta_est_s=1589.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=6 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=181604 target=256 est_s=0.197 fit=none eta_est_s=465.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=7 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=695923 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1283.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=9 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=581899 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1073.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=10 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1158358 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=2136.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=13 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1093387 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=2016.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=14 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=560034 target=256 est_s=0.197 fit=none eta_est_s=1436.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=15 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=456529 target=256 est_s=0.197 fit=none eta_est_s=1170.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=16 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=526912 target=256 est_s=0.197 fit=none eta_est_s=1351.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=18 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=824408 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1520.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=19 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=710201 target=256 est_s=0.197 fit=none eta_est_s=1821.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=20 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=489555 target=256 est_s=0.197 fit=none eta_est_s=1255.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=21 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=760642 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1403.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=22 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=890881 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1643.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=23 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=500630 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=923.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=24 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=157498 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=290.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=25 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=385609 target=256 est_s=0.197 fit=none eta_est_s=988.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=28 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=480139 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=885.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=29 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=630123 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1162.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=30 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=842209 target=256 est_s=0.197 fit=none eta_est_s=2159.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=31 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=491804 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=907.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=32 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=264396 target=256 est_s=0.197 fit=none eta_est_s=677.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=33 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=792974 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1462.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=35 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=681924 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1257.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=37 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=453173 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=835.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=38 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=852342 target=256 est_s=0.197 fit=none eta_est_s=2185.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=39 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=572714 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1056.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=40 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=500944 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=924.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=41 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=184608 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=340.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=44 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=70767 target=256 est_s=0.197 fit=none eta_est_s=181.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=45 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=892144 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1645.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=46 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=451869 target=256 est_s=0.197 fit=none eta_est_s=1158.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=47 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=736474 target=256 est_s=0.197 fit=none eta_est_s=1888.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=48 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=304076 target=256 est_s=0.197 fit=none eta_est_s=779.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=50 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=507295 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=935.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=52 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=778241 target=256 est_s=0.197 fit=none eta_est_s=1995.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=53 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=437348 target=256 est_s=0.197 fit=none eta_est_s=1121.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=56 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=269962 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=498.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=57 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1348558 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=2487.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=58 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=286156 target=256 est_s=0.197 fit=none eta_est_s=733.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=59 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=672261 target=256 est_s=0.197 fit=none eta_est_s=1723.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=61 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=450575 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=831.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=62 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=604255 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1114.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=63 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=573266 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1057.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=64 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=1058914 target=256 est_s=0.197 fit=none eta_est_s=2715.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=65 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=427903 target=256 est_s=0.197 fit=none eta_est_s=1097.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=67 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=589363 target=256 est_s=0.197 fit=none eta_est_s=1511.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=70 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=135013 target=256 est_s=0.197 fit=none eta_est_s=346.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=73 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=527076 target=256 est_s=0.197 fit=none eta_est_s=1351.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=74 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=1061923 target=256 est_s=0.197 fit=none eta_est_s=2722.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=75 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=516673 target=256 est_s=0.197 fit=none eta_est_s=1324.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=76 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=1144660 target=256 est_s=0.197 fit=none eta_est_s=2935.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=77 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=555686 target=256 est_s=0.197 fit=none eta_est_s=1424.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=78 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=609151 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1123.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=79 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=514884 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=949.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=80 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=831605 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1534.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=82 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=429051 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=791.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=83 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=522312 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=963.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=85 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=1353197 target=256 est_s=0.197 fit=none eta_est_s=3469.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=89 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=121723 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=224.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=90 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=477392 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=880.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=91 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=398550 target=256 est_s=0.197 fit=none eta_est_s=1021.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=93 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=95112 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=175.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=95 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=1379845 target=256 est_s=0.197 fit=none eta_est_s=3538.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=97 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=222482 target=256 est_s=0.197 fit=none eta_est_s=570.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=99 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=782339 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1443.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=100 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=377478 target=256 est_s=0.197 fit=none eta_est_s=967.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=103 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=390817 target=256 est_s=0.197 fit=none eta_est_s=1002.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=105 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=1167860 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=2154.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=106 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=123659 target=256 est_s=0.197 fit=none eta_est_s=317.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=107 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=663587 target=256 est_s=0.197 fit=none eta_est_s=1701.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=108 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=485095 target=256 est_s=0.197 fit=none eta_est_s=1243.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=109 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=323968 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=597.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=110 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=321204 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=592.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=111 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=573185 target=256 est_s=0.197 fit=none eta_est_s=1469.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=112 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=405902 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=748.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=114 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=405173 target=256 est_s=0.197 fit=none eta_est_s=1038.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=115 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=630365 target=256 est_s=0.197 fit=none eta_est_s=1616.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=116 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=707755 target=256 est_s=0.197 fit=none eta_est_s=1814.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=118 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=132856 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=245.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=119 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=125318 target=256 est_s=0.197 fit=none eta_est_s=321.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=120 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=247291 target=256 est_s=0.197 fit=none eta_est_s=634.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=121 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=377864 target=256 est_s=0.197 fit=none eta_est_s=968.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=123 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=722956 target=256 est_s=0.197 fit=none eta_est_s=1853.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=124 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=643000 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1186.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=126 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=633089 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1167.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=128 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=1008801 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1860.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=130 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=351865 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=649.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=131 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=424255 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=782.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=132 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=357856 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=660.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=133 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=974482 target=256 est_s=0.197 fit=none eta_est_s=2498.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=135 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=633957 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1169.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=136 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=573850 target=256 est_s=0.197 fit=none eta_est_s=1471.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=137 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=440551 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=812.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=140 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=929081 target=256 est_s=0.197 fit=none eta_est_s=2382.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=142 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=679727 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1253.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=143 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=984340 target=256 est_s=0.197 fit=none eta_est_s=2523.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=144 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1249365 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=2304.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=146 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=633300 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1168.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=147 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=151526 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=279.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=148 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=362928 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=669.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=149 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=871068 target=256 est_s=0.197 fit=none eta_est_s=2233.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=150 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=457967 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=844.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=151 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1000085 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1844.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=152 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=670972 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1237.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=153 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=151042 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=278.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=154 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=973304 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1795.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=155 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=739786 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1364.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=156 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=697199 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1286.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=157 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=357939 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=660.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=158 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=627610 target=256 est_s=0.197 fit=none eta_est_s=1609.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=159 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1172901 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=2163.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=162 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=988273 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1823.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=163 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=705712 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1301.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=164 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=304202 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=561.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=165 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=183775 target=256 est_s=0.197 fit=none eta_est_s=471.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=166 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=880495 target=256 est_s=0.197 fit=none eta_est_s=2257.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=167 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=746341 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1376.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=169 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=545954 target=256 est_s=0.197 fit=none eta_est_s=1399.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=170 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=610375 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1125.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=173 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=1153405 target=256 est_s=0.197 fit=none eta_est_s=2957.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=177 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=136770 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=252.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=178 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=390400 target=256 est_s=0.197 fit=none eta_est_s=1001.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=179 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=158734 target=256 est_s=0.197 fit=none eta_est_s=407.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=180 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=352710 target=256 est_s=0.197 fit=none eta_est_s=904.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=181 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=1268451 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=2339.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=182 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=637584 target=256 est_s=0.197 fit=none eta_est_s=1634.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=183 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=336158 target=256 est_s=0.197 fit=none eta_est_s=861.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=185 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=1098589 target=256 est_s=0.197 fit=none eta_est_s=2816.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=187 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=234433 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=432.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=188 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1201738 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=2216.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=189 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=781141 target=256 est_s=0.197 fit=none eta_est_s=2002.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=190 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=867139 target=256 est_s=0.197 fit=none eta_est_s=2223.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=192 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=806085 target=256 est_s=0.197 fit=none eta_est_s=2066.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=194 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=275969 target=256 est_s=0.197 fit=none eta_est_s=707.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=198 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=998917 target=256 est_s=0.197 fit=none eta_est_s=2561.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=199 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=391345 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=721.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=200 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=1061808 target=256 est_s=0.197 fit=none eta_est_s=2722.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=201 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=312307 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=576.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=202 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=1250527 target=256 est_s=0.197 fit=none eta_est_s=3206.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=203 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1051805 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1940.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=204 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=651044 target=256 est_s=0.197 fit=none eta_est_s=1669.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=206 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=937037 target=256 est_s=0.197 fit=none eta_est_s=2402.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=207 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1256518 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=2317.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=208 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=752168 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1387.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=211 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=465438 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=858.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=212 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=1280043 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=2361.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=213 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=366200 target=256 est_s=0.197 fit=none eta_est_s=939.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=214 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=901213 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1662.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=215 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=742910 target=256 est_s=0.197 fit=none eta_est_s=1904.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=216 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=652544 target=256 est_s=0.197 fit=none eta_est_s=1673.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=217 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=450019 target=256 est_s=0.197 fit=none eta_est_s=1153.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=218 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=270789 target=256 est_s=0.197 fit=none eta_est_s=694.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=221 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=311494 target=256 est_s=0.197 fit=none eta_est_s=798.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=222 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=154682 target=256 est_s=0.197 fit=none eta_est_s=396.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=223 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=624510 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1152.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=224 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=521552 target=256 est_s=0.197 fit=none eta_est_s=1337.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=227 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=187439 target=256 est_s=0.197 fit=none eta_est_s=480.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=229 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=802602 target=256 est_s=0.197 fit=none eta_est_s=2058.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=232 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=745867 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1375.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=233 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=630272 target=256 est_s=0.197 fit=none eta_est_s=1616.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=234 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=181415 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=334.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=236 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=146908 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=271.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=238 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=612265 target=256 est_s=0.197 fit=none eta_est_s=1569.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=239 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=582191 target=256 est_s=0.197 fit=none eta_est_s=1492.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=240 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=664013 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1224.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=241 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=546374 target=256 est_s=0.197 fit=none eta_est_s=1401.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=242 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=445325 target=256 est_s=0.197 fit=none eta_est_s=1141.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=243 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=1048143 target=256 est_s=0.197 fit=none eta_est_s=2687.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=245 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=1202481 target=256 est_s=0.197 fit=none eta_est_s=3083.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=246 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=631144 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1164.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=247 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=497941 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=918.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=248 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=590526 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1089.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=249 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1008839 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1860.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=251 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=424709 target=256 est_s=0.197 fit=none eta_est_s=1089.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=254 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=849596 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1567.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=255 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=186308 target=256 est_s=0.197 fit=none eta_est_s=477.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=257 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=598274 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1103.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=258 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=1201408 target=256 est_s=0.197 fit=none eta_est_s=3080.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=259 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=1109551 target=256 est_s=0.197 fit=none eta_est_s=2845.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=260 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=737830 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1361.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=261 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=393086 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=725.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=262 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=556896 target=256 est_s=0.197 fit=none eta_est_s=1427.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=263 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=954266 target=256 est_s=0.197 fit=none eta_est_s=2446.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=264 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=787390 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1452.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=266 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=806548 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1487.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=268 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=1099373 target=256 est_s=0.197 fit=none eta_est_s=2818.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=269 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=961519 target=256 est_s=0.197 fit=none eta_est_s=2465.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=271 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=554167 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1022.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=272 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=1089025 target=256 est_s=0.197 fit=none eta_est_s=2792.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=273 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=601334 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1109.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=274 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=393740 target=256 est_s=0.197 fit=none eta_est_s=1009.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=275 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=131858 target=256 est_s=0.197 fit=none eta_est_s=338.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=276 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=679327 target=256 est_s=0.197 fit=none eta_est_s=1741.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=277 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=614411 target=256 est_s=0.197 fit=none eta_est_s=1575.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=278 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=775865 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1431.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=280 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=616366 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1137.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=282 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=529301 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=976.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=283 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=963643 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1777.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=285 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=889591 target=256 est_s=0.197 fit=none eta_est_s=2281.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=286 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=218862 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=403.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=287 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=529933 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=977.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=288 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=944908 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1743.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=289 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=939151 target=256 est_s=0.197 fit=none eta_est_s=2408.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=290 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=1058194 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1952.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=291 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=268225 target=256 est_s=0.197 fit=none eta_est_s=687.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=292 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=213515 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=393.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=295 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=334758 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=617.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=298 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=700745 target=256 est_s=0.197 fit=none eta_est_s=1796.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=299 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=921181 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1699.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=300 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=987543 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1821.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=301 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=510574 target=256 est_s=0.197 fit=none eta_est_s=1309.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=302 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=880405 target=256 est_s=0.197 fit=none eta_est_s=2257.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=303 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1155743 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=2131.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=304 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=368969 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=680.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=305 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=238774 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=440.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=306 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=306475 target=256 est_s=0.197 fit=none eta_est_s=785.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=308 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=532919 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=983.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=309 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=731940 target=256 est_s=0.197 fit=none eta_est_s=1876.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=310 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=735426 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1356.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=311 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1302961 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=2403.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=312 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=468098 target=256 est_s=0.197 fit=none eta_est_s=1200.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=313 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=307209 target=256 est_s=0.197 fit=none eta_est_s=787.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=314 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=309624 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=571.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=315 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=219351 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=404.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=317 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=877419 target=256 est_s=0.197 fit=none eta_est_s=2249.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=318 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=862237 target=256 est_s=0.197 fit=none eta_est_s=2210.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=319 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1093107 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=2016.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=323 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=342744 target=256 est_s=0.197 fit=none eta_est_s=878.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=324 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=590042 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1088.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=327 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=661911 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1221.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=328 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=729192 target=256 est_s=0.197 fit=none eta_est_s=1869.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=329 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=174552 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=322.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=330 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=425113 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=784.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=332 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=1006628 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1856.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=333 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=994062 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1833.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=334 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=1027923 target=256 est_s=0.197 fit=none eta_est_s=2635.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=335 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=331903 target=256 est_s=0.197 fit=none eta_est_s=851.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=336 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1056087 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1948.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=338 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=620912 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1145.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=339 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=641939 target=256 est_s=0.197 fit=none eta_est_s=1646.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=340 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=871328 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1607.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=341 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=383659 target=256 est_s=0.197 fit=none eta_est_s=983.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=342 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=1064591 target=256 est_s=0.197 fit=none eta_est_s=2729.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=343 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=641124 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1182.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=345 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=787861 target=256 est_s=0.197 fit=none eta_est_s=2020.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=346 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=452604 target=256 est_s=0.197 fit=none eta_est_s=1160.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=347 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=1057368 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1950.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=349 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=813929 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1501.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=350 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=559507 target=256 est_s=0.197 fit=none eta_est_s=1434.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=351 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=915436 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1688.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=352 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=647366 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1194.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=353 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=573812 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1058.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=354 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=455095 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=839.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=357 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=650827 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1200.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=359 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=816371 target=256 est_s=0.197 fit=none eta_est_s=2093.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=361 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=373608 target=256 est_s=0.197 fit=none eta_est_s=958.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=363 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=93227 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=172.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=365 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=568102 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1047.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=368 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=599771 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1106.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=370 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=514523 target=256 est_s=0.197 fit=none eta_est_s=1319.3 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=371 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=463232 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=854.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=372 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=447477 target=256 est_s=0.197 fit=none eta_est_s=1147.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=373 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=911856 target=256 est_s=0.197 fit=none eta_est_s=2338.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=375 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=594284 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1096.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=376 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=207140 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=382.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=377 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=272626 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=502.9 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=378 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=451029 target=256 est_s=0.197 fit=none eta_est_s=1156.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=382 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=855984 target=256 est_s=0.197 fit=none eta_est_s=2194.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=383 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=1028518 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1897.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=384 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=600754 target=256 est_s=0.197 fit=none eta_est_s=1540.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=385 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=613938 target=256 est_s=0.197 fit=none eta_est_s=1574.2 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=386 mode=decode_only defer=async_inflight inflight=1 credit=0.200 remaining=186256 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=343.6 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=387 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=564713 target=256 est_s=0.197 fit=none eta_est_s=1448.0 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=389 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=639603 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1179.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=390 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=750639 target=256 est_s=0.197 fit=none eta_est_s=1924.7 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=391 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=567306 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1046.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=393 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=245232 target=256 est_s=0.197 fit=none eta_est_s=628.8 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=394 mode=decode_only defer=async_inflight inflight=1 credit=0.197 remaining=146275 target=256 est_s=0.197 fit=none eta_est_s=375.1 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=396 mode=prefill_turn defer=none inflight=0 credit=0.200 remaining=712062 target=2048 est_s=1.133 fit_fixed_s=0.067 fit_us_per_tok=521 eta_est_s=1313.5 max_step_s=2.000 missed=0 timing=host_busy_proxy
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] fair v5 probe_chunk=256 ladder=128..2048 share=0.3 interval_s=2.0 max_step_s=2.0 max_chunks=1
+[glm53-decode-floor] step=399 mode=prefill_turn defer=none inflight=0 credit=0.197 remaining=170178 target=256 est_s=0.197 fit=none eta_est_s=436.4 max_step_s=2.000 missed=0 timing=host_busy_proxy
+PASS policy_gate_sound_mode_fair n=1012 gated=653 unsound=0
+PASS policy_gate_sound_mode_0 n=991 gated=0 unsound=0
+PASS policy_gate_never_in_mode_0 gated=0
+PASS policy_gate_sound_mode_1024 n=992 gated=0 unsound=0
+PASS policy_gate_never_in_mode_1024 gated=0
+PASS policy_gate_fires_in_fair_mode (1012, 653)
+PASS restore_gate_skip_blocked_defers_without_taking_blocks out=(None, False) started=0 free 63->63
+PASS restore_gate_skip_blocked_starts_when_policy_allows 
+PASS restore_gate_skip_free_restores out=(None, False) started=1
+PASS restore_gate_no_module_restores out=(None, False) started=1
+PASS restore_gate_gate_off_restores out=(None, False) started=1
+PASS restore_gate_fair_not_turn_defers_without_taking_blocks out=(None, False) started=0 free 63->63
+PASS restore_gate_fair_not_turn_starts_when_policy_allows 
+PASS stats_line_ends_with_b8_counters  persist=off adopted=0 adopted_gib=0.00 index_age_s=-1 restores_started=0 restores_admitted=0 restores_deferred_policy=0
+PASS policy_gate_not_an_operator_knob ('TTL_SAVE_POLICY', 'TTL_MIN_TOKENS', 'DEFAULT_TTL_S')
+PASS from_env_policy_gate_default_on 
+PASS from_env_policy_gate_test_off 
+PASS dt_off_no_field_rp_never_expires 
+PASS dt_on_no_field_rp_keeps_ttl_none (class 'default', not an explicit TTL) 00/0.00 ttl_classes=default/1h/1d/3d/exp persist=off adopted=0 adopted_gib=0.00 index_age_s=-1 restores_started=0 restores_admitted=0 restores_deferred_policy=0
+PASS dt_on_extending_request_refreshes_last_used 
+PASS dt_on_alive_90s_after_refresh 
+PASS dt_on_expired_never_restored (0, False)
+PASS dt_on_sweep_drops_only_the_default_class rps=1 expired=1
+PASS dt_resave_revives_expired_default_rp 
+PASS dt_save_policy_unchanged_no_first_turn_for_no_field ['f']
+PASS dt_cap_order_unchanged_default_first {0: ['S', 'Q', 'R'], 86400: ['S', 'Q', 'R']}
+PASS dt_cap_expired_default_evicted_first ['A', 'C']
+PASS dt_adoption_default_ttl_3600 ['b'] on adopted
+PASS dt_adoption_default_ttl_0 ['b', 'c'] on adopted
+PASS dt_from_env_default_0 
+PASS dt_from_env_86400 
+PASS dt_from_env_empty_is_default_0 
+PASS dt_from_env_rejects_-1 
+PASS dt_from_env_rejects_604801 
+PASS dt_from_env_rejects_1.5x 
+PASS dt_knob_forwarded (last in KNOBS) 
+PASS bf_unhashed_then_backed [11, 12, 13, 14, 15, 3, 7]
+PASS bf_unbacked_older_kept_cached 
+PASS bf_taken_evicted_and_referenced 
+PASS bf_then_rest_in_lru_order [9, 1, 2, 4]
+PASS bf_stats_took_backed 3
+PASS bf_free_queue_consistent [5, 6, 8, 10]
+PASS bf_hash_map_matches_blocks 
+PASS bf_disabled_is_plain_get_new_blocks [11, 12, 13, 14, 15, 1, 2]
+PASS bf_too_many_raises_like_get_new_blocks 
+SUMMARY 66/66 passed

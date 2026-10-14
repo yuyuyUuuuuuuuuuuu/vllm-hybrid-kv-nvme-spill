@@ -1,11 +1,16 @@
 Provenance of code/glm53_nvme_spill_connector.py
 
-sha256 of the published file: cfc3574480af2c99cb74176c4203bbd8fb0bacd432095b764b879161d539321e
-sha256 of the published version before comment edits (internal commit a9783a3): 40d4764432b4d5a1e0356171620285e1451c9f6bb174ab96b8904f0ab08d3c94
-sha256 of the final version running in production (internal commit cd26084): 1762e23f6ce982afdff1cdda8a52b33c0e798e5aaaf05d4c093032cf2d0ee25c
+sha256 of the published file: 92989a808849b573381ff26a044c205c2bfe77bf9a8a5159acf02e910ed81c75
+sha256 of the u5 version running in production (CONNECTOR_VERSION 2026-10-14.finish.3): 073a2e8c95f328f592247d31a90a4156f812fa396e3863c1b905eef79b0a4bf2
+earlier production versions: final version 1762e23f..., finish release eb2e1084..., u4 bd0f589e...
 
-The published file differs from a9783a3 only in the SPDX line and comment/docstring references to file paths:
-AST (docstrings stripped) identical: a9783a3 code/glm53_nvme_spill_connector.py
+The published file differs from the production u5 file only in the SPDX line and in comment / docstring text
+(file paths of our internal tree, an internal commit id, a time of day, a requester, an internal client name):
+AST (docstrings stripped) identical: production-u5 code/glm53_nvme_spill_connector.py
+identity part "code" (_code_digest) a37d532ec1fb9ae6  code/glm53_nvme_spill_connector.py
+identity part "code" (_code_digest) a37d532ec1fb9ae6  production u5
+(so the published file and production have the same restart identity part "code", docs/design.md 2.8.1)
+
 1c1
 < # SPDX-License-Identifier: Apache-2.0
 ---
@@ -18,15 +23,29 @@ AST (docstrings stripped) identical: a9783a3 code/glm53_nvme_spill_connector.py
 < rank) carry the counters the production A/B abort criteria read (<internal doc path>).
 ---
 > rank) carry the counters the production A/B abort criteria read (docs/operations.md).
-112,113c112,113
+104c104
+< CONNECTOR_VERSION = "2026-10-14.finish.3"   # finish.1 (B8 gate, code digest, <commit id>) + u4: volatile env names, names on mismatch
+---
+> CONNECTOR_VERSION = "2026-10-14.finish.3"   # finish.1 (B8 gate, code digest, log-format fix) + u4: volatile env names, names on mismatch
+123,124c123,124
 < # Every operator knob (env GLM53_NVME_SPILL_<name>); <old path>/apply_start_sh.py forwards exactly these to both
 < # ranks (<old path>/test_start_sh.sh checks the two lists agree). GLM53_NVME_SPILL_RANK is a test-only override.
 ---
 > # Every operator knob (env GLM53_NVME_SPILL_<name>); code/apply_start_sh.py forwards exactly these to both
 > # ranks (tests/test_start_sh.sh checks the two lists agree). GLM53_NVME_SPILL_RANK is a test-only override.
-
-a9783a3 differs from the production version cd26084 in one format string (the cosmetic log fix, docs/limitations.md):
-748c748
-<         logger.info("%s rank %d: dir=%s wiped=%d group_bytes=%s stage=%d MiB direct=%s", TAG, self.rank,
+132c132
+<          # 2026-10-14 finish (<requester>): sliding expiry of resume points saved by requests without the DSH fields
 ---
->         logger.info("%s rank %d: dir=%s wiped=%s group_bytes=%s stage=%d MiB direct=%s", TAG, self.rank,
+>          # 2026-10-14 finish: sliding expiry of resume points saved by requests without the DSH fields
+190c190
+<     # resume points of requests WITHOUT kv_transfer_params.glm53_spill (<internal client name>, headless clients: the "no TTL" class) expire
+---
+>     # resume points of requests WITHOUT kv_transfer_params.glm53_spill (batch jobs, headless clients: the "no TTL" class) expire
+364c364
+< # overlays + the image's site-packages for run-time writes into os.environ under _ENV_PREFIXES: <internal doc path> 2.8.2.
+---
+> # overlays + the image's site-packages for run-time writes into os.environ under _ENV_PREFIXES: docs/design.md 2.8.2.
+369c369
+<     # the multimodal processor-cache shm segment (multimodal/cache.py), nothing in the KV cache. (The 2026-10-14 <time>
+---
+>     # the multimodal processor-cache shm segment (multimodal/cache.py), nothing in the KV cache. (A 2026-10-14

@@ -45,12 +45,38 @@ Everything below runs from a checkout of this repository. Outputs go to `test-ou
    part 2 also needs a deployed launcher tree (its `start.sh`, `overlay/` and `env_nonsecret.txt` = the non-secret lines
    of its `.env`).
 
-## 2. CPU unit tests (serving image, CPU only, one container at a time, 4 GiB)
+## 2. CPU unit tests (serving image, CPU only, one container at a time, 4 GiB; `u4_env` 6 GiB)
 
 ```sh
-RIG_MODELS_DIR=$MODELS tests/run_cpu_tests.sh            # all; or name tests: store prune ttl_persist ...
-tests/test_start_sh.sh test-out/startsh <kit dir> [<launcher dir>]
+RIG_MODELS_DIR=$MODELS tests/run_cpu_tests.sh            # all; or name tests: store prune ttl_persist finish ...
+tests/test_start_sh.sh <scratch dir> <kit dir> [<launcher dir>]
 ```
+
+### 2.1 This update (code = u5, re-run from this tree on 2026-10-14, outputs in `results/published-tree-u5/`)
+
+| test | what | from this tree | recorded in development |
+|---|---|---|---|
+| `tests/test_store.py --device cpu` | worker byte path (unchanged since the final version) | **19/19** | 18/18 without the 40 MB tmpfs case (`results/u5/unit/test_store.txt`) |
+| `tests/test_sched_faults.py` | deadlines, quarantine, breaker, pin cap, B6, B7, worker exception safety | **49/49** | 49/49 (`results/u5/unit/`) |
+| `tests/test_prune.py` | `KEEP_PER_CHAIN` pruning, LRU at the cap | **74/74** | 74/74 |
+| `tests/test_ttl_persist.py` | TTL, epochs, index, adoption, restart round trip on two ranks | **133/133** | 133/133 |
+| `tests/t_hash_stability.py` | block hashes across processes with / without the connector | **9/9** | 9/9 |
+| `tests/t_alloc_conf.py` | B1: this connector accepted under `expandable_segments:True`, `NixlConnector` still rejected | **3/3 lines as expected** | same |
+| `tests/test_finish.py` | B8 policy gate vs the real policy class, restore gating, NVMe-backed-first blocks on the real `BlockPool`, `DEFAULT_TTL_S`, the "code" identity part | **66/66** | 66/66 |
+| `tests/test_u4_env.py` | run-time generated env values (two fresh interpreters + `enable_envs_cache()`), audit, exact-name exclusion, per-name breakdown, names in wipe reasons | **50/50** (the 2 checks that compare against the previous connector need `--old-module <finish-release connector>`, which is not shipped) | 52/52 with `--old-module` |
+| `tests/test_u5_index.py` | the resume point confirmed by the last step is indexed after an idle period / by the timer / at shutdown; lock; 2 ranks + SIGKILL restart | **25/25** (`--old` needs the u4 connector, not shipped) | 25/25; 2/2 reproduce the bug with `--old` on the u4 connector |
+| `tests/test_quality_probe.py` (host Python) | B5 + `--runs N` (averaged verdict, restore proven in every run) | **22/22** | 22/22 (`results/finish/unit/test_quality_probe.txt`) |
+| `tests/test_start_sh.sh`, r16z8p kit + launcher | apply, idempotence, fail-closed, every knob reaches both ranks' `docker run` | **15/15** (32 forwarded names; the generated diff equals `code/start.sh.nvmespill.patch` apart from its two header lines) | 15/15 |
+| `tests/test_start_sh.sh`, companion repository's public kit, part 1 | same, on the public `start.sh` | **7/7** (part 2 skipped: no launcher tree) | - |
+
+All of these ran on the final bytes of `code/`. Every `.py` file passes `python3 -m py_compile`, every `.sh` file passes `bash -n` (counts in section 6). `tests/bench_persist.py`
+also ran (`results/published-tree-u5/bench_persist.txt`). The GPU tests (section 3) were not re-run for this update: the
+worker's byte path they exercise did not change (the changes are scheduler-side Python), and their results from the
+first publication stand.
+The aggregates of `results/finish/`, `results/u4/` and `results/u5/` regenerate byte-identically from this tree:
+`python3 tests/aggregate_finish.py`, `python3 tests/compare_u4.py`, `python3 tests/compare_u5.py`.
+
+### 2.2 First publication (code = published version)
 
 | test | what | from this tree (2026-10-14) | recorded in development |
 |---|---|---|---|
@@ -65,8 +91,7 @@ tests/test_start_sh.sh test-out/startsh <kit dir> [<launcher dir>]
 | `tests/test_start_sh.sh`, companion repository's public kit, part 1 | same, on the public `start.sh` | **7/7** (part 2 skipped: no launcher tree) | - |
 | `tests/bench_persist.py` (60 RPs, 6,000 files) | index build / write / read, adoption decision, rank scan | ran (`results/published-tree/bench_persist.txt`) | `results/ttl/bench_persist*.json` |
 
-All outputs from this tree: `results/published-tree/*.txt` (paths masked). Every `.py` file passes
-`python3 -m py_compile`, every `.sh` file passes `bash -n`.
+All outputs of the first publication: `results/published-tree/*.txt` (paths masked).
 
 ## 3. GPU tests (one GB10, one container at a time)
 
@@ -90,7 +115,19 @@ RIG_MODELS_DIR=$MODELS RIG_PAR=1 tests/rig/run_jobs.sh tests/rig/jobs_ttl_final.
 python3 tests/aggregate_ttl.py rig-out          # or aggregate.py / aggregate_prune.py / summarize_faults.py
 ```
 
-From this tree we re-ran four 0.5 h jobs of the final-version fault suite (`c_on_s2`, `pr_clean_s2` (restart with
+**This update:** the work tree was rebuilt from the same production vLLM tree with `tests/rig/setup_work.sh` (identical
+to our development work tree except the connector's comments), then five 0.5 h jobs were re-run from this tree (57-147 s
+each, one 8 GiB container at a time): `u5_pr_idle_crash_s2` (idle, then SIGKILL restart), `u5_pr_idle_clean_s2`,
+`u5_c_on_s2`, `u5_pr_clean_s2` and the asynchronous `ff_hv_r1_s4`. The four synchronous jobs equal the recorded runs
+in `results/u5/` on every field except timings; the asynchronous one differs as asynchronous runs do (thread timing)
+and has the same correctness result (0 unfinished, 0 violations, 0 content mismatches, all blocks free at the end):
+`results/published-tree-u5/rig_rerun_vs_recorded.txt`, outputs in `results/published-tree-u5/rig/`. Job lists for the new
+results: `tests/rig/jobs_finish_final.txt`, `jobs_u4.txt`, `jobs_u5.txt` (`*_u4code` jobs need the u4 connector's work
+tree, not shipped); summaries: `tests/aggregate_finish.py`, `tests/compare_u4.py`, `tests/compare_u5.py`.
+
+**First publication:**
+
+From the first publication's tree we re-ran four 0.5 h jobs of the final-version fault suite (`c_on_s2`, `pr_clean_s2` (restart with
 reuse), `f_crc_s3`, `n_noload_s2`; 88-101 s each). Every field of their summary JSON equals the recorded run in
 `results/ttl/final_faults/` except timing fields and, in `pr_clean_s2`, the number of index writes before the restart
 (9 vs 10; the index writer thread coalesces writes): `results/published-tree/rig_rerun_vs_recorded.txt`, outputs in
@@ -106,7 +143,16 @@ re-run from this tree; the `*_oldcode*` jobs need the pre-fix connector, which i
 | `results/prune/` | prune release (production sha256 `d030f132...`) |
 | `results/ttl/*.json`, `results/ttl/aggregate.txt` | TTL+persist first cut |
 | `results/ttl/final/`, `results/ttl/final_faults/`, `results/ttl/*.txt` | final version (production sha256 `1762e23f...`) |
-| `results/published-tree/` | this repository's `code/` |
+| `results/published-tree/` | the first publication's `code/` (published version) |
+| `results/finish/` (`gate_only/` and `g1_*`: intermediate connectors, not shipped), `results/finish/unit/` | finish release (production sha256 `eb2e1084...`) |
+| `results/u4/` (`*.json`, `unit/`) | u4 (production sha256 `bd0f589e...`) |
+| `results/u5/` (`*_u4code*.json`: u4) | u5 (production sha256 `073a2e8c...`) |
+| `results/published-tree-u5/` | this repository's `code/` |
 
-`code/glm53_nvme_spill_connector.py` has the same syntax tree (docstrings aside) as the final version plus a
-one-character log-format fix; `results/provenance_connector.txt` shows the exact differences and hashes.
+`code/glm53_nvme_spill_connector.py` has the same syntax tree (docstrings aside) as the u5 file running in production,
+and the same restart identity part "code"; `results/provenance_connector.txt` shows the exact differences and hashes.
+
+## 6. Syntax checks of this tree
+
+All 35 `.py` files of this tree pass `python3 -m py_compile` and all 7 `.sh` files pass `bash -n` (checked after this
+update).

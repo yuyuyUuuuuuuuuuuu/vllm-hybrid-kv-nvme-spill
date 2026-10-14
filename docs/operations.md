@@ -113,6 +113,11 @@ All are `GLM53_NVME_SPILL_<name>`, forwarded to both ranks by the patched `start
 | `TTL_SWEEP_S` | 30 | interval for deleting expired RPs |
 | `TTL_SAVE_POLICY` | all | requests with an explicit `ttl_s > 0` also write their first turn (all) / previous behavior (repeat) |
 | `TTL_MIN_TOKENS` | 0 | `MIN_TOKENS` for requests with explicit `ttl_s > 0` (0 = same as `MIN_TOKENS`) |
+| `DEFAULT_TTL_S` | 0 | (finish release) expiry for RPs of requests without the client field, in seconds after their last use, sliding (0 = never). Save policy and eviction order unchanged (docs/design.md 2.10). 86400 in our deployment |
+
+Not knobs (tests only): the B8 policy gate and the NVMe-backed-first block choice of restores are always on
+(`NVMESPILL_TEST_NO_POLICY_GATE` / `NVMESPILL_TEST_NO_BACKED_FIRST` turn them off in tests); the idle index write and its
+2 s timer (u5) have no setting.
 
 The pinned staging buffers use 32 MiB × 2 (write and read) per rank. The KV pool is unchanged.
 
@@ -128,8 +133,8 @@ turn; ~10 GB/h/rank written, an estimate; totals are 2× for TP=2).
 
 ## 4. Quality checks
 
-1. **Output quality after a restore** with `code/spill_quality_probe.py`: run on the ON arm, while idle, with
-   `GLM53_EXPOSE_CACHE_RESET=1`, on the head host with read access to the head container's logs (the probe reads the
+1. **Output quality after a restore** with `code/spill_quality_probe.py` (in-process variant, `--phase both`): run on
+   the ON arm, while idle, with `GLM53_EXPOSE_CACHE_RESET=1`, on the head host with read access to the head container's logs (the probe reads the
    API key from the kit's `.env` itself and does not print it). It sends an 80k-token conversation in two turns to
    create an RP, clears the GPU prefix cache with `/reset_prefix_cache`, and continues from NVMe with greedy decoding
    (R). Controls: the same request again (H = GPU hit) and full prefill twice with a new salt (F1, F2). Verdicts (all
@@ -154,18 +159,25 @@ turn; ~10 GB/h/rank written, an estimate; totals are 2× for TP=2).
    (2) the share of generation-stall windows while ≥ 2 sequences run, (3) pure decode tok/s by concurrency. (Our script
    for this is not shipped.) Save the OFF period's container logs before the first ON restart; recreating the containers
    discards them.
-5. **Restart variant** (reuse across restarts): in addition to the in-process probe,
+5. **Restart variant** (reuse across restarts; needs no cache-reset endpoint, which is why we use it since the finish
+   release closed that endpoint):
    ```
-   python3 code/spill_quality_probe.py --phase prepare --state <state-file>
-   # restart both ranks; run the boot check with EXPECT_ADOPT=1 (section 6); wait for idle
+   python3 code/spill_quality_probe.py --phase prepare --runs 4 --state <state-file>
+   # wait for `persist: index written (idle: ...)` (u5), restart both ranks; run the boot check with EXPECT_ADOPT=1
+   # (section 6); wait for idle
    python3 code/spill_quality_probe.py --phase restart --state <state-file> --out <result.json>
    ```
-   Same pass line. R cannot come from the new engine's GPU, only from the files the previous engine wrote. Keep prepare →
-   restart within an hour (the probe's requests carry no TTL field and survive until LRU eviction).
+   `--runs N` prepares N independent salts; the restart phase measures each, requires a proven restore in **every**
+   run and judges KL and acceptance on the **means** (single runs are noisy, docs/measurements.md 8.2). Pass line:
+   `SPILLQ verdict runs=4 restore=PASS (4/4 runs proven restored) kl=PASS acceptance=PASS | mean KL ...`. R cannot
+   come from the new engine's GPU, only from the files the previous engine wrote. Keep prepare → restart short: the
+   probe's requests carry no TTL field, so with `DEFAULT_TTL_S` they expire after that long unused, and otherwise they
+   survive until LRU eviction.
 
-**`GLM53_EXPOSE_CACHE_RESET=1`** (needed only by the probe) exposes `/reset_prefix_cache` on the API port **without the
-API key**: anyone who can reach the port can drop every conversation's GPU prefix cache and force re-reads. Turn it off
-(remove it from `.env`, restart) once probing is done.
+**`GLM53_EXPOSE_CACHE_RESET=1`** (needed only by the in-process probe) exposes `/reset_prefix_cache` on the API port
+**without the API key**: anyone who can reach the port can drop every conversation's GPU prefix cache and force
+re-reads. Turn it off (remove it from `.env`, restart) once probing is done; we did so with the finish release. Note
+that changing it changes the environment digest, so the restart that turns it off wipes the tier once.
 
 ## 5. A/B procedure and abort criteria
 
@@ -177,7 +189,8 @@ API key**: anyone who can reach the port can drop every conversation's GPU prefi
   load_timeouts=lt written_gib_1h=w disk_gib=d rps=r restores_ok=.. restores_failed=.. restores_fallback=..
   restore_short=.. saves_ok=.. saves_failed=.. rp_pruned=.. pruned_gib=.. rp_evicted=.. keep=K skipped_cap=..
   expired=.. epoch_dropped=.. ttl0_skipped=.. ttl_rps=none/1h/1d/3d/exp ttl_gib=.. ttl_classes=.. persist=..
-  adopted=.. adopted_gib=.. index_age_s=..`
+  adopted=.. adopted_gib=.. index_age_s=.. restores_started=.. restores_admitted=.. restores_deferred_policy=..`
+  (`ttl_classes` starts with `default` instead of `none` when `DEFAULT_TTL_S` is set)
   New fields are only ever appended; the order of existing fields does not change, so parse as key=value. When the
   breaker opens: `breaker=OPEN ... reason='...'` at WARNING level.
 - Each rank (head = rank 0, worker = rank 1):
@@ -210,7 +223,8 @@ ssh <worker-host> "docker logs --since 70s glm53-exl3-worker 2>&1 | grep -E '\[g
 **Watch, and investigate when a threshold is crossed:** `restores_failed` +3 within 10 minutes (broken files; requests
 fall back to prefill), growing `saves_failed` (free-space floor, I/O), `restores_fallback`, the trend of `rps` and
 `disk_gib`, the count and duration of `restore start/ready` lines, `persist=disabled` (block hashes not reproducible:
-only reuse across restarts is off for this run). With pruning: `rp_pruned` rising while `disk_gib` does not fall
+only reuse across restarts is off for this run), `restores_started` − `restores_admitted` growing by more than 3 in
+10 minutes (restores not followed by an admission, review finding B8; docs/limitations.md). With pruning: `rp_pruned` rising while `disk_gib` does not fall
 (reference counts drifting) or a burst of `restores_failed` (a deleted file being read) are unexpected; roll back the
 pruning (`KEEP_PER_CHAIN=0`) at the next restart. Missing stats/io lines only matter while requests are running or
 waiting.
@@ -227,13 +241,29 @@ waiting.
 - the decision line, and that it does **not** say `reuse across restarts disabled` (block hashes reproducible);
 - the stats line carries `expired / epoch_dropped / ttl0_skipped / ttl_rps / ttl_gib / persist / adopted`.
 
+**Every new connector version** (any change of executable code) and every change of a non-secret variable in the
+environment digest wipes once at its first start (`scheduler signature differs: code, version` and/or `env [...]`).
+Comment- or docstring-only changes of the connector and changes of `GLM53_NVME_SPILL_*` knobs do not (docs/design.md
+2.8.1).
+
 **Second restart and later.** The files the new code wrote must now be adopted: the decision line must read
-`persist: adopted N resume points (...)`. Our boot check enforces this with `EXPECT_ADOPT=1`. If it reads
-`persist: wipe every rank (... signature differs: <part>)`, the reason names what differed from the previous run: `site`
-(the `.py` contents / `.so` sizes under site-packages), `env`, `model`, `config`, `layout`, `hash`, or `rank N: ...`. An
-unintended difference (something that changes on every start, for example a start-up patch that writes different bytes
-each time) means every restart wipes, which is safe (same as no reuse) but loses the benefit. Then run the restart
-variant of the quality probe (section 4, item 5).
+`persist: adopted N resume points (... files, ... GiB/rank) from the previous run; dropped E expired + I incomplete;
+orphan files deleted per rank {...}; decision ... s after the first step`. Our boot check enforces this with
+`EXPECT_ADOPT=1`. Healthy is `orphan files deleted per rank {}`: orphans mean files that the last index did not list
+(a save confirmed after the last index write, or a crash). If it reads `persist: wipe every rank (... signature differs:
+<part> [<names>])`, the reason names what differed from the previous run: `site` (the `.py` contents / `.so` sizes under
+site-packages, by top-level entry), `code` (the connector's syntax tree), `env` (by variable name), `model` (by file),
+`config` (by field), `layout`, `hash`, or `rank N: ...`. An unintended difference (something that changes on every
+start) means every restart wipes, which is safe (same as no reuse) but loses the benefit; we hit this once with
+`VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME` (docs/design.md 2.8.2). Then run the restart variant of the quality probe
+(section 4, item 5).
+
+**Before a stop.** The connector writes the index when the engine goes idle (`persist: index written (idle: N resume
+points, M files, B bytes on disk)`), after 2 s without engine calls (`timer: ...`) and at a clean shutdown
+(`shutdown: ...`). A stop by SIGKILL (`docker rm -f`) runs no shutdown hook. Stop only after the engine went idle and
+the last `index written` line names the resume points you expect; a resume point whose save is still unconfirmed at
+the stop is lost (docs/limitations.md). Our boot check's `EXPECT_ALL_INDEXED=1` requires `orphan files deleted per rank {}`
+after the restart (every resume point saved before the stop was in the index).
 
 During start-up each rank scans its files in a background thread while the model warms up; the scheduler decides before
 any save or restore. While an index exists, waiting requests can be held up to `ADOPT_DEADLINE_S` (normally 1-2 s; the
@@ -262,7 +292,8 @@ and otherwise refused).
 | `upgrade.sh` | Prune release on top of the install: replaced only the connector (e8c218eb… → d030f132…) and `start.sh` (bad54d9a… → ee3208b8…, two more forwarded lines); required the bundle hook and `patch_nvme_spill.py` to be unchanged; verified the new knob is forwarded exactly twice (worker `serve_env` loop + head `-e`) and that the connector's `KNOBS` end with `KEEP_PER_CHAIN`. Own backup and `LATEST-BACKUP` pointer. `.env` untouched (empty knob = default). |
 | `upgrade2.sh` | Final version on top of `upgrade.sh`: connector d030f132… → 1762e23f…, `start.sh` ee3208b8… → 7b8fcfe1… (7 more forwarded knobs). Verified every one of the 8 newer knobs is forwarded exactly twice and that the connector carries the expected version string. Refused the pre-`upgrade.sh` bytes. Also verified all earlier payloads. Guarded against a script whose sha constants were still placeholders. |
 | `revert.sh` | Full rollback to the original launcher. Planned every item before writing: each file → restore / keep / remove; it accepted the "installed" bytes of `install.sh`, `upgrade.sh` and `upgrade2.sh`, so one revert works from any stage; anything else aborted. `.env`: exactly the installed `.env` → restored byte for byte from the backup; edited since → refused unless `FORCE_ENV_STRIP=1`, which removes only the marked block and keeps the other edits. Then verified sha256s, absence of the overlay files and of any knob line. A separate `--purge-spill` mode (after the OFF restart) refused while any running container mounted `$SPILL_DIR`, then removed `$SPILL_DIR/glm53-nvme-spill` on both nodes through a one-off root container (the files are root-owned). |
-| `upgrade-revert.sh`, `upgrade2-revert.sh` | Undo one stage only (back to the previous stage's `start.sh` and connector) from that stage's backup, with the same plan-then-write logic. |
+| `upgrade3.sh` .. `upgrade5.sh` | Finish release, u4 and u5, same pattern: replace the connector (1762e23f… → eb2e1084… → bd0f589e… → 073a2e8c…) and, for the finish release only, `start.sh` (one more forwarded knob, `DEFAULT_TTL_S`); the finish release also edited our marked `.env` block (removed `GLM53_EXPOSE_CACHE_RESET`, added `DEFAULT_TTL_S`) after a backup, printing only names, not values. u4 and u5 changed neither `start.sh` nor `.env`. Same plan-then-write checks as `upgrade2.sh`, each tested in dry runs before use. |
+| `upgrade-revert.sh` .. `upgrade5-revert.sh` | Undo one stage only (back to the previous stage's `start.sh`, connector and `.env` block) from that stage's backup, with the same plan-then-write logic. |
 | `bootcheck.sh` | Read-only start-up check, modes `on` / `off`. `on`: `/health` 200; worker logs readable; `GLM53_NVME_SPILL=1` and identical knob values in both containers; spill dir mounted rw at the same path in both; the bundle and patch lines on both ranks; no allocator/connector `ValueError`; the `group_bytes` line (or, for the final version's known logging bug, the `start-up scan` line instead); scheduler `world=2`; the installed module's sha256 prefix in each rank's log equals the deployed file; knob presence and `keep_per_chain`; connector named in the engine args; KV capacity equal to OFF; no `BREAKER OPEN` / `unexpected exception` / `unanswered`; then it waits up to 180 s for the first stats line, both io lines and the persist decision; `breaker=closed`; the newer stats fields; the persist checks of section 6, and with `EXPECT_ADOPT=1` an `adopted` decision. `off`: no tagged line, connector not in the engine args, no non-empty knob in either container, `GLM53_EXPOSE_CACHE_RESET=0`, same KV capacity. **Pitfall we hit:** with `set -o pipefail`, `echo "$LOG" \| grep -q PATTERN` fails whenever grep matches early: grep exits, `echo` gets SIGPIPE (status 141), and the pipeline reports failure, giving a false MISS on a large log. The script runs without `pipefail` (alternatives: `grep -q PATTERN <<<"$LOG"`, or a temporary file). |
 | `monitor.sh` | Long-running monitor on the head host, every 60 s: fetched new tagged lines from both containers (`docker logs --timestamps --since`, de-duplicated) and the free space of the spill FS on both nodes; appended one summary line to `monitor.log` and raw lines to `monitor-raw.log`; flagged A1-A6 and A9 automatically as `ALERT A<n> ...` lines (also appended to an `ALERT` file). A7 and A8 were left to the operator. WATCH lines: no stats/io line for > 3 min **only while** `/metrics` showed running or waiting requests (an idle engine logs nothing; the first version raised a false warning at idle), `/health` not 200, `restores_failed` +3 in 10 min, `persist=disabled`, unreadable free space. It never rolled anything back. It read only its own knob lines from `.env`. A `--replay <head log> <worker log>` mode judged saved logs offline: real logs gave 0 alerts, crafted abnormal lines fired each of A1-A6 and A9, and logs with newer stats fields gave the same judgments. |
 | `make_payload_ttl.sh` | Built the `upgrade2.sh` payload from one git commit: extracted the connector, `apply_start_sh.py` and the probes with `git show`, applied `apply_start_sh.py` to the backed-up original `start.sh` (after checking its sha256 prefix), wrote a `SOURCE` file and `SHA256SUMS`, and a diff against the previous stage's `start.sh`. It then filled the new sha256 values into the placeholders of `upgrade2.sh` and `revert.sh`; a second run with the same commit was a no-op, a different commit after finalization aborted. Re-running produced identical bytes. |

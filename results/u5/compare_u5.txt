@@ -1,0 +1,22 @@
+SAME c_on_s2: 829 fields, differences other than timing/index size/u5 counters 0
+SAME pr_clean_s2: 1043 fields, differences other than timing/index size/u5 counters 0
+SAME pr_clean_s3: 995 fields, differences other than timing/index size/u5 counters 0
+SAME pr_corrupt_index_s2: 1044 fields, differences other than timing/index size/u5 counters 0
+SAME pr_crash_s2: 1043 fields, differences other than timing/index size/u5 counters 0
+SAME pr_crash_s4: 974 fields, differences other than timing/index size/u5 counters 0
+SAME pr_crc_file_s2: 1047 fields, differences other than timing/index size/u5 counters 0
+SAME pr_missing_file_s2: 1042 fields, differences other than timing/index size/u5 counters 0
+     u5 counter spill_before_restart.index_writes: 10 -> 9
+SAME pr_p0_s2: 1040 fields, differences other than timing/index size/u5 counters 0
+SAME pr_rank1_sig_s2: 1044 fields, differences other than timing/index size/u5 counters 0
+SAME pr_sig_env_s2: 1044 fields, differences other than timing/index size/u5 counters 0
+SAME pr_truncate_index_s2: 1044 fields, differences other than timing/index size/u5 counters 0
+REGRESSION 12/12 jobs identical apart from timings / index size / u5 index counters
+OK   u5_pr_idle_clean_s2            u5       ok_before=8 in_index_at_kill=8 adopted=8 expired_in_downtime=0 lost=0 orphan_files=0 idle_index_writes=2 verify_fail=0
+OK   u5_pr_idle_crash_s2            u5       ok_before=8 in_index_at_kill=8 adopted=8 expired_in_downtime=0 lost=0 orphan_files=0 idle_index_writes=2 verify_fail=0
+OK   u5_pr_idle_crash_s2_u4code     bd0f589e ok_before=8 in_index_at_kill=7 adopted=7 expired_in_downtime=0 lost=1 orphan_files=46 idle_index_writes=0 verify_fail=0  (reproduces the bug)
+OK   u5_pr_idle_crash_s3            u5       ok_before=8 in_index_at_kill=8 adopted=8 expired_in_downtime=0 lost=0 orphan_files=0 idle_index_writes=2 verify_fail=0
+OK   u5_pr_idle_crash_s3_u4code     bd0f589e ok_before=8 in_index_at_kill=7 adopted=7 expired_in_downtime=0 lost=1 orphan_files=46 idle_index_writes=0 verify_fail=0  (reproduces the bug)
+OK   u5_pr_idle_crash_s4            u5       ok_before=8 in_index_at_kill=8 adopted=7 expired_in_downtime=1 lost=0 orphan_files=12 idle_index_writes=2 verify_fail=0
+OK   u5_pr_idle_crash_s4_u4code     bd0f589e ok_before=8 in_index_at_kill=7 adopted=6 expired_in_downtime=1 lost=1 orphan_files=58 idle_index_writes=0 verify_fail=0  (reproduces the bug)
+IDLE 7/7 as expected (u5: lost 0; bd0f589e: the bug reproduced)

@@ -104,6 +104,17 @@ class Rig:
         self.restart_at = float(os.environ.get("NVMESPILL_RESTART_AT", "0") or 0)
         self.restart_down = float(os.environ.get("NVMESPILL_RESTART_DOWN_S", "600"))
         self.restart_crash = os.environ.get("NVMESPILL_RESTART_CRASH", "") == "1"
+        # [u5 rig] NVMESPILL_RESTART_IDLE=1: production's restart (wait until idle -> `docker rm -f`). At
+        # RESTART_AT no new arrival is admitted; the engine steps exactly as EngineCore does (while
+        # Scheduler.has_requests(), which asks the connector's has_pending_push_work) until it would block idle, stays
+        # idle NVMESPILL_RESTART_IDLE_S (simulated; the background index writer gets that long in real time), then the
+        # restart (CRASH=1: SIGKILL, no shutdown hook). Before it: the RPs that were complete on every rank.
+        self.restart_idle = os.environ.get("NVMESPILL_RESTART_IDLE", "") == "1"
+        self.restart_idle_s = float(os.environ.get("NVMESPILL_RESTART_IDLE_S", "20"))
+        # NVMESPILL_RESTART_IDLE_PROBES=N: then N requests like spill_quality_probe --phase prepare (a fresh 81k-token
+        # prompt with the DSH fields, max_tokens 1 as the probe), each run to idle: the last one's RP is saved when it
+        # finishes and confirmed by the engine's last (empty) steps -- the case seen in production on 2026-10-14
+        self.restart_idle_probes = int(os.environ.get("NVMESPILL_RESTART_IDLE_PROBES", "0") or 0)
         self.restart_info: dict | None = None
         self.spill_before_restart: dict | None = None
         self._requeue: list = []
@@ -182,6 +193,26 @@ class Rig:
 
             bp.free_blocks = rec_free  # type: ignore[method-assign]
 
+        # [nvme-spill finish rig] count preemptions (the summary's "preemptions" was never incremented before)
+        orig_preempt = self.scheduler._preempt_request
+
+        def rec_preempt(request, *a, **k):
+            self.preempt_count = getattr(self, "preempt_count", 0) + 1
+            self.preempt_log = getattr(self, "preempt_log", [])
+            if len(self.preempt_log) < 200:
+                self.preempt_log.append((self.step, request.request_id, request.num_computed_tokens))
+            return orig_preempt(request, *a, **k)
+
+        self.scheduler._preempt_request = rec_preempt  # type: ignore[method-assign]
+
+        # [nvme-spill finish rig] eviction attribution (observation only)
+        if os.environ.get("NVMESPILL_DIAG_EVICT") == "1":
+            from sim.diag import EvictDiag
+            if getattr(self, "diag", None) is None:
+                self.diag = EvictDiag(self.scheduler)
+            else:
+                self.diag.attach(self.scheduler)
+
     def _post_init_rest(self) -> None:
         # ---- per-run metrics state ----
         self.step = 0
@@ -238,6 +269,8 @@ class Rig:
             block_hasher=self.hasher,
         )
         self.scheduler.add_request(req)
+        if getattr(self, "diag", None) is not None:
+            self.diag.note_request(req)
 
     # ------------------------------------------------------------------
     def _restart_inject(self) -> str:
@@ -287,6 +320,74 @@ class Rig:
             return f"{kind} {fname[:12]}"
         return f"unknown {kind}"
 
+    def _index_rps_on_disk(self):
+        """[u5 rig] RP keys (hex) in the on-disk index right now (None: no index / it does not verify)."""
+        sc = self.scheduler.connector._sched
+        idx, _err = self.world.spill._read_index(sc.cfg.index_path())
+        if idx is None:
+            return None
+        return sorted(r["x"]["k"] for r in idx.get("rps") or [])
+
+    def _run_to_idle(self) -> dict:
+        """[u5 rig] EngineCore until it would block idle (Scheduler.has_requests() False), then idle
+        NVMESPILL_RESTART_IDLE_S without a step. Returns what the restart check needs."""
+        st = self.scheduler
+        sc = st.connector._sched
+        n = self._steps_to_idle()
+        from vllm.sampling_params import SamplingParams
+        import random as _r
+        probe_ok = []
+        for k in range(self.restart_idle_probes):
+            rng = _r.Random(7919 * (k + 1) + self.seed)
+            sp = SamplingParams(max_tokens=1, ignore_eos=True, extra_args={"kv_transfer_params": {
+                "glm53_spill": {"ttl_s": 86400, "session": f"probe-{k}", "epoch": 0}}})
+            rid = f"probe{k}"
+            st.add_request(Request(request_id=rid, prompt_token_ids=[rng.randrange(200, 100_000) for _ in range(81251)],
+                                   sampling_params=sp, pooling_params=None, arrival_time=self.now,
+                                   block_hasher=self.hasher))
+            n += self._steps_to_idle()
+            probe_ok.append(sum(1 for rp in sc.rps.values() if rp.state == "ok" and rp.session == f"probe-{k}"))
+        # idle: EngineCore blocks in input_queue.get; nothing calls the connector any more. The background index writer
+        # runs in real time meanwhile (production: >= 20 s between the last answer and `docker rm -f`).
+        self.now += self.restart_idle_s
+        wr = sc._index_writer
+        if wr is not None:
+            wr.flush(10.0)
+        ok = [rp.key.hex() for rp in sc.rps.values() if rp.state == "ok" and not sc._is_expired(rp)]
+        return {"idle_steps": n, "rps_ok_before": len(ok), "rps_ok_keys": sorted(ok), "probe_rps_ok": probe_ok,
+                "rps_saving_before": sum(1 for rp in sc.rps.values() if rp.state != "ok"),
+                "save_jobs_before": len(sc.save_jobs), "index_dirty_at_kill": bool(sc._index_dirty),
+                "index_writes_before": sc.stats.get("index_writes", 0),
+                "index_writes_idle": sc.stats.get("index_writes_idle", 0)}
+
+    def _steps_to_idle(self) -> int:
+        st = self.scheduler
+        n = 0
+        while st.has_requests() and n < 200_000:      # has_requests -> connector.has_pending_push_work, as EngineCore
+            sched_out = st.schedule()
+            self.step += 1
+            n += 1
+            self._snapshot_step(sched_out)
+            for rid, k in sched_out.num_scheduled_tokens.items():
+                self.sum_scheduled[rid] = self.sum_scheduled.get(rid, 0) + k
+            d_prompt = sum(k for rid, k in sched_out.num_scheduled_tokens.items()
+                           if rid in st.requests and (st.requests[rid].num_computed_tokens
+                                                      < st.requests[rid].num_prompt_tokens
+                                                      or st.requests[rid].is_prefill_chunk))
+            d_dec = any(not st.requests[r].is_prefill_chunk for r in sched_out.num_scheduled_tokens
+                        if r in st.requests)
+            ddt = d_prompt / PREFILL_TOK_S + (DECODE_STEP_S if d_dec else 0.0)
+            self.now += ddt if ddt > 0 else EMPTY_STEP_S
+            prev_keys = set(st.requests)
+            out = self._fake_output(sched_out)
+            out.kv_connector_output = self.world.step(sched_out)
+            st.update_from_output(sched_out, out)
+            for rid in prev_keys - set(st.requests):
+                self.finished_reqs.add(rid)
+            self._refresh_drafts()
+            self._observe_deferred()
+        return n
+
     def _restart(self) -> None:
         """[nvme-spill ttl rig] Engine restart: every request in flight is lost (the clients resend it after the
         restart, as DSH retries), the GPU cache is gone, the connector and the ranks are new objects on the same spill
@@ -294,6 +395,10 @@ class Rig:
         from vllm.sampling_params import SamplingParams
 
         st = self.scheduler
+        idle_info = None
+        if self.restart_idle and self.world is not None:
+            idle_info = self._run_to_idle()
+            st = self.scheduler
         t0 = self.now
         lost = []
         for r in list(st.running) + list(st.waiting) + list(getattr(st, "skipped_waiting", [])):
@@ -329,6 +434,9 @@ class Rig:
                                                pooling_params=None, arrival_time=self.now, block_hasher=self.hasher))
             if rid.startswith("dsh"):
                 self._prev_total_of[nid] = self._prev_total_of.get(rid)
+        if idle_info is not None:
+            idle_info["index_rps_on_disk"] = self._index_rps_on_disk()
+        self.restart_idle_info = idle_info
         self.restart_info = {"at": t0, "down_s": self.restart_down, "crash": self.restart_crash, "inject": inj,
                              "resent": [x[0] for x in lost], "step": self.step,
                              "persist": (self.scheduler.connector._sched.persist_state
@@ -536,6 +644,16 @@ class Rig:
                     "hit": step_lookups.get(r.request_id, r.num_computed_tokens),
                 }
             )
+            # [nvme-spill finish rig] this admission's hit BEFORE the hit-block check: a re-admission (after a
+            # preemption) must not be checked against the hit of the request's previous admission (the stale value made
+            # hit_hash_violations count 1 in some async+CRC runs, docs/limitations.md)
+            prev_hit = self.admission_hit.get(r.request_id)
+            if prev_hit is not None:
+                # a re-admission (after a preemption): the old record order checked it against prev_hit
+                self.readmissions = getattr(self, "readmissions", 0) + 1
+                if prev_hit > self.admissions[-1]["hit"]:
+                    self.readmit_hit_shrank = getattr(self, "readmit_hit_shrank", 0) + 1
+            self.admission_hit[r.request_id] = self.admissions[-1]["hit"]
             self._check_hit_blocks(r)
             if self.world is not None:
                 self.world.check_admission(r, self.admissions[-1]["hit"])
@@ -801,6 +919,22 @@ class Rig:
                 c = a["req"].replace("dshR", "dsh")[3:].split("t", 1)[0]
                 first.setdefault(c, {"req": a["req"], "prompt": a["prompt"], "hit": a["hit"]})
             restart = dict(self.restart_info)
+            ii = getattr(self, "restart_idle_info", None)
+            if ii is not None:
+                sc = self.scheduler.connector._sched
+                st_ = sc.stats
+                on_disk = ii.get("index_rps_on_disk") or []
+                ok_keys = ii["rps_ok_keys"]
+                restart["idle"] = {k: v for k, v in ii.items() if k not in ("rps_ok_keys", "index_rps_on_disk")}
+                restart["idle"].update({
+                    "ok_rps_in_index_at_kill": sum(1 for k in ok_keys if k in on_disk),
+                    "ok_rps_missing_from_index": sum(1 for k in ok_keys if k not in on_disk),
+                    "adopted_rps": st_.get("persist_adopted_rps", 0),
+                    "orphan_files": st_.get("persist_orphans", 0),
+                    "dropped_expired": st_.get("persist_dropped_expired", 0),
+                    "dropped_missing": st_.get("persist_dropped_missing", 0),
+                    "all_ok_rps_adopted": (st_.get("persist_adopted_rps", 0) == len(ok_keys)
+                                           and st_.get("persist_orphans", 0) == 0)})
             restart.update({"dsh_re_read_after": sum(a["prompt"] - a["hit"] for a in after),
                             "dsh_admissions_after": len(after),
                             "dsh_first_after": first,
@@ -855,6 +989,9 @@ class Rig:
             "stalled_s_est": round(self.stalled_s, 1),
             "sched_prompt_tokens": self.sched_prompt_tokens,
             "preemptions": self.preempt_count,
+            "preempt_log": getattr(self, "preempt_log", [])[:50],
+            "readmissions": getattr(self, "readmissions", 0),
+            "readmit_hit_shrank": getattr(self, "readmit_hit_shrank", 0),
             "finished": len(self.finished_reqs),
             "pending_unfinished": len(self.scheduler.requests),
             "free_blocks_end": free,
@@ -874,6 +1011,7 @@ class Rig:
             "restart": restart,
             "spill_before_restart": self.spill_before_restart,
             "spill": self._spill_summary(),
+            "diag_evict": self.diag.summary() if getattr(self, "diag", None) is not None else None,
         }
 
     def _spill_summary(self):

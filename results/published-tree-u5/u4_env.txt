@@ -1,0 +1,53 @@
+PASS unit_volatile_names_do_not_change_digest 
+PASS unit_volatile_exactly_two_names ['VLLM_DIST_IDENT', 'VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME']
+PASS unit_strict_VLLM_OBJECT_STORAGE_SHM_BUFFER_NAMEX 
+PASS unit_strict_VLLM_OBJECT_STORAGE_SHM_BUFFER 
+PASS unit_strict_VLLM_DIST_IDENT2 
+PASS unit_strict_VLLM_SOMETHING_NEW_U4 
+PASS unit_strict_GLM53_KPOOL_TEST_FLAG 
+PASS unit_strict_EXL3_U4_TEST 
+PASS unit_strict_TF_EXL3_U4 
+PASS unit_strict_MAX_MODEL_LEN 
+PASS unit_secret_and_own_knobs_still_ignored 
+PASS unit_env_part_digest_equals_env_digest 
+PASS unit_breakdown_names_equal_digest_names 
+PASS unit_breakdown_no_secret_volatile_or_own_names 
+PASS unit_breakdown_values_are_8hex_not_values 
+PASS unit_diff_changed_added_removed changed B / added D / removed C
+PASS unit_diff_same 
+PASS unit_diff_no_index_record 
+PASS unit_diff_no_run_record 
+PASS unit_diff_limit added N00,N01,N02,N03,N04,N05,N06,N07,N08,N09,N10,N11,N12,N13,N14,N15 (+4 more)
+PASS unit_explain code, env [changed X]
+PASS unit_identity_has_breakdown_key ['config', 'env', 'layout', 'model', 'python', 'site']
+PASS unit_identity_parts_are_strings 
+PASS unit_identity_site_breakdown_has_vllm_groups 57 groups
+PASS unit_version_finish2 2026-10-14.finish.3/f1/i1
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS sched_volatile_names_differ_still_adopts adopted
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS sched_unknown_volatile_wipes_and_is_named scheduler signature differs: env [changed VLLM_U4_UNKNOWN_VOLATILE]
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS sched_added_var_named scheduler signature differs: env [added GLM53_U4_NEW_FLAG]
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS sched_removed_var_named scheduler signature differs: env [removed EXL3_U4_GONE]
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS sched_index_has_sched_detail_env ['config', 'env', 'layout', 'model', 'python', 'site']
+PASS sched_index_has_rank_detail_slots 
+PASS sched_index_holds_no_env_value 
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS sched_old_index_without_breakdown_says_so scheduler signature differs: env [no per-name record in the index]
+PASS rank_hello_carries_breakdown_not_in_parts ['config', 'env', 'layout', 'model', 'python', 'site']
+PASS rank_volatile_name_does_not_change_rank_sig 
+PASS rank_other_var_changes_rank_sig 
+PASS rank_mismatch_names_var_per_rank rank signature differs (rank 1: env [added VLLM_U4_RANK_FLAG])
+PASS fresh_static_generator_in_prod_tree /w/tests/rig/work/vllm
+PASS fresh_static_trigger_core.py 
+PASS fresh_static_trigger_multiproc_executor.py 
+PASS fresh_new_connector_digest_equal_between_processes 887e039493d0074d 887e039493d0074d
+PASS fresh_new_control_without_trigger_equal 887e039493d0074d 887e039493d0074d
+     imported: {'vllm.v1.engine.core': 'ok', 'vllm.v1.executor.multiproc_executor': 'ok', 'vllm.v1.core.sched.scheduler': 'ok', 'vllm.v1.worker.gpu_worker': 'ValueError', 'vllm.v1.worker.gpu_model_runner': 'ok', 'vllm.config': 'ok', 'vllm.distributed.kv_transfer.kv_connector.v1.glm53_nvme_spill_connector': 'ok', 'vllm.multimodal.cache': 'ok', 'exllamav3': 'ModuleNotFoundError', 'flashinfer': 'ok', 'triton': 'ok', 'tilelang': 'ok', 'deep_gemm': 'ModuleNotFoundError', 'deep_ep': 'ImportError'}
+     env items under the prefixes written at run time (names): ['VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME']
+PASS audit_every_item_differing_between_processes_is_excluded differ=['VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME'] unknown=[]
+PASS audit_new_digest_equal_after_imports 887e039493d0074d 887e039493d0074d
+SUMMARY 50/50 passed

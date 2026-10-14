@@ -1,0 +1,27 @@
+PASS geometry group_bytes=[27624960, 1672704, 21233664, 21233664, 18874368, 18874368, 11796480]
+PASS wipe_partial_at_start 
+PASS save_both_ranks agg={1: [2, 0]} 0.14s
+PASS file_sizes_4k_aligned [11800576, 18878464, 18878464, 21237760, 21237760, 27631616]
+PASS load_ok {2: [1, 0]} 0.07s
+PASS load_byte_identical_all_groups 
+PASS no_other_bytes_changed 
+PASS rank1_load_own_bytes 
+PASS ranks_differ 
+[glm53-nvme-spill] rank 0: load job 4 failed: ValueError('[glm53-nvme-spill] g2_b2.blk: CRC mismatch')
+PASS crc_mismatch_fails_closed {4: [0, 1]}
+[glm53-nvme-spill] rank 0: load job 5 failed: ValueError('[glm53-nvme-spill] g0_b1.blk: size 27631616 != 11800576')
+PASS wrong_group_fails 
+[glm53-nvme-spill] rank 0: load job 6 failed: ValueError('[glm53-nvme-spill] swapped.blk: header does not match this rank/layout')
+[glm53-nvme-spill] rank 0: load job 7 failed: ValueError('[glm53-nvme-spill] g4_b4.blk: size 18874368 != 18878464')
+PASS foreign_rank_file_fails 
+[glm53-nvme-spill] rank 0: load job 8 failed: FileNotFoundError(2, 'No such file or directory')
+PASS truncated_fails 
+PASS missing_fails 
+[glm53-nvme-spill] rank 1: load job 9 failed: FileNotFoundError(2, 'No such file or directory')
+PASS one_rank_failure_fails_job {9: [1, 1]}
+[glm53-nvme-spill] rank 5: save job 10 failed: OSError(28, 'free-disk floor (1073741824 GiB)')
+PASS free_disk_floor_fails 
+PASS delete 
+[glm53-nvme-spill] rank 0: save job 12 failed: OSError(27, 'File too large')
+PASS write_fails_midway_cleans {12: [0, 1]} left=[]
+SUMMARY 18/18 passed

@@ -64,6 +64,7 @@ import json
 import os
 import queue
 import struct
+import sys
 import threading
 import time
 import zlib
@@ -100,13 +101,23 @@ ALIGN = 4096
 CRC_BLOCK = 8 << 20             # bytes one CRC-32 covers
 SUBDIR = "glm53-nvme-spill"
 # 2026-10-14: per-request TTL (DSH contract v1.1, kv_transfer_params.glm53_spill) + reuse across restarts (index)
-CONNECTOR_VERSION = "2026-10-14.ttl-persist.1"
+CONNECTOR_VERSION = "2026-10-14.finish.3"   # finish.1 (B8 gate, code digest, log-format fix) + u4: volatile env names, names on mismatch
+#                                               + u5: index written when the engine goes idle (+ timer, shutdown drain)
 INDEX_NAME = "index.json"
 INDEX_MAGIC = "glm53-nvme-spill-index"
 INDEX_VERSION = 1
 TTL_MAX_S = 7 * 86400           # contract: ttl_s > 7 days is invalid (-> server default)
 SESSION_MAX = 64                # contract: session id is an opaque string of at most 64 characters
 EPOCH_GRACE_S = 1800.0          # an older-epoch RP is deleted only after this long unused (a late request of that epoch)
+# u5 (2026-10-14): the index was written only from build_meta (one engine step), so a resume point confirmed by the
+# last step before the engine went idle stayed out of the on-disk index until the next request, and production stops
+# the engine with `docker rm -f` (SIGKILL: no shutdown hook) -> its files became orphans at the next start. Now:
+# (1) has_pending() -- vLLM's Scheduler.has_requests() asks it right before EngineCore blocks idle -- writes a changed
+# index at once; (2) a timer thread writes a changed index after INDEX_IDLE_S without a connector call from the engine
+# (any engine whose idle path does not ask has_pending, a step stuck for long), under SpillScheduler.lock, which every
+# scheduler-side connector entry point holds. Not operator knobs (start.sh unchanged).
+INDEX_IDLE_S = 2.0
+INDEX_TIMER_TICK_S = 0.5
 
 
 # Every operator knob (env GLM53_NVME_SPILL_<name>); code/apply_start_sh.py forwards exactly these to both
@@ -117,7 +128,9 @@ KNOBS = ("DIR", "GIB", "MIN_TOKENS", "MIN_GAIN", "HIGHWATER", "MIN_FREE_GIB", "P
          "BREAKER_FAILS", "MAX_PINNED_BLOCKS", "LOG_EVERY_S", "KEEP_PER_CHAIN",
          # 2026-10-14 (TTL + restart reuse)
          "PERSIST", "HASH_SEED", "INDEX_EVERY_S", "ADOPT_DEADLINE_S", "TTL_SWEEP_S", "TTL_SAVE_POLICY",
-         "TTL_MIN_TOKENS")
+         "TTL_MIN_TOKENS",
+         # 2026-10-14 finish: sliding expiry of resume points saved by requests without the DSH fields
+         "DEFAULT_TTL_S")
 
 
 def _up(x: int, a: int = ALIGN) -> int:
@@ -167,6 +180,18 @@ class SpillConfig:
     ttl_sweep_s: float = 30.0           # how often expired resume points are deleted
     ttl_save_policy: str = "all"        # requests with an explicit ttl_s > 0: all = also their first turn | repeat
     ttl_min_tokens: int = 0             # MIN_TOKENS for requests with an explicit ttl_s > 0 (0 = MIN_TOKENS)
+    # B8 (2026-10-14 finish): do not start a restore in a step the decode-floor policy skips the request anyway. Not an
+    # operator knob (start.sh unchanged); tests/rig A/B set it through from_env(extra) / NVMESPILL_TEST_NO_POLICY_GATE.
+    policy_gate: bool = True
+    # B8 (2026-10-14 finish): a restore's fresh blocks evict NVMe-backed cached blocks (bytes on disk: a later hit costs a
+    # read) before blocks that exist only in GPU memory (a later hit costs a recompute: ttl-0 / one-shot / unsaved
+    # prefixes). Not an operator knob; tests/rig A/B: NVMESPILL_TEST_NO_BACKED_FIRST.
+    backed_first: bool = True
+    # resume points of requests WITHOUT kv_transfer_params.glm53_spill (batch jobs, headless clients: the "no TTL" class) expire
+    # after this long unused, sliding like an explicit ttl_s (0 = never, the behaviour before). Their save policy is
+    # unchanged (SAVE_POLICY, no first-turn writes) and they stay FIRST in the cap eviction order (after expired/stale,
+    # before every explicit-TTL class); the stats line labels the class "default" instead of "none".
+    default_ttl_s: int = 0
 
     def index_path(self) -> str:
         return os.path.join(self.root, SUBDIR, INDEX_NAME)
@@ -217,6 +242,9 @@ class SpillConfig:
             ttl_sweep_s=float(get("TTL_SWEEP_S", 30)),
             ttl_save_policy=str(get("TTL_SAVE_POLICY", "all")),
             ttl_min_tokens=int(get("TTL_MIN_TOKENS", 0)),
+            default_ttl_s=int(get("DEFAULT_TTL_S", 0)),
+            backed_first=not bool(extra.get("no_backed_first") or os.environ.get("NVMESPILL_TEST_NO_BACKED_FIRST")),
+            policy_gate=not bool(extra.get("no_policy_gate") or os.environ.get("NVMESPILL_TEST_NO_POLICY_GATE")),
         )
         if cfg.cap_bytes <= 0:
             raise ValueError(f"{TAG} GLM53_NVME_SPILL_GIB must be > 0")
@@ -239,6 +267,8 @@ class SpillConfig:
             raise ValueError(f"{TAG} GLM53_NVME_SPILL_INDEX_EVERY_S / ADOPT_DEADLINE_S / TTL_SWEEP_S must be > 0")
         if cfg.ttl_save_policy not in ("repeat", "all"):
             raise ValueError(f"{TAG} GLM53_NVME_SPILL_TTL_SAVE_POLICY must be repeat or all")
+        if not 0 <= cfg.default_ttl_s <= TTL_MAX_S:
+            raise ValueError(f"{TAG} GLM53_NVME_SPILL_DEFAULT_TTL_S must be in [0, {TTL_MAX_S}] seconds (0 = no expiry)")
         if cfg.ttl_min_tokens < 0:
             raise ValueError(f"{TAG} GLM53_NVME_SPILL_TTL_MIN_TOKENS must be >= 0 (0 = MIN_TOKENS)")
         return cfg
@@ -328,31 +358,121 @@ _ENV_PREFIXES = ("GLM53_", "EXL3_", "TF_", "DFLASH", "MTP_", "SPEC_", "KV_CACHE"
                  "ENFORCE_EAGER", "MAX_MODEL_LEN")
 _ENV_SKIP = ("KEY", "TOKEN", "SECRET", "PASS", "AUTH", "CRED", "COOKIE", "SESSION", "PRIVATE", "LOG", "PORT", "_IP",
              "HOST", "GLM53_NVME_SPILL")
+# 2026-10-14 u4: names whose VALUE a process generates for itself at run time (a uuid / a temp-file name) and writes into
+# its own os.environ; no operator sets them and neither the bytes nor the keys of a block file depend on them. Left out
+# by exact name only (every other name under _ENV_PREFIXES stays strict). Audit of the production vLLM tree + the
+# overlays + the image's site-packages for run-time writes into os.environ under _ENV_PREFIXES: docs/design.md 2.8.2.
+_ENV_VOLATILE = frozenset((
+    # vllm/envs.py get_env_or_set_default(): the first read of envs.VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME sets it to
+    # f"VLLM_OBJECT_STORAGE_SHM_BUFFER_{uuid.uuid4().hex}"; enable_envs_cache() (end of EngineCore.__init__ and of every
+    # WorkerProc.__init__) reads every vLLM env var -> a new random value in every process at every start. It names
+    # the multimodal processor-cache shm segment (multimodal/cache.py), nothing in the KV cache. (A 2026-10-14
+    # production restart wiped instead of adopting because of this: "rank signature differs (rank 0: env; rank 1: env)".)
+    "VLLM_OBJECT_STORAGE_SHM_BUFFER_NAME",
+    # vllm/v1/worker/cpu_worker.py: set at every start to the basename of the file:// distributed-init path or its TCP
+    # port (an identifier of this run's process group). CPU workers only (not production); listed for the CPU rigs.
+    "VLLM_DIST_IDENT",
+))
+_DETAIL = "_detail"     # key of the per-name breakdown inside an identity dict (diagnostics only, never signed)
 
 
 def _h(x: Any) -> str:
     return hashlib.sha256(json.dumps(x, sort_keys=True, default=str).encode()).hexdigest()[:16]
 
 
+def _h8(x: Any) -> str:
+    return hashlib.sha256(json.dumps(x, sort_keys=True, default=str).encode()).hexdigest()[:8]
+
+
+def _env_items() -> list[tuple[str, str]]:
+    return sorted((k, v) for k, v in os.environ.items()
+                  if k.startswith(_ENV_PREFIXES) and k not in _ENV_VOLATILE and not any(s in k for s in _ENV_SKIP))
+
+
 def _env_digest() -> str:
-    """Names + values of the env that selects patches / kernels / KV formats (no secrets, logging, ports, hosts, nor
-    this connector's own knobs). Only a digest leaves the process."""
-    items = sorted((k, v) for k, v in os.environ.items()
-                   if k.startswith(_ENV_PREFIXES) and not any(s in k for s in _ENV_SKIP))
-    return _h(items)
+    """Names + values of the env that selects patches / kernels / KV formats (no secrets, logging, ports, hosts, this
+    connector's own knobs, nor the run-time generated _ENV_VOLATILE names). Only a digest leaves the process."""
+    return _h(_env_items())
 
 
-def _site_digest() -> str:
+def _env_part() -> tuple[str, dict[str, str]]:
+    """(_env_digest(), {name: 8-hex sha256 of the value}) from ONE read of os.environ: names and short value digests
+    only (the same names _env_digest covers, so no secret-named variable), for naming what changed on a mismatch."""
+    items = _env_items()
+    return _h(items), {k: _h8(v) for k, v in items}
+
+
+def _detail_diff(old: Any, cur: Any, limit: int = 16) -> str:
+    """Which names of a per-name breakdown differ: 'changed A,B / added C / removed D' (at most ``limit`` per kind)."""
+    if not isinstance(old, dict) or not old:
+        return "no per-name record in the index"
+    if not isinstance(cur, dict) or not cur:
+        return "no per-name record in this run"
+    out = []
+    for tag, names in (("changed", sorted(k for k in set(old) & set(cur) if old[k] != cur[k])),
+                       ("added", sorted(set(cur) - set(old))), ("removed", sorted(set(old) - set(cur)))):
+        if names:
+            out.append(f"{tag} " + ",".join(names[:limit]) + (f" (+{len(names) - limit} more)" if len(names) > limit
+                                                               else ""))
+    return " / ".join(out) or "same names and short digests"
+
+
+def _explain(diff: list[str], old_detail: Any, cur_detail: Any) -> str:
+    """The parts that differ, each with its per-name breakdown when both sides recorded one."""
+    od = old_detail if isinstance(old_detail, dict) else {}
+    cd = cur_detail if isinstance(cur_detail, dict) else {}
+    out = []
+    for k in diff:
+        if k in od or k in cd:
+            out.append(f"{k} [{_detail_diff(od.get(k), cd.get(k))}]")
+        else:
+            out.append(k)
+    return ", ".join(out)
+
+
+def _code_digest(path: str | None = None) -> str:
+    """This connector's code, independent of comments, docstrings and formatting (2026-10-14 finish): the sha256 of the
+    module's AST with every module/class/function docstring removed, dumped without positions. Any change to an
+    executable token (a name, a constant -- log format strings included --, an operator, a default, an import, an
+    annotation) changes it; a change to a comment, a docstring, blank lines or line breaks does not (none of them
+    reaches the bytecode the engine runs, and nothing reads this module's __doc__). Used instead of the raw bytes of
+    this one file in the site digest, so a comment-only fix of the connector no longer wipes the NVMe tier at the next
+    start; everything else in site-packages stays byte-strict."""
+    import ast
+
+    path = path or os.path.abspath(__file__)
+    with open(path, "rb") as fh:
+        tree = ast.parse(fh.read(), filename="glm53_nvme_spill_connector.py")
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+            body = node.body
+            if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant) \
+                    and isinstance(body[0].value.value, str):
+                node.body = body[1:] or [ast.Pass()]
+    return hashlib.sha256(ast.dump(tree, annotate_fields=True, include_attributes=False).encode()).hexdigest()[:16]
+
+
+def _site_group(rel: str) -> str:
+    """Breakdown key of a site-packages file: its top-level entry; inside vllm/ its second level (vllm/v1, vllm/envs.py)."""
+    a = rel.split(os.sep)
+    return "/".join(a[:2]) if a[0] == "vllm" and len(a) > 1 else a[0]
+
+
+def _site_digest(detail: dict | None = None) -> str:
     """Every *.py (content) and shared object (name + size) of the site-packages dir holding the imported vllm: the
-    image's vLLM plus every production overlay patch (they rewrite files there at container start), this connector
-    included. ~4 s cold on the production image, run off the hot path (scheduler thread / rank writer thread)."""
+    image's vLLM plus every production overlay patch (they rewrite files there at container start). This connector's
+    own file is left out here and covered by _code_digest (its code without comments/docstrings) as the identity part
+    "code". ~4 s cold on the production image, run off the hot path (scheduler thread / rank writer thread).
+    ``detail`` (diagnostics) receives {top-level entry, or vllm/<2nd level>: 8-hex digest of the same inputs}."""
     import importlib.util
 
     spec = importlib.util.find_spec("vllm")
     if spec is None or not spec.origin:
         return "no-vllm"
     root = os.path.dirname(os.path.dirname(os.path.abspath(spec.origin)))
+    me = os.path.realpath(os.path.abspath(__file__))
     h = hashlib.sha256()
+    groups: dict[str, Any] = {}
     n = 0
     for dp, dn, fn in os.walk(root):
         dn.sort()
@@ -361,21 +481,37 @@ def _site_digest() -> str:
         for f in sorted(fn):
             p = os.path.join(dp, f)
             rel = os.path.relpath(p, root)
+            b = None
             try:
-                if f.endswith(".py"):
+                if f.endswith(".py") and os.path.realpath(p) == me:
+                    b = rel.encode() + b"\0code"
+                    n += 1
+                elif f.endswith(".py"):
                     with open(p, "rb") as fh:
-                        h.update(rel.encode() + b"\0" + hashlib.sha256(fh.read()).digest())
+                        b = rel.encode() + b"\0" + hashlib.sha256(fh.read()).digest()
                     n += 1
                 elif f.endswith(".so") or ".so." in f:
-                    h.update(f"{rel}:{os.stat(p).st_size}".encode())
+                    b = f"{rel}:{os.stat(p).st_size}".encode()
             except OSError:
-                h.update(f"{rel}:unreadable".encode())
+                b = f"{rel}:unreadable".encode()
+            if b is not None:
+                h.update(b)
+                if detail is not None:
+                    g = _site_group(rel)
+                    if g not in groups:
+                        groups[g] = hashlib.sha256()
+                    groups[g].update(b)
+    if detail is not None:
+        detail.update({g: gh.hexdigest()[:8] for g, gh in groups.items()})
     return f"{h.hexdigest()[:16]}/{n}"
 
 
-def _dir_digest(path: str | None) -> str:
-    """A model directory: every top-level file's name, size and mtime; small files (configs, tokenizer) by content."""
+def _dir_digest(path: str | None, detail: dict | None = None, tag: str = "") -> str:
+    """A model directory: every top-level file's name, size and mtime; small files (configs, tokenizer) by content.
+    ``detail`` (diagnostics) receives {tag/file: 8-hex digest of that file's entry} (+ {tag/: the resolved path})."""
     if not path or not os.path.isdir(path):
+        if detail is not None:
+            detail[f"{tag}/"] = _h8(f"name:{path}")
         return f"name:{path}"
     items = []
     for f in sorted(os.listdir(path)):
@@ -391,23 +527,36 @@ def _dir_digest(path: str | None) -> str:
                 items.append((f, st.st_size, st.st_mtime_ns))
         except OSError:
             items.append((f, "unreadable"))
+    if detail is not None:
+        detail[f"{tag}/"] = _h8(os.path.realpath(path))
+        detail.update({f"{tag}/{it[0]}": _h8(list(it)) for it in items})
     return _h([os.path.realpath(path), items])
 
 
-def _identity(vllm_config: Any, kv_cache_config: Any) -> dict[str, str]:
+def _identity(vllm_config: Any, kv_cache_config: Any) -> dict[str, Any]:
     """Identity parts shared by the scheduler and every rank (each part a short digest; a part that can not be read
-    becomes an error string, which is stable only if the error is, i.e. a mismatch -> wipe, the safe side)."""
+    becomes an error string, which is stable only if the error is, i.e. a mismatch -> wipe, the safe side).
+    Under the key _DETAIL (popped by the callers before signing; diagnostics only): per part a breakdown
+    {name: 8-hex digest} -- env var names, config fields, python/torch/vllm, model files, site-packages groups,
+    layout entries -- so a mismatch can name what differs. Never values."""
     import sys
 
-    def part(fn):
+    detail: dict[str, dict[str, str]] = {}
+
+    def part(name, fn):
         try:
-            return fn()
+            out = fn()
         except Exception as e:  # noqa: BLE001
             return f"err:{type(e).__name__}"
+        if isinstance(out, tuple):
+            out, sub = out
+            detail[name] = sub
+        return out
 
     def versions():
         import vllm  # noqa: F401
-        return _h([sys.version, torch.__version__, getattr(vllm, "__version__", "?")])
+        v = [sys.version, torch.__version__, getattr(vllm, "__version__", "?")]
+        return _h(v), {"python": _h8(v[0]), "torch": _h8(v[1]), "vllm": _h8(v[2])}
 
     def config():
         mc = getattr(vllm_config, "model_config", None)
@@ -415,11 +564,15 @@ def _identity(vllm_config: Any, kv_cache_config: Any) -> dict[str, str]:
         sc = getattr(vllm_config, "speculative_config", None)
         pc = getattr(vllm_config, "parallel_config", None)
         g = lambda o, *names: [str(getattr(o, n, None)) for n in names]  # noqa: E731
-        return _h([g(mc, "model", "tokenizer", "dtype", "quantization", "revision", "hf_config_path", "hf_overrides"),
-                   g(cc, "cache_dtype", "block_size", "mamba_cache_mode", "mamba_ssm_cache_dtype",
-                     "prefix_caching_hash_algo", "prefix_match_unit"),
-                   g(sc, "method", "model", "num_speculative_tokens"),
-                   g(pc, "tensor_parallel_size", "pipeline_parallel_size", "world_size")])
+        fields = (("model", mc, ("model", "tokenizer", "dtype", "quantization", "revision", "hf_config_path",
+                                 "hf_overrides")),
+                  ("cache", cc, ("cache_dtype", "block_size", "mamba_cache_mode", "mamba_ssm_cache_dtype",
+                                 "prefix_caching_hash_algo", "prefix_match_unit")),
+                  ("spec", sc, ("method", "model", "num_speculative_tokens")),
+                  ("parallel", pc, ("tensor_parallel_size", "pipeline_parallel_size", "world_size")))
+        vals = [g(o, *names) for _, o, names in fields]
+        sub = {f"{t}.{n}": _h8(v) for (t, _, names), vs in zip(fields, vals) for n, v in zip(names, vs)}
+        return _h(vals), sub
 
     def spec_repr(spec):
         import dataclasses
@@ -429,17 +582,28 @@ def _identity(vllm_config: Any, kv_cache_config: Any) -> dict[str, str]:
 
     def layout():
         nb = max(1, int(kv_cache_config.num_blocks))     # page bytes, not the pool size (see _signature)
-        return _h([[(kvt.size // nb, list(kvt.shared_by)) for kvt in kv_cache_config.kv_cache_tensors],
-                   [(spec_repr(g.kv_cache_spec), list(g.layer_names)) for g in kv_cache_config.kv_cache_groups]])
+        t = [(kvt.size // nb, list(kvt.shared_by)) for kvt in kv_cache_config.kv_cache_tensors]
+        gr = [(spec_repr(g.kv_cache_spec), list(g.layer_names)) for g in kv_cache_config.kv_cache_groups]
+        sub = {**{f"tensor{i}": _h8(x) for i, x in enumerate(t)}, **{f"group{i}": _h8(x) for i, x in enumerate(gr)}}
+        return _h([t, gr]), sub
 
     def models():
         mc = getattr(vllm_config, "model_config", None)
         sc = getattr(vllm_config, "speculative_config", None)
-        return _h([_dir_digest(getattr(mc, "model", None)), _dir_digest(getattr(sc, "model", None))])
+        sub: dict[str, str] = {}
+        return _h([_dir_digest(getattr(mc, "model", None), sub, "target"),
+                   _dir_digest(getattr(sc, "model", None), sub, "drafter")]), sub
 
-    return {"version": f"{CONNECTOR_VERSION}/f{FORMAT_VERSION}/i{INDEX_VERSION}", "python": part(versions),
-            "config": part(config), "layout": part(layout), "env": part(_env_digest), "site": part(_site_digest),
-            "model": part(models)}
+    def site():
+        sub: dict[str, str] = {}
+        return _site_digest(sub), sub
+
+    parts: dict[str, Any] = {
+        "version": f"{CONNECTOR_VERSION}/f{FORMAT_VERSION}/i{INDEX_VERSION}", "python": part("python", versions),
+        "config": part("config", config), "layout": part("layout", layout), "env": part("env", _env_part),
+        "site": part("site", site), "code": part("code", _code_digest), "model": part("model", models)}
+    parts[_DETAIL] = detail
+    return parts
 
 
 def _sig_of(parts: dict[str, Any]) -> str:
@@ -874,10 +1038,12 @@ class SpillWorker:
             parts = dict(ident_fn()) if ident_fn is not None else {}
         except Exception as e:  # noqa: BLE001
             err = err or f"identity: {type(e).__name__}"
+        detail = parts.pop(_DETAIL, None)
         parts.update({"rank": self.rank, "rows": _h([list(map(list, r)) for r in store.rows]), "header_sig": store.sig})
         dt = time.perf_counter() - t0
         self.stats["scan_s"] = dt
         self._set_hello({"rank": self.rank, "sig": _sig_of(parts), "parts": {k: str(v)[:24] for k, v in parts.items()},
+                         "detail": detail if isinstance(detail, dict) else None,
                          "files": files, "file_bytes": [store.file_bytes(g) for g in range(len(store.rows))],
                          "partial": partial, "scan_s": round(dt, 3), "error": err})
         logger.info("%s rank %d: start-up scan: %d block files (%.2f GiB), %d partial removed, %.2f s%s", TAG,
@@ -1058,10 +1224,14 @@ class _IndexWriter:
         finally:
             os.close(dfd)
 
-    def _do(self, payload: bytes, stats: dict) -> None:
+    def _do(self, payload: bytes, stats: dict, note: str = "") -> None:
         try:
             self._write(payload)
             stats["index_writes"] = stats.get("index_writes", 0) + 1
+            if note:
+                # u5: writes off the step clock (idle / timer / shutdown) are logged once each, after fsync + rename:
+                # the proof that the resume points named here survive a SIGKILL from now on
+                logger.info("%s persist: index written (%s, %d bytes on disk)", TAG, note, len(payload))
         except Exception as e:  # noqa: BLE001 - a lost index only costs reuse at the next start
             stats["index_write_failed"] = stats.get("index_write_failed", 0) + 1
             logger.warning("%s index write failed: %r", TAG, e)
@@ -1073,19 +1243,19 @@ class _IndexWriter:
                     self._cv.wait()
                 if self._pending is None and self._stop:
                     return
-                payload, stats = self._pending
+                payload, stats, note = self._pending
                 self._pending = None
                 self._busy = True
             try:
-                self._do(payload, stats)
+                self._do(payload, stats, note)
             finally:
                 with self._cv:
                     self._busy = False
                     self._cv.notify_all()
 
-    def submit(self, payload: bytes, stats: dict, sync: bool = False) -> None:
+    def submit(self, payload: bytes, stats: dict, sync: bool = False, note: str = "") -> None:
         with self._cv:
-            self._pending = (payload, stats)
+            self._pending = (payload, stats, note)
             self._cv.notify_all()
             if sync:
                 t_end = time.monotonic() + 10.0
@@ -1247,6 +1417,8 @@ class SpillScheduler:
             "persist_adopted_rps": 0, "persist_adopted_bytes": 0, "persist_dropped_missing": 0,
             "persist_dropped_expired": 0, "persist_orphans": 0, "persist_wipes": 0, "index_writes": 0,
             "index_write_failed": 0,
+            # 2026-10-14 finish (B8): restores not started because the decode-floor policy skips the request this step
+            "restore_deferred_policy": 0, "restore_took_backed": 0,
         }
         # per-request spill parameters and their one-time effects (refresh / ttl 0 / epoch)
         self.req_params: dict[str, SpillParams | None] = {}
@@ -1261,6 +1433,7 @@ class SpillScheduler:
         self.hash_info: tuple[bool, str] | None = None
         self.seed_source = ""
         self._ident: dict[str, str] | None = None
+        self._ident_detail: dict | None = None      # per-part {name: 8-hex} breakdown (diagnostics, not signed)
         self._ident_thread: threading.Thread | None = None
         self._index: dict | None = None
         self._index_err = ""
@@ -1272,6 +1445,16 @@ class SpillScheduler:
         self._index_last = 0.0
         self._index_written_wall = 0.0
         self._index_writer: _IndexWriter | None = None
+        self._index_counts = (0, 0)                 # (resume points, files) of the last index payload built
+        # u5: every scheduler-side connector entry point runs under this lock (Glm53NvmeSpillConnector), so the index
+        # timer thread sees the connector's state only between two calls of the engine thread (re-entrant: an entry
+        # point may call another one)
+        self.lock = threading.RLock()
+        self._last_engine_call = self.io_clock()    # io_clock of the engine thread's last build_meta / answers
+        self._index_timer: threading.Thread | None = None
+        self._index_timer_stop = threading.Event()
+        self.index_timer_enabled = True             # the CPU replay rig turns it off (it runs on a simulated clock)
+        self._timer_err_logged = False
         if cfg.persist:
             self.persist_state = "adopting"
             self._index, self._index_err = _read_index(cfg.index_path())
@@ -1382,12 +1565,13 @@ class SpillScheduler:
     def _is_expired(self, rp: _RP, now: float | None = None) -> bool:
         if rp.ttl_s == 0:
             return True
-        if rp.stale_at or rp.ttl_s is not None:
+        ttl = rp.ttl_s if rp.ttl_s is not None else (self.cfg.default_ttl_s or None)   # DEFAULT_TTL_S: no-field RPs
+        if rp.stale_at or ttl is not None:
             now = self.wall() if now is None else now
             if rp.stale_at and now - max(rp.last_used, rp.stale_at) >= EPOCH_GRACE_S:
                 return True
-            if rp.ttl_s is not None:
-                return now - rp.last_used >= rp.ttl_s
+            if ttl is not None:
+                return now - rp.last_used >= ttl
         return False
 
     def _expire_rp(self, rp: _RP, reason: str) -> None:
@@ -1646,8 +1830,9 @@ class SpillScheduler:
         if old is not None:
             if old.drop_reason:
                 pass                    # still in use: dropped by the sweep once free
-            elif self._is_expired(old) and not (params is not None and params.explicit_keep):
-                pass                    # timed out and nobody asks to keep it: the sweep drops it
+            elif self._is_expired(old) and old.ttl_s is not None and not (params is not None and params.explicit_keep):
+                pass                    # an explicit TTL ran out and nobody asks to keep it: the sweep drops it
+                                        # (a DEFAULT_TTL_S resume point saved again is used again: revived below)
             else:
                 # a request of the conversation saves the same resume point again: it is used (sliding TTL), even
                 # if its time had run out meanwhile (the files are still there: revive rather than rewrite)
@@ -1823,7 +2008,7 @@ class SpillScheduler:
         while n >= floor and n > 0:
             rp = self.rps.get(bytes(bh[n // hbs - 1]))
             if rp is not None and rp.state == "ok" and rp.n_tokens == n:
-                if rp.ttl_s is not None:
+                if rp.ttl_s is not None or rp.stale_at or self.cfg.default_ttl_s:
                     now = self.wall() if now is None else now
                     if self._is_expired(rp, now):
                         n -= hbs
@@ -1877,6 +2062,13 @@ class SpillScheduler:
             # (bounded: the in-flight load finishes or hits its deadline, which removes the entry)
             self.stats["restore_coalesced_waits"] += 1
             return None, False
+        if self._policy_skips(request, rp.n_tokens):
+            # B8: the scheduler's decode-floor policy will skip this request in this step anyway (it runs right after
+            # this call), so reading the RP now would only take blocks (evicting other requests' cached prefixes) and
+            # pins for a request that is not admitted -- and after PIN_TIMEOUT_S the read is repeated. Returning None
+            # skips the request exactly as the policy would; the restore starts in a step the policy lets it through.
+            self.stats["restore_deferred_policy"] += 1
+            return None, False
         res = self._start_restore(request, rp, num_local, prev=st)
         if res == "started":
             self.space_wait.pop(rid, None)
@@ -1892,6 +2084,85 @@ class SpillScheduler:
                 self.gave_up.add(rid)
                 self.stats["restore_space_giveup"] += 1
         return 0, False
+
+    def _policy_skips(self, request: "Request", computed: int) -> bool:
+        """True only when the scheduler's decode-floor policy ([glm53-decode-floor:v5], the module-level
+        ``_GLM53_MIXED`` of vllm/v1/core/sched/scheduler.py) will return a cap of 0 for this waiting request in the
+        current step, i.e. skip it right after this connector call. Pure reads of the policy's per-step state (opened by
+        ``begin_step`` at the top of ``schedule()``); anything unexpected -> False (restore as before).
+          skip mode: cap 0 iff a peer request is decoding -> the step's ``had_decode`` (running set at step start;
+                     a decoder preempted in this step can make this conservative by one step, never the other way)
+          fair mode: cap 0 iff the step is a contention step and it is not this request's prefill turn (not granted,
+                     not selected); a selected request may still be refused for credit -> not predicted (False)
+          off / cap: never 0."""
+        if self.cfg.policy_gate is False:
+            return False
+        try:
+            pol = getattr(sys.modules.get("vllm.v1.core.sched.scheduler"), "_GLM53_MIXED", None)
+            if pol is None:
+                return False
+            rec = getattr(pol, "_open_rec", None)
+            if not isinstance(rec, dict) or pol.prefill_remaining(request, computed) <= 0:
+                return False
+            mode = getattr(pol, "mode", "")
+            if mode == "skip":
+                return bool(rec.get("had_decode"))
+            if mode == "fair":
+                if getattr(pol, "step_mode", "solo") == "solo":
+                    return False
+                rid = request.request_id
+                if rid in rec.get("grants", {}):
+                    return False
+                return pol.step_mode != "prefill_turn" or rid not in pol.selected
+            return False
+        except Exception:  # noqa: BLE001
+            return False
+
+    def _backed(self, block) -> bool:
+        """The block's bytes are in an ok file on this tier (its primary key names the file): evicting it costs a read."""
+        bh = block.block_hash
+        if bh is None:
+            return False
+        db = self.disk.get(block_file_name(bytes(bh)))
+        return db is not None and db.state == "ok"
+
+    def _take_blocks(self, n: int) -> list[Any]:
+        """Fresh blocks for a restore. Like BlockPool.get_new_blocks (never-hashed free blocks first: they sit at the head
+        of the free queue), but among cached free blocks the NVMe-backed ones go first (LRU order within each kind): a
+        restore must not push out a prefix that exists only in GPU memory (a ttl-0 conversation, a one-shot request)
+        while blocks it could read back from disk are free. Evicting a block: removed from the free queue, its hashes
+        dropped, ref_cnt 0 -> 1, exactly as get_new_blocks does. Falls back to get_new_blocks if the pool lacks the
+        queue (unit-test fakes), caching is off, or backed_first is disabled."""
+        pool = self.block_pool
+        q = getattr(pool, "free_block_queue", None)
+        if (not self.cfg.backed_first or q is None or not getattr(pool, "enable_caching", False)
+                or not hasattr(pool, "_maybe_evict_cached_block") or not hasattr(q, "fake_free_list_head")):
+            return pool.get_new_blocks(n)
+        if n > pool.get_num_free_blocks():
+            raise ValueError(f"Cannot get {n} free blocks from the pool")
+        picks: list[Any] = []
+        n_backed = 0
+        node = q.fake_free_list_head.next_free_block
+        tail = q.fake_free_list_tail
+        while node is not None and node is not tail and len(picks) < n:
+            if node.block_hash is None:
+                picks.append(node)
+            elif self._backed(node):
+                picks.append(node)
+                n_backed += 1
+            node = node.next_free_block
+        mc = getattr(pool, "metrics_collector", None)
+        for b in picks:
+            q.remove(b)
+            pool._maybe_evict_cached_block(b)
+            assert b.ref_cnt == 0
+            b.ref_cnt += 1
+            if mc:
+                mc.on_block_allocated(b)
+        if len(picks) < n:
+            picks += pool.get_new_blocks(n - len(picks))     # the rest in plain LRU order (unbacked prefixes)
+        self.stats["restore_took_backed"] += n_backed
+        return picks
 
     def _start_restore(self, request: "Request", rp: _RP, num_local: int, prev: _Restore | None) -> str:
         pool = self.block_pool
@@ -1913,7 +2184,7 @@ class SpillScheduler:
             self.stats["restore_no_space"] += 1
             return "no_space"
         pool.touch(pins)
-        new_blocks = pool.get_new_blocks(len(need)) if need else []
+        new_blocks = self._take_blocks(len(need)) if need else []
         job = self._next_job()
         st = _Restore(rp=rp, job_id=job, local_before=num_local, new_blocks=new_blocks, pins=pins, entries=need,
                       t0=self.clock(), failures=prev.failures if prev else 0,
@@ -2103,6 +2374,7 @@ class SpillScheduler:
                 self._drop_rp(rp, "bad")
 
     def update_connector_output(self, meta: SpillWorkerMeta | None) -> None:
+        self._last_engine_call = self.io_clock()
         if meta is None:
             return
         hello = getattr(meta, "hello", None)
@@ -2278,13 +2550,17 @@ class SpillScheduler:
                 f"expired={s['rp_expired']} epoch_dropped={s['rp_epoch_dropped']} ttl0_skipped={s['rp_skipped_ttl0']} "
                 f"{self._ttl_classes()} persist={self.persist_state} adopted={s['persist_adopted_rps']} "
                 f"adopted_gib={s['persist_adopted_bytes'] / (1 << 30):.2f} "
-                f"index_age_s={(self.wall() - self._index_written_wall) if self._index_written_wall else -1:.0f}"
+                f"index_age_s={(self.wall() - self._index_written_wall) if self._index_written_wall else -1:.0f} "
+                # appended 2026-10-14 finish (B8): restores started / admitted after their restore / not started because
+                # the decode-floor policy skipped the request in that step; fields above keep their order
+                f"restores_started={s['restore_started']} restores_admitted={s['restore_admitted']} "
+                f"restores_deferred_policy={s['restore_deferred_policy']}"
                 + (f" reason={self.breaker!r}" if self.breaker is not None else ""))
 
     def _ttl_classes(self) -> str:
         """RP counts and the GiB of the files they reference, by TTL class: none (server default) / <=1h / <=1d / >1d /
         expired-pending (a file shared by classes counts in each)."""
-        names = ("none", "1h", "1d", "3d", "exp")
+        names = ("default" if self.cfg.default_ttl_s else "none", "1h", "1d", "3d", "exp")
         cnt = [0] * 5
         files: list[set[str]] = [set() for _ in range(5)]
         now = self.wall()
@@ -2320,9 +2596,11 @@ class SpillScheduler:
             parts = _identity(self.vllm_config, self.kv_cache_config)
         except Exception as e:  # noqa: BLE001
             parts = {"error": f"{type(e).__name__}"}
+        detail = parts.pop(_DETAIL, None)
         parts["file_bytes"] = _h(self.file_bytes)
         parts["world"] = str(self.world)
         self._ident_s = time.perf_counter() - t0
+        self._ident_detail = detail if isinstance(detail, dict) else None
         self._ident = parts
 
     def _check_hash(self) -> tuple[bool, str] | None:
@@ -2388,7 +2666,8 @@ class SpillScheduler:
         if idx.get("sched_sig") != _sig_of(mine):
             old = idx.get("sched_parts") or {}
             diff = sorted(k for k in set(old) | set(mine) if old.get(k) != mine.get(k))
-            self._persist_wipe(f"scheduler signature differs: {','.join(diff) or '?'}")
+            self._persist_wipe(f"scheduler signature differs: "
+                               f"{_explain(diff, idx.get('sched_detail'), self._ident_detail) or '?'}")
             return
         if int(idx.get("world", -1)) != self.world:
             self._persist_wipe(f"world size {idx.get('world')} -> {self.world}")
@@ -2406,7 +2685,8 @@ class SpillScheduler:
                 old = (idx.get("rank_parts") or {}).get(str(r)) or {}
                 cur = rep.get("parts") or {}
                 diff = sorted(k for k in set(old) | set(cur) if old.get(k) != cur.get(k))
-                bad.append(f"rank {r}: {rep.get('error') or ','.join(diff) or 'signature'}")
+                why = _explain(diff, ((idx.get("rank_detail") or {}).get(str(r))), rep.get("detail"))
+                bad.append(f"rank {r}: {rep.get('error') or why or 'signature'}")
         if bad:
             self._persist_wipe("rank signature differs (" + "; ".join(bad) + ")")
             return
@@ -2536,9 +2816,13 @@ class SpillScheduler:
         for rp in rps:
             for e in rp.blocks:
                 files[e.fname] = [e.group, self.disk[e.fname].wid]
+        self._index_counts = (len(rps), len(files))
         head = {"magic": INDEX_MAGIC, "version": INDEX_VERSION, "boot": self.boot, "written": self.wall(),
                 "world": self.world, "sched_sig": _sig_of(sched), "sched_parts": sched, "rank_sigs": ranks,
-                "rank_parts": rparts}
+                "rank_parts": rparts,
+                # diagnostics only (never compared for the decision): per part {name: 8-hex}, names + short digests
+                "sched_detail": self._ident_detail,
+                "rank_detail": {str(r): self.hello[r].get("detail") for r in range(self.world)}}
         body = (json.dumps(head, separators=(",", ":"))[:-1]
                 + ',"files":' + json.dumps(files, separators=(",", ":"))
                 + ',"rps":[' + ",".join('{"m":%s,"x":%s}' % (json.dumps([rp.ttl_s, rp.last_used, rp.session, rp.epoch,
@@ -2550,11 +2834,13 @@ class SpillScheduler:
                           "sha256": hashlib.sha256(body).hexdigest()}).encode()
         return top + b"\n" + body
 
-    def _maybe_write_index(self, force: bool = False) -> None:
+    def _maybe_write_index(self, force: bool = False, note: str = "", sync: bool | None = None,
+                           throttle: bool = True) -> None:
         if self.persist_state != "on" or self._index_writer is None or not (self._index_dirty or force):
             return
         t = self.clock()        # engine time (the replay rig's simulated clock; wall-monotonic in production)
-        if not force and not self._index_urgent and t - self._index_last < self.cfg.index_every_s:
+        if (throttle and not force and not self._index_urgent
+                and t - self._index_last < self.cfg.index_every_s):
             return
         t0 = time.perf_counter()
         payload = self._index_payload()
@@ -2566,14 +2852,59 @@ class SpillScheduler:
         self._index_dirty = self._index_urgent = False
         self._index_last = t
         self._index_written_wall = self.wall()
-        self._index_writer.submit(payload, self.stats, sync=force)
+        label = ""
+        if note:
+            self.stats[f"index_writes_{note}"] = self.stats.get(f"index_writes_{note}", 0) + 1
+            label = f"{note}: {self._index_counts[0]} resume points, {self._index_counts[1]} files"
+        self._index_writer.submit(payload, self.stats, sync=force if sync is None else sync, note=label)
+
+    def _flush_index(self, note: str) -> None:
+        """u5: write a changed index now, off the step clock (engine idle / timer). Never raises: it runs inside vLLM's
+        Scheduler.has_requests() and on the timer thread; a failed write only costs reuse at the next start."""
+        try:
+            self._maybe_write_index(note=note, sync=False, throttle=False)
+        except Exception as e:  # noqa: BLE001
+            self.stats["index_write_failed"] = self.stats.get("index_write_failed", 0) + 1
+            logger.warning("%s index write (%s) failed: %r", TAG, note, e)
+
+    # -- u5: index timer (safety net for an idle engine that does not ask has_pending; a step stuck for long) ----------
+    def start_index_timer(self) -> None:
+        if self._index_writer is None or self._index_timer is not None:
+            return
+        self._index_timer = threading.Thread(target=self._index_timer_run, name="glm53-spill-index-timer", daemon=True)
+        self._index_timer.start()
+
+    def _index_timer_tick(self) -> None:
+        if not self.index_timer_enabled or self.persist_state != "on" or not self._index_dirty:
+            return
+        with self.lock:
+            if (self.index_timer_enabled and self.persist_state == "on" and self._index_dirty
+                    and self.io_clock() - self._last_engine_call >= INDEX_IDLE_S):
+                self._flush_index("timer")
+
+    def _index_timer_run(self) -> None:
+        while not self._index_timer_stop.wait(INDEX_TIMER_TICK_S):
+            try:
+                self._index_timer_tick()
+            except Exception as e:  # noqa: BLE001 - never let the safety net take anything down
+                if not self._timer_err_logged:
+                    self._timer_err_logged = True
+                    logger.warning("%s index timer: %r", TAG, e)
 
     def shutdown(self) -> None:
-        """Clean engine shutdown: write the index now (a crash keeps the last periodic one)."""
-        try:
-            self._maybe_write_index(force=True)
-        except Exception as e:  # noqa: BLE001
-            logger.warning("%s index write at shutdown failed: %r", TAG, e)
+        """Clean engine shutdown (EngineCore.shutdown -> Scheduler.shutdown, after the workers are gone): write the index
+        now, synchronously (a crash / SIGKILL keeps the last one written -- since u5 also at every idle). Answers still
+        pending here can no longer arrive: EngineCore only gets here after has_work() turned False, i.e. after
+        has_pending() returned False (no save in flight) or after an exception. Unconfirmed saves are never indexed."""
+        self._index_timer_stop.set()
+        th = self._index_timer
+        if th is not None and th is not threading.current_thread():
+            th.join(5.0)        # not under the lock: the timer may be waiting for it
+        with self.lock:
+            try:
+                self._maybe_write_index(force=True, note="shutdown")
+            except Exception as e:  # noqa: BLE001
+                logger.warning("%s index write at shutdown failed: %r", TAG, e)
         if self._index_writer is not None:
             self._index_writer.stop()
 
@@ -2585,6 +2916,7 @@ class SpillScheduler:
         # before it is written (the worker's event is recorded in this step's pre_forward, before the forward).
         out, self._meta = self._meta, SpillMeta()
         t = self.io_clock()
+        self._last_engine_call = t
         for job in list(out.saves) + list(out.loads):
             self.job_sent[job] = t
         self._check_deadlines(t)
@@ -2622,9 +2954,15 @@ class SpillScheduler:
         # next SchedulerOutput; quarantined loads do not count (a rank that never answers must not keep the engine
         # busy-stepping forever: their late answers are picked up by any later step)
         m = self._meta
-        return (bool(self.save_jobs) or bool(self.orphan_restores)
-                or bool(m.saves or m.loads or m.deletes or m.wipe or m.rank_deletes)
-                or self.persist_state == "adopting")
+        pending = (bool(self.save_jobs) or bool(self.orphan_restores)
+                   or bool(m.saves or m.loads or m.deletes or m.wipe or m.rank_deletes)
+                   or self.persist_state == "adopting")
+        if not pending and self._index_dirty and self.persist_state == "on":
+            # u5: nothing left for the workers -> EngineCore is about to block idle (it asks this, through
+            # Scheduler.has_requests, right before input_queue.get, and again before exiting on SIGTERM): write the
+            # changed index now instead of at the next step, which may never come before a SIGKILL
+            self._flush_index("idle")
+        return pending
 
     def pinned_blocks(self) -> int:
         n = sum(len(p) for _, p, _ in self.save_jobs.values())
@@ -2701,13 +3039,14 @@ class Glm53NvmeSpillConnector(KVConnectorBase_V1, SupportsHMA):
             self._sched.seed_source = seed_src
             logger.info("%s scheduler: dir=%s cap=%.1f GiB min_tokens=%d min_gain=%d highwater=%.2f world=%d "
                         "keep_per_chain=%d persist=%s hash_seed_from=%s ttl_save_policy=%s ttl_min_tokens=%d "
-                        "version=%s", TAG, self.cfg.root, self.cfg.cap_bytes / (1 << 30), self.cfg.min_tokens,
+                        "version=%s policy_gate=%d default_ttl_s=%d", TAG, self.cfg.root, self.cfg.cap_bytes / (1 << 30), self.cfg.min_tokens,
                         self.cfg.min_gain, self.cfg.highwater, self._sched.world, self.cfg.keep_per_chain,
                         int(self.cfg.persist), seed_src, self.cfg.ttl_save_policy, self.cfg.ttl_min_tokens,
-                        CONNECTOR_VERSION)
+                        CONNECTOR_VERSION, int(self.cfg.policy_gate), self.cfg.default_ttl_s)
             if self.cfg.persist:
                 logger.info("%s persist: index %s (%s)", TAG, self.cfg.index_path(),
                             "found" if self._sched._index is not None else self._sched._index_err)
+                self._sched.start_index_timer()
         else:
             self._worker = SpillWorker(self.cfg, kv_cache_config, _tp_rank(vllm_config))
 
@@ -2749,44 +3088,56 @@ class Glm53NvmeSpillConnector(KVConnectorBase_V1, SupportsHMA):
             self._sched.shutdown()
 
     # ---------------- scheduler side ----------------
+    # u5: every entry point holds SpillScheduler.lock (the index timer thread reads the state between two of them)
     def bind_gpu_block_pool(self, gpu_block_pool) -> None:
         if self._sched is not None:
-            self._sched.bind(block_pool=gpu_block_pool)
+            with self._sched.lock:
+                self._sched.bind(block_pool=gpu_block_pool)
 
     def glm53_bind_kv_cache_manager(self, kv_cache_manager) -> None:  # [glm53-nvme-spill] scheduler.py hook
         if self._sched is not None:
-            self._sched.bind(kv_cache_manager=kv_cache_manager)
+            with self._sched.lock:
+                self._sched.bind(kv_cache_manager=kv_cache_manager)
 
     def get_num_new_matched_tokens(self, request: "Request", num_computed_tokens: int) -> tuple[int | None, bool]:
         assert self._sched is not None
-        return self._sched.get_num_new_matched_tokens(request, num_computed_tokens)
+        with self._sched.lock:
+            return self._sched.get_num_new_matched_tokens(request, num_computed_tokens)
 
     def update_state_after_alloc(self, request: "Request", blocks: "KVCacheBlocks", num_external_tokens: int):
         assert self._sched is not None
-        self._sched.update_state_after_alloc(request)
+        with self._sched.lock:
+            self._sched.update_state_after_alloc(request)
 
     def build_connector_meta(self, scheduler_output) -> KVConnectorMetadata:
         assert self._sched is not None
-        return self._sched.build_meta()
+        with self._sched.lock:
+            return self._sched.build_meta()
 
     def update_connector_output(self, connector_output):
         assert self._sched is not None
         meta = getattr(connector_output, "kv_connector_worker_meta", None)
-        self._sched.update_connector_output(meta if isinstance(meta, SpillWorkerMeta) else None)
+        with self._sched.lock:
+            self._sched.update_connector_output(meta if isinstance(meta, SpillWorkerMeta) else None)
 
     def request_finished(self, request: "Request", block_ids: list[int]) -> tuple[bool, dict[str, Any] | None]:
         assert self._sched is not None
-        self._sched.request_finished(request)
+        with self._sched.lock:
+            self._sched.request_finished(request)
         return False, None
 
     def request_finished_all_groups(self, request: "Request",
                                     block_ids: tuple[list[int], ...]) -> tuple[bool, dict[str, Any] | None]:
         assert self._sched is not None
-        self._sched.request_finished(request)
+        with self._sched.lock:
+            self._sched.request_finished(request)
         return False, None
 
     def has_pending_push_work(self) -> bool:
-        return self._sched is not None and self._sched.has_pending()
+        if self._sched is None:
+            return False
+        with self._sched.lock:
+            return self._sched.has_pending()
 
     def take_events(self):
         return ()

@@ -1,0 +1,27 @@
+PASS u5_idle_index_has_every_confirmed_rp index before=[4] at kill=[4, 5] confirmed=[4, 5] pending=False
+PASS u5_idle_write_counted 1
+PASS u5_sigkill_after_idle_adopts_every_confirmed_rp confirmed=[3, 4] pending_at_idle=False adopted=2 orphans=0 reason=adopted files 9->9
+PASS idle_no_write_when_unchanged 1 1
+PASS idle_no_write_while_save_in_flight pending=True idx=[]
+PASS idle_half_answered_not_indexed True []
+PASS idle_after_last_answer_indexed False [4]
+PASS idle_repeated_asks_write_once 2 2
+PASS idle_failed_save_not_indexed [4]
+PASS idle_index_verifies 
+PASS idle_write_error_does_not_reach_vllm None False
+[glm53-nvme-spill] index write (idle) failed: RuntimeError('payload boom')
+PASS idle_retries_after_error [4]
+PASS idle_persist_off_no_index 
+PASS log_idle_write_line_after_rename ['[glm53-nvme-spill] persist: index written (idle: 1 resume points, 5 files, 5025 bytes on disk)']
+PASS timer_waits_while_engine_recent []
+PASS timer_writes_changed_index_when_engine_silent [4] 1
+PASS timer_writes_once_per_change 
+PASS timer_blocked_by_lock_then_writes [4] [4, 5]
+PASS timer_thread_stopped_by_shutdown 
+PASS connector_entry_points_hold_the_lock not locked: []
+PASS stress_timer_wrote_many 60
+PASS stress_every_index_consistent []
+PASS stress_final_index_equals_state 51 vs 51
+PASS shutdown_writes_confirmed_only_synchronously [4]
+PASS shutdown_fast_and_timer_joined 0.00s
+SUMMARY 25/25 passed

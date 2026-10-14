@@ -1,0 +1,94 @@
+{
+ "hit_hash": [],
+ "acct": [],
+ "inv": [],
+ "lookups": [
+  [
+   0,
+   "dsh0t0",
+   0
+  ]
+ ],
+ "allocs": [
+  [
+   0,
+   "dsh0t0",
+   true
+  ],
+  [
+   1,
+   "dsh0t0",
+   true
+  ],
+  [
+   2,
+   "dsh0t0",
+   true
+  ],
+  [
+   3,
+   "dsh0t0",
+   true
+  ],
+  [
+   4,
+   "dsh0t0",
+   true
+  ],
+  [
+   5,
+   "dsh0t0",
+   true
+  ],
+  [
+   6,
+   "dsh0t0",
+   true
+  ],
+  [
+   7,
+   "dsh0t0",
+   true
+  ],
+  [
+   8,
+   "dsh0t0",
+   true
+  ],
+  [
+   9,
+   "dsh0t0",
+   true
+  ],
+  [
+   10,
+   "dsh0t0",
+   true
+  ],
+  [
+   11,
+   "dsh0t0",
+   true
+  ]
+ ],
+ "adms": [
+  {
+   "step": 1,
+   "req": "dsh0t0",
+   "kind": "dsh",
+   "turn": 0,
+   "prompt": 430000,
+   "branch": "",
+   "hit": 0,
+   "per_group": [
+    13824,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  }
+ ]
+}

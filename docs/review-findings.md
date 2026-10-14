@@ -11,7 +11,7 @@ the rig numbers exactly. The problems were local: the ON arm could not start (B1
 rank exhausted the KV pool (B2), a load that never returned made a conversation wait forever (B3), the start.sh patch
 did not apply to the current kit (B4), and the quality probe could PASS when no restore had happened (B5).
 
-All findings B1-B7 were fixed in the fix release, B8 was documented, and every test was re-run. Results of the
+All findings B1-B7 were fixed in the fix release, B8 was documented (and fixed later, in the finish release), and every test was re-run. Results of the
 re-run are in `results/fix/` (`results/fix/faults_summary.txt`, `results/fix/aggregate_m_on.txt`,
 `results/fix/aggregate_x_on.txt`, `results/fix/unit_final.txt`, `results/fix/gpu_final.txt`).
 
@@ -37,7 +37,7 @@ re-run are in `results/fix/` (`results/fix/faults_summary.txt`, `results/fix/agg
 | B5 validity | The quality probe PASSes even if nothing was restored (production returns `cached=None`) | Positive evidence of a restore is required (a log line `restore ready ... rp=N`, or `cached_tokens`, plus R-H <= 0.25 x (F1-H)); otherwise FAIL | `tests/test_quality_probe.py` 10/10 |
 | B6 latent | A save planned in `build_meta` may copy a block before the same step's forward writes it | Saves and deletes planned inside `build_meta` are shipped in the next step | Unit: the old module FAILs the send-order check, the new one PASSes. Rig race probe (forces copies of blocks keyed in the same step + checks the saved file contents): before 2,650/2,650 files with stale content and 1,238 restored blocks mismatched / after 0/0 |
 | B7 low | If an RP is dropped while its save is running, its files are never accounted for | On a successful save, files no RP references are deleted | Unit `b7_no_disk_leak...` |
-| B8 low | Restores before admission are wasted (seed 4: 52 restores / 9 admissions) | Not fixed (documented in `docs/limitations.md`). Not a correctness problem | The 4 h matrix records `restore_started`/`admitted` |
+| B8 low | Restores before admission are wasted (seed 4: 52 restores / 9 admissions) | Not fixed in the fix release (documented). Fixed in the finish release: no restore in a step the scheduler's policy skips the request, restore blocks taken from NVMe-backed cached blocks first (`docs/design.md` 2.9, `docs/limitations.md`). Not a correctness problem | The 4 h matrix records `restore_started`/`admitted` |
 | Observability | No statistics for abort criteria | A periodic stats line (scheduler) and a per-rank `io` line | Seen in rig logs (`h_load`: `rank 1 io: r=load:6/107.7s`, `breaker=OPEN ... quarantined=17`) |
 
 ### B1 in detail
@@ -162,7 +162,7 @@ its normal maximum is 12. At the end of an async rig run an I/O thread was still
 printed `terminate called without an active exception` (the result JSON was already written); `SpillWorker.shutdown`
 now joins the threads (up to 10 s) and the rig calls it at exit. That run was repeated (rc 0).
 
-Not fixed in the fix release: B8 (see `docs/limitations.md`); aggregation on the real two-node setup (2d) and
+Not fixed in the fix release: B8 (fixed in the finish release, `docs/design.md` 2.9); aggregation on the real two-node setup (2d) and
 real forward-pass bytes, which only the production A/B start-up checks and quality probe can show.
 
 ## Tests named here that are shipped
@@ -174,6 +174,7 @@ real forward-pass bytes, which only the production A/B start-up checks and quali
 | `tests/test_sched_faults.py` | B2, B3, B6, B7 and worker exception tolerance |
 | `tests/test_start_sh.sh` | B4 |
 | `tests/test_quality_probe.py` | B5 |
+| `tests/test_finish.py` | B8 (finish release) |
 
 The review's writer-death test is a review test (not shipped); its outputs before and after the fix are in
 `results/fix/t_writer_death_old.txt` and `results/fix/t_writer_death_new.txt`.

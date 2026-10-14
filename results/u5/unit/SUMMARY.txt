@@ -1,0 +1,10 @@
+t_hash_stability.txt: SUMMARY 9/9 passed
+test_finish.txt: SUMMARY 66/66 passed
+test_prune.txt: SUMMARY 74/74 passed
+test_sched_faults.txt: SUMMARY 49/49 passed
+test_start_sh.txt: SUMMARY 15/15 passed  (trace: <scratch>/trace.log, drive log: <scratch>/drive.log, patch: <scratch>/start.sh.nvmespill.patch)
+test_store.txt: SUMMARY 18/18 passed
+test_ttl_persist.txt: SUMMARY 133/133 passed
+test_u4_env.txt: SUMMARY 52/52 passed
+test_u5_index.txt: SUMMARY 25/25 passed
+test_u5_index_OLD_bd0f589e.txt: SUMMARY 2/2 passed (old module: repro checks)

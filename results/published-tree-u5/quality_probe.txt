@@ -1,0 +1,36 @@
+spillq: log command rc=1: 
+PASS no_cached_no_log_line_fails no 'restore ready' line with rp >= 77400 in R's window (0 shallower); R-H=1.50s vs F1-H=45.50s (limit 0.25x)
+PASS log_unreadable_fails no evidence: the server reports no cached_tokens and the connector log could not be read
+PASS log_line_with_deep_rp_and_fast_R_passes log: restore ready rp=82944 in 0.600s; R-H=1.50s vs F1-H=45.50s (limit 0.25x)
+PASS shallow_restore_fails no 'restore ready' line with rp >= 77400 in R's window (1 shallower); R-H=1.50s vs F1-H=45.50s (limit 0.25x)
+PASS log_line_but_R_as_slow_as_full_prefill_fails log: restore ready rp=82944 in 0.600s; R-H=44.50s vs F1-H=45.50s (limit 0.25x)
+PASS cached_tokens_reported_and_fast_passes cached_tokens=86100 (need >= 77400); R-H=1.50s vs F1-H=45.50s (limit 0.25x)
+PASS cached_tokens_shallow_fails cached_tokens=4608 (need >= 77400); R-H=1.50s vs F1-H=45.50s (limit 0.25x)
+PASS log_regex_matches_connector_line INFO 10-13 [glm53-nvme-spill] restore ready req=cmpl-abc-0 rp=82944 in 0.612 s
+PASS restore_events_parses_command_output [('cmpl-abc-0', 82944, 0.612)]
+PASS restore_events_none_on_failing_command 
+SPILLQ prepared 1 run(s) tags=spillq-1791989484 (resume point of P+Q1 saved per salt); restart the engine, then --phase restart --state /tmp/tmp9ucj8g6q/st.json
+PASS prepare_runs_W1_W2_writes_state_no_reset [(100, 1, 'spillq-1791989484-S'), (120, 1, 'spillq-1791989484-S')]
+SPILLQ tag=spillq-1791989484 ctx=125 pq1=120 R: wall=1.0s cached=None acc=nan | H: wall=1.0s cached=None acc=nan | F1: wall=1.0s cached=None acc=nan | F2: wall=1.0s cached=None acc=nan | KL R/F1=nan H/F1=nan F2/F1=nan | div R=0 H=0 F2=0 | wall=0s
+SPILLQ run spillq-1791989484 restore=FAIL (no 'restore ready' line with rp >= 108 in R's window (0 shallower); R-H=0.00s vs F1-H=0.00s (limit 0.25x))
+SPILLQ verdict runs=1 restore=FAIL (no 'restore ready' line with rp >= 108 in R's window (0 shallower); R-H=0.00s vs F1-H=0.00s (limit 0.25x)) kl=FAIL acceptance=PASS | mean KL R/F1=nan H/F1=nan F2/F1=nan (band nan) mean acc R=nan H=nan
+PASS restart_reuses_salt_and_sizes_no_W_no_reset [(125, 512, 'spillq-1791989484-S'), (125, 512, 'spillq-1791989484-S'), (125, 512, 'spillq-1791989484-F1')]
+PASS restart_without_state_refused 
+SPILLQ prepared 3 run(s) tags=spillq-1791989484-0,spillq-1791989484-1,spillq-1791989484-2 (resume point of P+Q1 saved per salt); restart the engine, then --phase restart --state /tmp/tmpadx6um3u/st3.json
+PASS prepare_runs3_writes_3_tags_6_requests ['spillq-1791989484-0', 'spillq-1791989484-1', 'spillq-1791989484-2']
+SPILLQ tag=spillq-1791989484-0 ctx=125 pq1=120 R: wall=1.0s cached=None acc=nan | H: wall=1.0s cached=None acc=nan | F1: wall=1.0s cached=None acc=nan | F2: wall=1.0s cached=None acc=nan | KL R/F1=nan H/F1=nan F2/F1=nan | div R=0 H=0 F2=0 | wall=0s
+SPILLQ run spillq-1791989484-0 restore=FAIL (no 'restore ready' line with rp >= 108 in R's window (0 shallower); R-H=0.00s vs F1-H=0.00s (limit 0.25x))
+SPILLQ tag=spillq-1791989484-1 ctx=125 pq1=120 R: wall=1.0s cached=None acc=nan | H: wall=1.0s cached=None acc=nan | F1: wall=1.0s cached=None acc=nan | F2: wall=1.0s cached=None acc=nan | KL R/F1=nan H/F1=nan F2/F1=nan | div R=0 H=0 F2=0 | wall=0s
+SPILLQ run spillq-1791989484-1 restore=FAIL (no 'restore ready' line with rp >= 108 in R's window (0 shallower); R-H=0.00s vs F1-H=0.00s (limit 0.25x))
+SPILLQ tag=spillq-1791989484-2 ctx=125 pq1=120 R: wall=1.0s cached=None acc=nan | H: wall=1.0s cached=None acc=nan | F1: wall=1.0s cached=None acc=nan | F2: wall=1.0s cached=None acc=nan | KL R/F1=nan H/F1=nan F2/F1=nan | div R=0 H=0 F2=0 | wall=0s
+SPILLQ run spillq-1791989484-2 restore=FAIL (no 'restore ready' line with rp >= 108 in R's window (0 shallower); R-H=0.00s vs F1-H=0.00s (limit 0.25x))
+SPILLQ verdict runs=3 restore=FAIL (0/3 runs proven restored; not proven: spillq-1791989484-0,spillq-1791989484-1,spillq-1791989484-2) kl=FAIL acceptance=PASS | mean KL R/F1=nan H/F1=nan F2/F1=nan (band nan) mean acc R=nan H=nan
+PASS restart_runs3_measures_every_tag_no_reset ['spillq-1791989484-0-S', 'spillq-1791989484-0-S', 'spillq-1791989484-1-S', 'spillq-1791989484-1-S', 'spillq-1791989484-2-S', 'spillq-1791989484-2-S']
+PASS restart_runs3_fails_without_restore_evidence 
+PASS runs_with_phase_both_refused 
+PASS aggregate_one_noisy_run_mean_in_band_passes mean KL R/F1=0.025 H/F1=0.015 F2/F1=0.02 (band 0.03) mean acc R=0.700 H=0.700
+PASS aggregate_mean_above_band_fails mean KL R/F1=0.05 H/F1=0.01 F2/F1=0.01 (band 0.015) mean acc R=0.700 H=0.700
+PASS aggregate_one_unproven_restore_fails 1/2 runs proven restored; not proven: t
+PASS aggregate_acceptance_drop_fails mean KL R/F1=0.01 H/F1=0.01 F2/F1=0.01 (band 0.015) mean acc R=0.600 H=0.700
+PASS aggregate_nan_acceptance_ignored mean KL R/F1=0.01 H/F1=0.01 F2/F1=0.01 (band 0.015) mean acc R=0.690 H=0.700
+SUMMARY 22/22 passed
