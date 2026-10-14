@@ -1,0 +1,32 @@
+Provenance of code/glm53_nvme_spill_connector.py
+
+sha256 of the published file: cfc3574480af2c99cb74176c4203bbd8fb0bacd432095b764b879161d539321e
+sha256 of the published version before comment edits (internal commit a9783a3): 40d4764432b4d5a1e0356171620285e1451c9f6bb174ab96b8904f0ab08d3c94
+sha256 of the final version running in production (internal commit cd26084): 1762e23f6ce982afdff1cdda8a52b33c0e798e5aaaf05d4c093032cf2d0ee25c
+
+The published file differs from a9783a3 only in the SPDX line and comment/docstring references to file paths:
+AST (docstrings stripped) identical: a9783a3 code/glm53_nvme_spill_connector.py
+1c1
+< # SPDX-License-Identifier: Apache-2.0
+---
+> # SPDX-License-Identifier: AGPL-3.0-only
+5c5
+< Why (<two internal report paths>): a deep prefix-cache hit on this hybrid model
+---
+> Why (docs/design.md, "Problem"): a deep prefix-cache hit on this hybrid model
+45c45
+< rank) carry the counters the production A/B abort criteria read (<internal doc path>).
+---
+> rank) carry the counters the production A/B abort criteria read (docs/operations.md).
+112,113c112,113
+< # Every operator knob (env GLM53_NVME_SPILL_<name>); <old path>/apply_start_sh.py forwards exactly these to both
+< # ranks (<old path>/test_start_sh.sh checks the two lists agree). GLM53_NVME_SPILL_RANK is a test-only override.
+---
+> # Every operator knob (env GLM53_NVME_SPILL_<name>); code/apply_start_sh.py forwards exactly these to both
+> # ranks (tests/test_start_sh.sh checks the two lists agree). GLM53_NVME_SPILL_RANK is a test-only override.
+
+a9783a3 differs from the production version cd26084 in one format string (the cosmetic log fix, docs/limitations.md):
+748c748
+<         logger.info("%s rank %d: dir=%s wiped=%d group_bytes=%s stage=%d MiB direct=%s", TAG, self.rank,
+---
+>         logger.info("%s rank %d: dir=%s wiped=%s group_bytes=%s stage=%d MiB direct=%s", TAG, self.rank,

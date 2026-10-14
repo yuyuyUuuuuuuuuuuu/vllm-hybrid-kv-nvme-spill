@@ -1,0 +1,62 @@
+# priority order (2 x 8 GiB: 4 h rig runs need > 5 GiB). Generated from jobs_prune.txt.
+k2.env on 1 4 m_k2_s1 --no-drain
+k2.env on 2 4 m_k2_s2 --no-drain
+k2.env on 3 4 m_k2_s3 --no-drain
+k2.env on 4 4 m_k2_s4 --no-drain
+k2.env on 5 4 m_k2_s5 --no-drain
+k0.env on 1 4 m_k0_s1 --no-drain
+k0.env on 2 4 m_k0_s2 --no-drain
+k0.env on 3 4 m_k0_s3 --no-drain
+k0.env on 4 4 m_k0_s4 --no-drain
+k0.env on 5 4 m_k0_s5 --no-drain
+strict.env on 2 0.5 c_on_s2
+hw.env on 5 0.5 c_hw_s5
+f_missing.env on 2 0.5 f_missing_s2
+f_crc.env on 3 0.5 f_crc_s3
+a_plain.env on 2 0.5 a_plain_s2
+a_abort.env on 4 0.5 a_abort_s4
+a_crc.env on 3 0.5 a_crc_s3
+n_noload.env on 2 0.5 n_noload_s2
+a_rofs.env on 2 0.5 a_rofs_s2
+a_rofs_os.env on 2 0.5 a_rofs_os_s2
+h_load.env on 2 0.5 h_load_s2
+h_loadlate.env on 2 0.5 h_loadlate_s2
+k_load.env on 2 0.5 k_load_s2
+race.env on 2 0.5 race_new_s2
+sa.env on 1 4 m_all_s1 --no-drain
+sa.env on 2 4 m_all_s2 --no-drain
+sa.env on 3 4 m_all_s3 --no-drain
+sa.env on 4 4 m_all_s4 --no-drain
+sa.env on 5 4 m_all_s5 --no-drain
+bk2.env on 1 4 b_k2_s1 --no-drain
+bk2.env on 2 4 b_k2_s2 --no-drain
+bk2.env on 3 4 b_k2_s3 --no-drain
+bk2.env on 4 4 b_k2_s4 --no-drain
+bk2.env on 5 4 b_k2_s5 --no-drain
+bk1.env on 1 4 b_k1_s1 --no-drain
+bk1.env on 2 4 b_k1_s2 --no-drain
+bk1.env on 3 4 b_k1_s3 --no-drain
+bk1.env on 4 4 b_k1_s4 --no-drain
+bk1.env on 5 4 b_k1_s5 --no-drain
+bk3.env on 1 4 b_k3_s1 --no-drain
+bk3.env on 2 4 b_k3_s2 --no-drain
+bk3.env on 3 4 b_k3_s3 --no-drain
+bk3.env on 4 4 b_k3_s4 --no-drain
+bk3.env on 5 4 b_k3_s5 --no-drain
+ck0.env on 1 4 c_k0_s1 --no-drain
+ck0.env on 2 4 c_k0_s2 --no-drain
+ck0.env on 3 4 c_k0_s3 --no-drain
+ck2.env on 1 4 c_k2_s1 --no-drain
+ck2.env on 2 4 c_k2_s2 --no-drain
+ck2.env on 3 4 c_k2_s3 --no-drain
+k1.env on 1 4 m_k1_s1 --no-drain
+k1.env on 2 4 m_k1_s2 --no-drain
+k3.env on 1 4 m_k3_s1 --no-drain
+k3.env on 2 4 m_k3_s2 --no-drain
+x.env on 2 4 x_k2_s2 --no-drain
+x.env on 4 4 x_k2_s4 --no-drain
+bk0.env on 1 4 b_k0_s1 --no-drain
+bk0.env on 2 4 b_k0_s2 --no-drain
+bk0.env on 3 4 b_k0_s3 --no-drain
+bk0.env on 4 4 b_k0_s4 --no-drain
+bk0.env on 5 4 b_k0_s5 --no-drain

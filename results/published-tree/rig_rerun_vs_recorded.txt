@@ -1,0 +1,12 @@
+Rig re-runs from the published tree (tests/rig/run_jobs.sh, RIG_PAR=1) vs the recorded final-version runs
+in results/ttl/final_faults/. Fields compared: every leaf of the summary JSON; timing fields differ by nature.
+c_on_s2: 173 fields, differing: ['spill.adopt_s', 'spill.ident_s', 'spill.index_build_ms_max', 'spill.scan_s', 'spill.worker_stats', 'wall_s']
+   dsh_re_read_tokens 2078614 (recorded 2078614), collapses 0 (0), end_free_blocks 582 (582)
+pr_clean_s2: 309 fields, differing: ['spill.adopt_s', 'spill.ident_s', 'spill.index_build_ms_max', 'spill.scan_s', 'spill.worker_stats', 'spill_before_restart.adopt_s', 'spill_before_restart.ident_s', 'spill_before_restart.index_build_ms_max', 'spill_before_restart.index_writes', 'spill_before_restart.scan_s', 'spill_before_restart.worker_stats', 'wall_s']
+   dsh_re_read_tokens 2079108 (recorded 2079108), collapses 0 (0), end_free_blocks 582 (582)
+f_crc_s3: 174 fields, differing: ['spill.adopt_s', 'spill.ident_s', 'spill.index_build_ms_max', 'spill.scan_s', 'spill.worker_stats', 'wall_s']
+   dsh_re_read_tokens 2093057 (recorded 2093057), collapses 0 (0), end_free_blocks 582 (582)
+n_noload_s2: 173 fields, differing: ['spill.adopt_s', 'spill.ident_s', 'spill.index_build_ms_max', 'spill.scan_s', 'spill.worker_stats', 'wall_s']
+   dsh_re_read_tokens 2078614 (recorded 2078614), collapses 0 (0), end_free_blocks 582 (582)
+worker_stats differ only in write_s/load_s/scan_s; spill_before_restart.index_writes 9 vs 10 (the index writer
+thread coalesces writes; the adopted index content and every outcome field are identical).

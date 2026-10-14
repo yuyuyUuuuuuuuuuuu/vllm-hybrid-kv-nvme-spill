@@ -1,0 +1,9 @@
+PASS gpu_phase1_inprocess_restore_byte_identical blocks=6 new=6 files=7
+SUMMARY 1/1 passed
+PHASE 1 rc=0
+PASS gpu_restart_adopted adopted rps=2 scan+start 0.39s adopt 1.36s
+PASS gpu_restart_restore_ready ready 0.11s
+PASS gpu_restart_restore_byte_identical_to_saved blocks=6 new=6 ranks=2
+PASS gpu_restart_restore_equals_inprocess_restore 6 vs 6
+SUMMARY 4/4 passed
+PHASE 2 rc=0

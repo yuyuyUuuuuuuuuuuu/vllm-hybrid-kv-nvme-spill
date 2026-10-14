@@ -1,0 +1,13 @@
+ttlmix.env on 1 4 mx2_on_s1 --no-drain
+ttlmix.env on 2 4 mx2_on_s2 --no-drain
+ttlmix.env on 3 4 mx2_on_s3 --no-drain
+ttlmix.env on 4 4 mx2_on_s4 --no-drain
+ttlmix.env on 5 4 mx2_on_s5 --no-drain
+ttlmix_overload.env on 1 4 mxo_on_s1 --no-drain
+ttlmix_overload.env on 2 4 mxo_on_s2 --no-drain
+ttlmix_overload.env on 3 4 mxo_on_s3 --no-drain
+ttlmix_overload.env on 4 4 mxo_on_s4 --no-drain
+ttlmix_overload.env on 5 4 mxo_on_s5 --no-drain
+pr_cleanrep.env on 2 0.5 pr_cleanrep_s2
+pr_cleanrep.env on 3 0.5 pr_cleanrep_s3
+pr_clean.env on 3 0.5 pr_clean_s3

@@ -1,0 +1,9 @@
+PASS kit start.sh matches the kit MANIFEST (ae1c6a62a9e404cd)
+PASS apply to the kit start.sh: nvme-spill: 7 edits applied (5 markers, 31 forwarded names)
+PASS patched start.sh passes bash -n
+PASS second apply is a no-op: nvme-spill: already applied (unchanged) (5 markers, 31 forwarded names)
+PASS a drifted patched start.sh aborts, nothing written: ABORT: [nvme-spill] markers present but not exactly this tool's edits (drifted/partial/older)
+PASS a kit start.sh without an anchor aborts, nothing written: ABORT: anchor W found 0x (need 1)
+PASS every knob SpillConfig.from_env reads is in KNOBS (=forwarded): read but not in KNOBS: []
+SKIP part 2 (no launcher dir given)
+SUMMARY 7/7 passed (part 1 only)

@@ -1,0 +1,16 @@
+PASS kit start.sh matches the kit MANIFEST (ae9b8f8657071793)
+PASS apply to the kit start.sh: nvme-spill: 7 edits applied (5 markers, 23 forwarded names)
+PASS patched start.sh passes bash -n
+PASS second apply is a no-op: nvme-spill: already applied (unchanged) (5 markers, 23 forwarded names)
+PASS a drifted patched start.sh aborts, nothing written: ABORT: [nvme-spill] markers present but not exactly this tool's edits (drifted/partial/older)
+PASS a kit start.sh without an anchor aborts, nothing written: ABORT: anchor W found 0x (need 1)
+PASS every knob SpillConfig.from_env reads is in KNOBS (=forwarded): read but not in KNOBS: []
+PASS validate_numeric_config accepts GLM53_NVME_SPILL=1 with the bundle files + a writable dir
+PASS launch_cluster ran to the end against the fakes (14 log lines)
+PASS every GLM53_NVME_SPILL* value reaches both ranks' docker run (+ the rw mount): 24 ok, 0 bad
+PASS .glm53-exl3-head.inner.sh passes --kv-transfer-config for GLM53_NVME_SPILL=1
+PASS .glm53-exl3-worker.inner.sh passes --kv-transfer-config for GLM53_NVME_SPILL=1
+PASS validate_numeric_config with GLM53_NVME_SPILL empty (caller override): OFF_VALIDATE_RC=0 GLM53_NVME_SPILL=[]
+PASS validate_numeric_config refuses GLM53_NVME_SPILL=1 with a missing dir: BAD_VALIDATE_RC=2
+PASS inner script guards the connector arg on GLM53_NVME_SPILL=1 (container env)
+SUMMARY 15/15 passed  (trace: <scratch>/trace.log, drive log: <scratch>/drive.log, patch: <scratch>/start.sh.nvmespill.patch)

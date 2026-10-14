@@ -1,0 +1,13 @@
+== test_store (CPU)
+SUMMARY 19/19 passed
+== test_sched_faults
+SUMMARY 49/49 passed
+== t_alloc_conf (work tree)
+ALLOC work PYTORCH_CUDA_ALLOC_CONF='' -> VllmConfig(kv_transfer_config=spill) accepted (kv_connector=Glm53NvmeSpillConnector)
+ALLOC work PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' -> VllmConfig(kv_transfer_config=spill) accepted (kv_connector=Glm53NvmeSpillConnector)
+ALLOC work other connector (NixlConnector) + expandable -> still ValueError (exemption is narrow)
+== t_alloc_conf (pre-fix tree)
+ALLOC work_old PYTORCH_CUDA_ALLOC_CONF='' -> VllmConfig(kv_transfer_config=spill) accepted (kv_connector=Glm53NvmeSpillConnector)
+ALLOC work_old PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' -> ValueError: KV connector Glm53NvmeSpillConnector is incompatible with PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True unless enable_cumem_all
+SUMMARY 10/10 passed
+SUMMARY 15/15 passed  (trace: <scratch>/trace.log, drive log: <scratch>/drive.log, patch: <scratch>/start.sh.nvmespill.patch)

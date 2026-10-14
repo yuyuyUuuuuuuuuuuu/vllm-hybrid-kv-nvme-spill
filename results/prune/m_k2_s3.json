@@ -1,0 +1,740 @@
+{
+ "seed": 3,
+ "cond": "",
+ "fix1": false,
+ "fix2": false,
+ "mla_hit_mean": 634566,
+ "mamba_hit_mean": 634418,
+ "protected_peak_blocks": 0,
+ "protected_avg_blocks": 0.0,
+ "steps": 26044,
+ "sim_s": 14406.2,
+ "wall_s": 763.2,
+ "decode_steps": 25813,
+ "admissions": 51,
+ "dsh_admissions": 34,
+ "re_read_tokens": 3197541,
+ "dsh_re_read_tokens": 2085058,
+ "dsh_falls_le23040": 0,
+ "dsh_by_branch": {
+  "plain": {
+   "admissions": 34,
+   "re_read": 2085058,
+   "falls": 0
+  }
+ },
+ "dsh_falls_eq13824": 0,
+ "lost_hit_events": 0,
+ "lost_hit_tokens": 0,
+ "stalled_s_est": 1498.3,
+ "sched_prompt_tokens": 3050496,
+ "preemptions": 0,
+ "finished": 49,
+ "pending_unfinished": 376,
+ "free_blocks_end": 476,
+ "nonnull_refcnt_end": 106,
+ "drain_steps": 0,
+ "end_free_blocks": 476,
+ "end_ref_nonnull": 106,
+ "end_bad_blocks": [
+  10,
+  11,
+  12,
+  18,
+  26,
+  34,
+  89,
+  113,
+  115,
+  116,
+  117,
+  129,
+  130,
+  134,
+  151,
+  159,
+  170,
+  175,
+  177,
+  178,
+  182,
+  187,
+  191,
+  192,
+  194,
+  197,
+  201,
+  205,
+  209,
+  210,
+  220,
+  221,
+  222,
+  226,
+  230,
+  231,
+  261,
+  286,
+  295,
+  309,
+  310,
+  311,
+  319,
+  320,
+  323,
+  325,
+  349,
+  359,
+  360,
+  374,
+  375,
+  387,
+  393,
+  409,
+  429,
+  461,
+  470,
+  472,
+  486,
+  487,
+  491,
+  495,
+  496,
+  497,
+  499,
+  502,
+  503,
+  504,
+  506,
+  507,
+  508,
+  509,
+  511,
+  512,
+  513,
+  515,
+  518,
+  519,
+  521,
+  523,
+  524,
+  527,
+  528,
+  535,
+  537,
+  545,
+  549,
+  552,
+  554,
+  556,
+  557,
+  559,
+  560,
+  563,
+  564,
+  566,
+  567,
+  568,
+  569,
+  570,
+  571,
+  572,
+  573,
+  575,
+  576,
+  581
+ ],
+ "bad_ref_blocks": [],
+ "invariant_errors": [],
+ "hit_hash_violations": 0,
+ "accounting_violations": 0,
+ "deferred_peak_blocks": 0,
+ "deferred_avg_blocks": 0.0,
+ "errors": [],
+ "spill": {
+  "rp_saved": 30,
+  "rp_save_failed": 0,
+  "rp_skipped_short": 1,
+  "rp_skipped_cap": 0,
+  "rp_skipped_first": 12,
+  "rp_skipped_rate": 0,
+  "rp_dedup_blocks": 3743,
+  "save_bytes": 14949400576,
+  "rp_evicted": 0,
+  "restore_started": 6,
+  "restore_ok": 6,
+  "restore_failed": 0,
+  "restore_short": 0,
+  "restore_no_space": 9829,
+  "restore_admitted": 6,
+  "bad_files": 0,
+  "restore_coalesced_waits": 54,
+  "restore_space_wait_steps": 2134,
+  "restore_space_giveup": 53,
+  "restored_tokens": 3626496,
+  "restore_loaded_blocks": 119,
+  "restore_pinned_blocks": 703,
+  "restore_timeouts": 6,
+  "deferred_written": 0,
+  "save_moved_blocks": 0,
+  "save_timeouts": 0,
+  "load_timeouts": 0,
+  "restore_fallback": 0,
+  "rp_skipped_pins": 0,
+  "pinned_excl_peak": 12,
+  "breaker_trips": 0,
+  "late_answers": 0,
+  "worker_exc": 0,
+  "jobs_failed": 0,
+  "pinned_peak": 255,
+  "quarantine_freed": 0,
+  "orphan_files_deleted": 0,
+  "rp_pruned": 24,
+  "prune_freed_bytes": 2468405248,
+  "rp_prune_skipped_busy": 0,
+  "rp_prune_kept_branch": 0,
+  "rp_blocks_g0": 4173,
+  "rp_blocks_g2": 30,
+  "rp_blocks_g3": 30,
+  "rp_blocks_g4": 30,
+  "rp_blocks_g5": 30,
+  "rp_blocks_g6": 56,
+  "content_writes": 1112,
+  "verify_blocks": 4710,
+  "verify_fail": 0,
+  "verify_fail_first": [],
+  "restored_blocks_verified": 119,
+  "faults_injected": 0,
+  "connector_pinned_end": 0,
+  "disk_gib_accounted": 11.624,
+  "disk_gib_peak": 11.795,
+  "disk_timeline": [
+   [
+    1,
+    0.0,
+    0
+   ],
+   [
+    300,
+    0.0,
+    0
+   ],
+   [
+    600,
+    2.516,
+    1
+   ],
+   [
+    900,
+    2.516,
+    1
+   ],
+   [
+    1202,
+    2.516,
+    1
+   ],
+   [
+    1500,
+    2.516,
+    1
+   ],
+   [
+    1800,
+    6.003,
+    3
+   ],
+   [
+    2100,
+    6.003,
+    3
+   ],
+   [
+    2405,
+    6.003,
+    3
+   ],
+   [
+    2700,
+    6.003,
+    3
+   ],
+   [
+    3000,
+    10.346,
+    4
+   ],
+   [
+    3300,
+    10.494,
+    5
+   ],
+   [
+    3600,
+    10.494,
+    5
+   ],
+   [
+    3900,
+    10.545,
+    5
+   ],
+   [
+    4200,
+    10.545,
+    5
+   ],
+   [
+    4500,
+    10.597,
+    5
+   ],
+   [
+    4800,
+    10.597,
+    5
+   ],
+   [
+    5100,
+    10.648,
+    5
+   ],
+   [
+    5400,
+    10.797,
+    6
+   ],
+   [
+    5700,
+    10.848,
+    6
+   ],
+   [
+    6000,
+    10.848,
+    6
+   ],
+   [
+    6300,
+    10.9,
+    6
+   ],
+   [
+    6600,
+    10.9,
+    6
+   ],
+   [
+    6900,
+    10.925,
+    6
+   ],
+   [
+    7200,
+    10.951,
+    6
+   ],
+   [
+    7500,
+    11.002,
+    6
+   ],
+   [
+    7800,
+    11.002,
+    6
+   ],
+   [
+    8100,
+    11.002,
+    6
+   ],
+   [
+    8400,
+    11.054,
+    6
+   ],
+   [
+    8700,
+    11.105,
+    6
+   ],
+   [
+    9000,
+    11.157,
+    6
+   ],
+   [
+    9300,
+    11.157,
+    6
+   ],
+   [
+    9600,
+    11.157,
+    6
+   ],
+   [
+    9900,
+    11.183,
+    6
+   ],
+   [
+    10200,
+    11.183,
+    6
+   ],
+   [
+    10500,
+    11.26,
+    6
+   ],
+   [
+    10800,
+    11.26,
+    6
+   ],
+   [
+    11100,
+    11.267,
+    6
+   ],
+   [
+    11400,
+    11.319,
+    6
+   ],
+   [
+    11703,
+    11.319,
+    6
+   ],
+   [
+    12000,
+    11.345,
+    6
+   ],
+   [
+    12301,
+    11.345,
+    6
+   ],
+   [
+    12600,
+    11.396,
+    6
+   ],
+   [
+    12900,
+    11.396,
+    6
+   ],
+   [
+    13200,
+    11.447,
+    6
+   ],
+   [
+    13500,
+    11.499,
+    6
+   ],
+   [
+    13800,
+    11.624,
+    6
+   ],
+   [
+    14100,
+    11.624,
+    6
+   ]
+  ],
+  "restore_log": [
+   {
+    "req": "dsh0t3",
+    "rp_n": 442368,
+    "local": 13824,
+    "newer_alive": 0,
+    "branch": "plain"
+   },
+   {
+    "req": "dsh2t2",
+    "rp_n": 774144,
+    "local": 0,
+    "newer_alive": 0,
+    "branch": "plain"
+   },
+   {
+    "req": "dsh0t8",
+    "rp_n": 474624,
+    "local": 0,
+    "newer_alive": 0,
+    "branch": "plain"
+   },
+   {
+    "req": "dsh2t7",
+    "rp_n": 811008,
+    "local": 0,
+    "newer_alive": 0,
+    "branch": "plain"
+   },
+   {
+    "req": "dsh1t10",
+    "rp_n": 649728,
+    "local": 0,
+    "newer_alive": 0,
+    "branch": "plain"
+   },
+   {
+    "req": "dsh0t10",
+    "rp_n": 488448,
+    "local": 0,
+    "newer_alive": 0,
+    "branch": "plain"
+   }
+  ],
+  "reread_causes": {
+   "tokens": {
+    "d_first_prefill": 1781298,
+    "f_new_turn_tokens": 156745,
+    "e_previous_turn_still_computing": 221184,
+    "x_unattributed": -77442,
+    "e_granularity": 3273,
+    "total": 2085058
+   },
+   "shortfall_admissions": [
+    [
+     "dsh0t0",
+     "d",
+     430000
+    ],
+    [
+     "dsh0t1",
+     "e_previous_turn_still_computing",
+     4608
+    ],
+    [
+     "dsh1t0",
+     "d",
+     591762
+    ],
+    [
+     "dsh1t1",
+     "e_previous_turn_still_computing",
+     4608
+    ],
+    [
+     "dsh0t2",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh2t0",
+     "d",
+     759536
+    ],
+    [
+     "dsh2t1",
+     "e_previous_turn_still_computing",
+     4608
+    ],
+    [
+     "dsh1t2",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh0t3",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh0t4",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh1t3",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh2t2",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh1t4",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh2t3",
+     "e_previous_turn_still_computing",
+     4608
+    ],
+    [
+     "dsh0t5",
+     "e_previous_turn_still_computing",
+     4608
+    ],
+    [
+     "dsh1t5",
+     "e_previous_turn_still_computing",
+     4608
+    ],
+    [
+     "dsh2t4",
+     "e_previous_turn_still_computing",
+     4608
+    ],
+    [
+     "dsh0t6",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh2t5",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh1t6",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh2t6",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh1t7",
+     "e_previous_turn_still_computing",
+     4608
+    ],
+    [
+     "dsh0t8",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh1t8",
+     "e_previous_turn_still_computing",
+     4608
+    ],
+    [
+     "dsh1t9",
+     "e_previous_turn_still_computing",
+     4608
+    ],
+    [
+     "dsh0t9",
+     "e_previous_turn_still_computing",
+     4608
+    ],
+    [
+     "dsh2t7",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh2t8",
+     "e_previous_turn_still_computing",
+     4608
+    ],
+    [
+     "dsh1t10",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh0t10",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh2t9",
+     "e_previous_turn_still_computing",
+     9216
+    ],
+    [
+     "dsh1t11",
+     "e_previous_turn_still_computing",
+     13824
+    ],
+    [
+     "dsh2t10",
+     "e_previous_turn_still_computing",
+     4608
+    ]
+   ]
+  },
+  "rps_end": 6,
+  "worker_stats": [
+   {
+    "written": 30,
+    "write_failed": 0,
+    "loaded": 6,
+    "load_failed": 0,
+    "deleted": 142,
+    "delete_failed": 0,
+    "write_s": 0.5340263622347265,
+    "load_s": 0.08463165583088994,
+    "written_bytes": 28942336,
+    "loaded_bytes": 5763072,
+    "thread_exc": 0
+   },
+   {
+    "written": 30,
+    "write_failed": 0,
+    "loaded": 6,
+    "load_failed": 0,
+    "deleted": 142,
+    "delete_failed": 0,
+    "write_s": 0.5358026283793151,
+    "load_s": 0.07911113603040576,
+    "written_bytes": 28942336,
+    "loaded_bytes": 5763072,
+    "thread_exc": 0
+   }
+  ],
+  "worker_threads_alive": [
+   2,
+   2
+  ],
+  "aborted": [],
+  "same_step": {
+   "plans_in_build_meta": 31,
+   "plans_hit": 0,
+   "blocks_hit": 0,
+   "by_group": {}
+  },
+  "orphans_end": 0,
+  "loading_end": 0,
+  "job_acc_end": 0,
+  "save_jobs_end": 0,
+  "breaker": null,
+  "quarantine_end": 0,
+  "quarantined_blocks_end": 0,
+  "hang_events": [],
+  "noack_job": null,
+  "os_proxy_hits": 0,
+  "race_plans": 0,
+  "race_blocks": 0,
+  "file_verify": 1212,
+  "file_verify_fail": 0,
+  "file_verify_fail_first": [],
+  "stats_line": "[glm53-nvme-spill] stats breaker=closed pinned=0 save=0 save_excl=0 restore=0 quarantined=0 peak=255 excl_peak=12 cap=291 inflight_save=0 oldest_save_s=0.0 inflight_load=0 oldest_load_s=0.0 worker_exc=0 jobs_failed=0 save_timeouts=0 load_timeouts=0 written_gib_1h=1.21 disk_gib=11.62 rps=6 restores_ok=6 restores_failed=0 restores_fallback=0 restore_short=0 saves_ok=30 saves_failed=0 rp_pruned=24 pruned_gib=2.30 rp_evicted=0 keep=2",
+  "worker_stats_lines": [
+   "[glm53-nvme-spill] rank 0 io: idle queued w=0 r=0 written=30 (0.03 GiB) write_failed=0 loaded=6 (0.01 GiB) load_failed=0 delete_failed=0 thread_exc=0 threads_alive=2/2",
+   "[glm53-nvme-spill] rank 1 io: idle queued w=0 r=0 written=30 (0.03 GiB) write_failed=0 loaded=6 (0.01 GiB) load_failed=0 delete_failed=0 thread_exc=0 threads_alive=2/2"
+  ],
+  "restore_newer_alive_by_branch": {
+   "plain": {
+    "0": 6
+   }
+  }
+ }
+}

@@ -1,0 +1,135 @@
+--- a/launcher/start.sh (r16z8p kit 393c2a5, sha256 ae9b8f86)
++++ b/launcher/start.sh (+ code/apply_start_sh.py)
+@@ -1579,6 +1579,31 @@
+             fi
+         fi
+     done
++    # [nvme-spill] resume points of long conversations on each node's local NVMe (docs/NVME_SPILL.md of tf-exl3-fork).
++    # Unset/empty/0 = stock (no KV connector, nothing installed); 1 = the bundle overlay patch_nvme_spill.py on both ranks
++    # + --kv-transfer-config in both inner scripts + GLM53_NVME_SPILL_DIR bind-mounted rw into both containers.
++    if [ -n "${GLM53_NVME_SPILL:-}" ]; then
++        _glm53_validate_bool_flag GLM53_NVME_SPILL "$GLM53_NVME_SPILL" || return
++    fi
++    if [ "${GLM53_NVME_SPILL:-}" = "1" ]; then
++        if [ ! -s "$TF_BUNDLE_DIR_HOST/overlay/patch_nvme_spill.py" ] \
++           || [ ! -s "$TF_BUNDLE_DIR_HOST/overlay/glm53_nvme_spill_connector.py" ]; then
++            echo "GLM53_NVME_SPILL=1 requires $TF_BUNDLE_DIR_HOST/overlay/{patch_nvme_spill.py,glm53_nvme_spill_connector.py}" >&2
++            return 2
++        fi
++        if ! grep -qF '("patch_nvme_spill.py", "GLM53_NVME_SPILL")' "$TF_BUNDLE_PATCH_HOST" 2>/dev/null; then
++            echo "GLM53_NVME_SPILL=1 requires $TF_BUNDLE_PATCH_HOST to run patch_nvme_spill.py (the nvme-spill patch_tf_bundle.py)" >&2
++            return 2
++        fi
++        case "${GLM53_NVME_SPILL_DIR:-}" in
++            /?*) ;;
++            *) echo "GLM53_NVME_SPILL=1 requires GLM53_NVME_SPILL_DIR (absolute path on the local NVMe of each node)" >&2; return 2 ;;
++        esac
++        if [ ! -d "$GLM53_NVME_SPILL_DIR" ] || [ ! -w "$GLM53_NVME_SPILL_DIR" ]; then
++            echo "GLM53_NVME_SPILL_DIR=$GLM53_NVME_SPILL_DIR is not a writable directory on the head node" >&2
++            return 2
++        fi
++    fi
+     _glm53_validate_spinwait_ms || return
+     _glm53_validate_bool_flag GLM53_APC_NO_STORE "${GLM53_APC_NO_STORE-1}" || return
+     _glm53_validate_bool_flag GLM53_KV_CAPACITY_LOG "${GLM53_KV_CAPACITY_LOG-1}" || return
+@@ -2691,6 +2716,9 @@
+ [ -n "${KV_CACHE_DTYPE:-}" ] && ARGS+=(--kv-cache-dtype "${KV_CACHE_DTYPE}")
+ [ -n "${LOAD_FORMAT:-}" ] && ARGS+=(--load-format "${LOAD_FORMAT}")
+ [ -n "${PREFIX_MATCH_UNIT:-}" ] && ARGS+=(--prefix-match-unit "${PREFIX_MATCH_UNIT}")
++if [ "${GLM53_NVME_SPILL:-}" = "1" ]; then  # [nvme-spill] identical on both ranks (part of the config hash)
++    ARGS+=(--kv-transfer-config '{"kv_connector":"Glm53NvmeSpillConnector","kv_connector_module_path":"vllm.distributed.kv_transfer.kv_connector.v1.glm53_nvme_spill_connector","kv_role":"kv_both"}')
++fi
+ if [ -n "${GLM53_DEFAULT_REASONING_EFFORT:-}" ]; then
+     ARGS+=(--default-chat-template-kwargs "{\"reasoning_effort\":\"${GLM53_DEFAULT_REASONING_EFFORT}\"}")
+ fi
+@@ -2773,6 +2801,9 @@
+ [ -n "${KV_CACHE_DTYPE:-}" ] && ARGS+=(--kv-cache-dtype "${KV_CACHE_DTYPE}")
+ [ -n "${LOAD_FORMAT:-}" ] && ARGS+=(--load-format "${LOAD_FORMAT}")
+ [ -n "${PREFIX_MATCH_UNIT:-}" ] && ARGS+=(--prefix-match-unit "${PREFIX_MATCH_UNIT}")
++if [ "${GLM53_NVME_SPILL:-}" = "1" ]; then  # [nvme-spill] identical on both ranks (part of the config hash)
++    ARGS+=(--kv-transfer-config '{"kv_connector":"Glm53NvmeSpillConnector","kv_connector_module_path":"vllm.distributed.kv_transfer.kv_connector.v1.glm53_nvme_spill_connector","kv_role":"kv_both"}')
++fi
+ if [ -n "${GLM53_DEFAULT_REASONING_EFFORT:-}" ]; then
+     ARGS+=(--default-chat-template-kwargs "{\"reasoning_effort\":\"${GLM53_DEFAULT_REASONING_EFFORT}\"}")
+ fi
+@@ -3097,7 +3128,8 @@
+              GLM53_DEC_HOSTLOOP_WAKE_TICK_US GLM53_DEC_HOSTLOOP_WAKE_PIN GLM53_DEC_PROF_DIAG GLM53_DEC_SMALLOPS \
+              GLM53_DEC_SMALLOPS_KINDS GLM53_KPOOL_RING GLM53_KDA_STRIDED_QKV GLM53_KPOOL_DROP_LOWEST GLM53_KDA_FLASHKDA GLM53_MHC_SP GLM53_MOE_E4M3 GLM53_DENSE_W8A8 GLM53_KDA_FLASHKDA_V GLM53_MHC_SP2 GLM53_DENSE_W8A8_GEMM GLM53_DENSE_W8A8_ONLY GLM53_MOE_E4M3_DOWN GLM53_MOE_FUSED16 GLM53_MOE_E4M3_LAYERS GLM53_MOE_E4M3_DOWN_LAYERS GLM53_MOE_E4M3_ACC GLM53_MOE_E4M3_FOLD_SHARED GLM53_MOE_E4M3_TOKGATHER GLM53_MLA_PREFILL_FUSED_INDEX GLM53_DENSE_W8A8_FP8AG GLM53_DENSE_W8A8_HILO GLM53_DENSE_W8A8_HILO_SEL GLM53_MLA_EXACT_LENS GLM53_MLA_PREFILL_KV_ROWS GLM53_MHC_FUSED GLM53_MHC_FUSED_ROUND_A GLM53_MHC_FUSED_CFG GLM53_DENSE_W8A8_SKIP_LAYERS GLM53_MOE_E4M3_MAINLOOP GLM53_DEC_KDA_LAZY GLM53_DEC_KDA_LAZY_VERIFY GLM53_DEC_KDA_LAZY_VERIFY_EVERY GLM53_DEC_VTRIM_STATS GLM53_DEC_VTRIM_STATS_CAP GLM53_DEC_VTRIM_STATS_FILE GLM53_SPEC_VTRIM GLM53_SPEC_VTRIM_TAU GLM53_SPEC_VTRIM_MIN GLM53_SPEC_VTRIM_LOG GLM53_KPOOL_TAIL_POSITIONS GLM53_MAMBA_ALIGN_SEED \
+             GLM53_DEC_AR1SHOT GLM53_DEC_AR1SHOT_MAX_KB GLM53_DEC_AR1SHOT_LOG GLM53_DEC_DLMH GLM53_DEC_DLMH_C GLM53_DEC_DLMH_GROUP GLM53_DEC_DLMH_LOG \
+-            GLM53_MLA_PLAN_PIN; do  # [tf-exl3-fork]
++            GLM53_MLA_PLAN_PIN \
++            GLM53_NVME_SPILL GLM53_NVME_SPILL_DIR GLM53_NVME_SPILL_GIB GLM53_NVME_SPILL_MIN_TOKENS GLM53_NVME_SPILL_MIN_GAIN GLM53_NVME_SPILL_HIGHWATER GLM53_NVME_SPILL_MIN_FREE_GIB GLM53_NVME_SPILL_PIN_TIMEOUT_S GLM53_NVME_SPILL_RESERVE_BLOCKS GLM53_NVME_SPILL_SPACE_WAIT_S GLM53_NVME_SPILL_STAGE_MIB GLM53_NVME_SPILL_DIRECT GLM53_NVME_SPILL_MAX_WRITE_GIB_PER_H GLM53_NVME_SPILL_MAX_RESTORE_FAILURES GLM53_NVME_SPILL_MAX_RESTORES_PER_REQUEST GLM53_NVME_SPILL_MAX_STATE_PINS GLM53_NVME_SPILL_SAVE_POLICY GLM53_NVME_SPILL_LOG GLM53_NVME_SPILL_SAVE_DEADLINE_S GLM53_NVME_SPILL_LOAD_DEADLINE_S GLM53_NVME_SPILL_BREAKER_FAILS GLM53_NVME_SPILL_MAX_PINNED_BLOCKS GLM53_NVME_SPILL_LOG_EVERY_S GLM53_NVME_SPILL_KEEP_PER_CHAIN GLM53_NVME_SPILL_PERSIST GLM53_NVME_SPILL_HASH_SEED GLM53_NVME_SPILL_INDEX_EVERY_S GLM53_NVME_SPILL_ADOPT_DEADLINE_S GLM53_NVME_SPILL_TTL_SWEEP_S GLM53_NVME_SPILL_TTL_SAVE_POLICY GLM53_NVME_SPILL_TTL_MIN_TOKENS; do  # [tf-exl3-fork] [nvme-spill]
+         serve_env+=" -e $v='${!v:-}'"
+         serve_env_names+=("$v")
+     done
+@@ -3155,6 +3187,16 @@
+     # The worker is headless and serves no API, so do not propagate the API
+     # credential into its remote docker command or container environment.
+ 
++    # [nvme-spill] each rank writes its own resume-point files to its node's local NVMe (same path on both nodes)
++    worker_spill_mount=""
++    head_spill_mount=()
++    if [ "${GLM53_NVME_SPILL:-}" = "1" ]; then
++        if ! worker_ssh "test -d '$GLM53_NVME_SPILL_DIR' && test -w '$GLM53_NVME_SPILL_DIR'"; then
++            die "GLM53_NVME_SPILL_DIR=$GLM53_NVME_SPILL_DIR is not a writable directory on the worker node"
++        fi
++        worker_spill_mount="-v '$GLM53_NVME_SPILL_DIR:$GLM53_NVME_SPILL_DIR'"
++        head_spill_mount=(-v "$GLM53_NVME_SPILL_DIR:$GLM53_NVME_SPILL_DIR")
++    fi
+     log "starting worker on ${WORKER_SSH} (NCCL if=${WORKER_CX7_IF} hca=${WORKER_CX7_IB}) ..."
+     worker_ssh "docker run -d --name '$CONTAINER_WORKER' \
+         --gpus all --network host --ipc=host --shm-size 32g --stop-timeout 60 \
+@@ -3191,6 +3233,7 @@
+         -v '/tmp/glm53-ablit_runtime.py:/opt/glm53/ablit_runtime.py:ro' \
+         -v '/tmp/patch_ablit.py:/opt/glm53/patch_ablit.py:ro' \
+         ${worker_preload} \
++        ${worker_spill_mount} \
+         ${worker_nccl} \
+         -e NCCL_SOCKET_IFNAME='$WORKER_CX7_IF' \
+         -e GLOO_SOCKET_IFNAME='$WORKER_CX7_IF' \
+@@ -3209,6 +3252,7 @@
+         -v "$CACHE_ROOT:/root/.cache/vllm" \
+         -v "$TRITON_HOST_CACHE:/root/.triton/cache" \
+         -v "$TILELANG_HOST_CACHE:/root/.tilelang/cache" \
++        "${head_spill_mount[@]}" \
+         -v "$HEAD_SCRIPT:/start.sh:ro" \
+         -v "$CHAT_TEMPLATE_HOST:$CHAT_TEMPLATE:ro" \
+         -v "$VIDEO_PATCH_HOST:/opt/glm53/patch_glm_video_placeholders.py:ro" \
+@@ -3341,6 +3385,37 @@
+         -e GLM53_DEC_SMALLOPS_KINDS="${GLM53_DEC_SMALLOPS_KINDS:-}" \
+         -e GLM53_KPOOL_RING="${GLM53_KPOOL_RING:-}" \
+         -e GLM53_KDA_STRIDED_QKV="${GLM53_KDA_STRIDED_QKV:-}" \
++        -e GLM53_NVME_SPILL="${GLM53_NVME_SPILL:-}" \
++        -e GLM53_NVME_SPILL_DIR="${GLM53_NVME_SPILL_DIR:-}" \
++        -e GLM53_NVME_SPILL_GIB="${GLM53_NVME_SPILL_GIB:-}" \
++        -e GLM53_NVME_SPILL_MIN_TOKENS="${GLM53_NVME_SPILL_MIN_TOKENS:-}" \
++        -e GLM53_NVME_SPILL_MIN_GAIN="${GLM53_NVME_SPILL_MIN_GAIN:-}" \
++        -e GLM53_NVME_SPILL_HIGHWATER="${GLM53_NVME_SPILL_HIGHWATER:-}" \
++        -e GLM53_NVME_SPILL_MIN_FREE_GIB="${GLM53_NVME_SPILL_MIN_FREE_GIB:-}" \
++        -e GLM53_NVME_SPILL_PIN_TIMEOUT_S="${GLM53_NVME_SPILL_PIN_TIMEOUT_S:-}" \
++        -e GLM53_NVME_SPILL_RESERVE_BLOCKS="${GLM53_NVME_SPILL_RESERVE_BLOCKS:-}" \
++        -e GLM53_NVME_SPILL_SPACE_WAIT_S="${GLM53_NVME_SPILL_SPACE_WAIT_S:-}" \
++        -e GLM53_NVME_SPILL_STAGE_MIB="${GLM53_NVME_SPILL_STAGE_MIB:-}" \
++        -e GLM53_NVME_SPILL_DIRECT="${GLM53_NVME_SPILL_DIRECT:-}" \
++        -e GLM53_NVME_SPILL_MAX_WRITE_GIB_PER_H="${GLM53_NVME_SPILL_MAX_WRITE_GIB_PER_H:-}" \
++        -e GLM53_NVME_SPILL_MAX_RESTORE_FAILURES="${GLM53_NVME_SPILL_MAX_RESTORE_FAILURES:-}" \
++        -e GLM53_NVME_SPILL_MAX_RESTORES_PER_REQUEST="${GLM53_NVME_SPILL_MAX_RESTORES_PER_REQUEST:-}" \
++        -e GLM53_NVME_SPILL_MAX_STATE_PINS="${GLM53_NVME_SPILL_MAX_STATE_PINS:-}" \
++        -e GLM53_NVME_SPILL_SAVE_POLICY="${GLM53_NVME_SPILL_SAVE_POLICY:-}" \
++        -e GLM53_NVME_SPILL_LOG="${GLM53_NVME_SPILL_LOG:-}" \
++        -e GLM53_NVME_SPILL_SAVE_DEADLINE_S="${GLM53_NVME_SPILL_SAVE_DEADLINE_S:-}" \
++        -e GLM53_NVME_SPILL_LOAD_DEADLINE_S="${GLM53_NVME_SPILL_LOAD_DEADLINE_S:-}" \
++        -e GLM53_NVME_SPILL_BREAKER_FAILS="${GLM53_NVME_SPILL_BREAKER_FAILS:-}" \
++        -e GLM53_NVME_SPILL_MAX_PINNED_BLOCKS="${GLM53_NVME_SPILL_MAX_PINNED_BLOCKS:-}" \
++        -e GLM53_NVME_SPILL_LOG_EVERY_S="${GLM53_NVME_SPILL_LOG_EVERY_S:-}" \
++        -e GLM53_NVME_SPILL_KEEP_PER_CHAIN="${GLM53_NVME_SPILL_KEEP_PER_CHAIN:-}" \
++        -e GLM53_NVME_SPILL_PERSIST="${GLM53_NVME_SPILL_PERSIST:-}" \
++        -e GLM53_NVME_SPILL_HASH_SEED="${GLM53_NVME_SPILL_HASH_SEED:-}" \
++        -e GLM53_NVME_SPILL_INDEX_EVERY_S="${GLM53_NVME_SPILL_INDEX_EVERY_S:-}" \
++        -e GLM53_NVME_SPILL_ADOPT_DEADLINE_S="${GLM53_NVME_SPILL_ADOPT_DEADLINE_S:-}" \
++        -e GLM53_NVME_SPILL_TTL_SWEEP_S="${GLM53_NVME_SPILL_TTL_SWEEP_S:-}" \
++        -e GLM53_NVME_SPILL_TTL_SAVE_POLICY="${GLM53_NVME_SPILL_TTL_SAVE_POLICY:-}" \
++        -e GLM53_NVME_SPILL_TTL_MIN_TOKENS="${GLM53_NVME_SPILL_TTL_MIN_TOKENS:-}" \
+         -e GLM53_KPOOL_DROP_LOWEST="${GLM53_KPOOL_DROP_LOWEST:-}" \
+         -e GLM53_KDA_FLASHKDA="${GLM53_KDA_FLASHKDA:-}" \
+         -e GLM53_MHC_SP="${GLM53_MHC_SP:-}" \

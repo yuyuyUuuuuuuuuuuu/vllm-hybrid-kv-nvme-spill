@@ -1,0 +1,17 @@
+{
+ "sched_identity_s": 1.032,
+ "index_build_first_ms": 111.5,
+ "index_build_cached_ms": 39.9,
+ "index_mib": 11.28,
+ "index_write_fsync_ms": 8.5,
+ "rps": 300,
+ "files": 26100,
+ "disk_gib": 663.2,
+ "index_read_verify_ms": 46.3,
+ "adopt_decision_ms": 314.3,
+ "adopted": 300,
+ "adopt_reason": "adopted",
+ "rank_scan_files": 12000,
+ "rank_scan_listdir_stat_ms": 37.4,
+ "site_digest_s": 1.0
+}

@@ -1,0 +1,4 @@
+[glm53-nvme-spill] rank 0: could not delete a.blk: PermissionError(13, 'Permission denied')
+job1 SpillWorkerMeta(done={1: [1, 0]}, bad=[], exc=0)
+writer thread alive after delete: True
+job2 drained: True meta: SpillWorkerMeta(done={2: [1, 0]}, bad=[], exc=0) unfinished tasks: 0

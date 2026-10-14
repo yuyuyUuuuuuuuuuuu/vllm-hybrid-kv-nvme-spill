@@ -1,0 +1,76 @@
+PASS lin_k0_rps_after_each_turn [[3], [3, 4], [3, 4, 5], [3, 4, 5, 6]] want [[3], [3, 4], [3, 4, 5], [3, 4, 5, 6]]
+PASS lin_k0_pruned_count_and_bytes pruned=0 freed=0 (state file 21237760)
+PASS lin_k0_disk_has_exactly_kept_states 
+PASS lin_k0_mla_files_all_kept 
+PASS lin_k0_disk_bytes_accounting 250740736 != 250740736
+PASS lin_k1_rps_after_each_turn [[3], [4], [5], [6]] want [[3], [4], [5], [6]]
+PASS lin_k1_pruned_count_and_bytes pruned=3 freed=63713280 (state file 21237760)
+PASS lin_k1_disk_has_exactly_kept_states 
+PASS lin_k1_mla_files_all_kept 
+PASS lin_k1_disk_bytes_accounting 187027456 != 187027456
+PASS lin_k2_rps_after_each_turn [[3], [3, 4], [4, 5], [5, 6]] want [[3], [3, 4], [4, 5], [5, 6]]
+PASS lin_k2_pruned_count_and_bytes pruned=2 freed=42475520 (state file 21237760)
+PASS lin_k2_disk_has_exactly_kept_states 
+PASS lin_k2_mla_files_all_kept 
+PASS lin_k2_disk_bytes_accounting 208265216 != 208265216
+PASS lin_k3_rps_after_each_turn [[3], [3, 4], [3, 4, 5], [4, 5, 6]] want [[3], [3, 4], [3, 4, 5], [4, 5, 6]]
+PASS lin_k3_pruned_count_and_bytes pruned=1 freed=21237760 (state file 21237760)
+PASS lin_k3_disk_has_exactly_kept_states 
+PASS lin_k3_mla_files_all_kept 
+PASS lin_k3_disk_bytes_accounting 229502976 != 229502976
+PASS ship_no_prune_while_new_rp_saving 
+PASS ship_no_prune_on_one_rank_answer 
+PASS ship_prune_after_all_ranks_ok deletes=['f4324d27b0ee66c70c350aaae46f46a22b06392d.blk']
+PASS ship_seen_keeps_pruned_key_for_repeat_policy 
+PASS fail_older_rp_kept_when_new_save_fails [3]
+PASS busy_edit_restores_previous_rp (None, False) 13824
+PASS busy_loading_rp_not_pruned [3, 4, 5]
+PASS busy_restore_ready 
+PASS busy_ready_pinned_rp_not_pruned [3, 5, 6]
+PASS busy_admitted_running_rp_not_pruned [3, 6, 7]
+PASS busy_pruned_after_request_finished [7, 8]
+PASS busy_no_leaked_pins 
+PASS branch_sibling_in_flight_keeps_its_predecessor [3, 4, 5, 5] kept_branch=1
+PASS branch_sibling_ok 
+PASS branch_predecessor_still_kept_for_live_sibling [3, 5, 5, 6]
+PASS branch_predecessor_pruned_after_sibling_gone [6, 7]
+PASS k1_rp3_pruned [4, 5]
+PASS k1_shared_files_of_in_flight_save_not_deleted deletes=1
+PASS k1_sibling_completes_and_is_restorable 
+PASS regen_same_rp_no_prune [4]
+PASS other_conversation_untouched [3, 5]
+PASS other_shared_head_files_kept 
+PASS cap_k0_lru_evicts_other_conversation (False, 1, True)
+PASS cap_k2_other_conversation_survives (True, 0, True)
+PASS caph_k0_new_save_not_skipped skipped_cap=0 rps=[4, 5]
+PASS caph_k0_other_conversation_evicted evicted=1
+PASS caph_k0_shared_head_files_kept 
+PASS caph_k0_evicted_own_files_deleted 
+PASS caph_k0_every_file_of_live_rps_present 
+PASS caph_k0_under_cap_and_refs_consistent disk=180633600 cap=235896832
+PASS caph_k2_new_save_not_skipped skipped_cap=0 rps=[4, 5]
+PASS caph_k2_other_conversation_evicted evicted=1
+PASS caph_k2_shared_head_files_kept 
+PASS caph_k2_evicted_own_files_deleted 
+PASS caph_k2_every_file_of_live_rps_present 
+PASS caph_k2_under_cap_and_refs_consistent disk=180633600 cap=235896832
+PASS caph_unfit_save_evicts_nothing rps=[4]
+PASS caph_unfit_save_skipped_refs_restored skipped=1 rps=[4]
+PASS breaker_forgets_all_no_prune_counted 
+[glm53-nvme-spill] BREAKER OPEN: test -> the spill tier is disabled on every rank until restart (requests take the normal prefill path)
+PASS cfg_keep_'' 
+PASS cfg_keep_None 
+PASS cfg_keep_'0' 
+PASS cfg_keep_'3' 
+PASS cfg_keep_negative_rejected 
+PASS knob_listed_for_start_sh 
+PASS lin_k2_rps_after_each_turn [[3], [3, 4], [4, 5], [5, 6]] want [[3], [3, 4], [4, 5], [5, 6]]
+PASS lin_k2_pruned_count_and_bytes pruned=2 freed=42475520 (state file 21237760)
+PASS lin_k2_disk_has_exactly_kept_states 
+PASS lin_k2_mla_files_all_kept 
+PASS lin_k2_disk_bytes_accounting 208265216 != 208265216
+PASS stats_line_old_fields_unchanged_new_appended ['breaker', 'pinned', 'save', 'save_excl', 'restore', 'quarantined', 'peak', 'excl_peak', 'cap', 'inflight_save', 'oldest_save_s', 'inflight_load', 'oldest_load_s', 'worker_exc', 'jobs_failed', 'save_timeouts', 'load_timeouts', 'written_gib_1h', 'disk_gib', 'rps', 'restores_ok', 'restores_failed', 'restores_fallback', 'restore_short', 'saves_ok', 'saves_failed', 'rp_pruned', 'pruned_gib', 'rp_evicted', 'keep', 'skipped_cap', 'expired', 'epoch_dropped', 'ttl0_skipped', 'ttl_rps', 'ttl_gib', 'ttl_classes', 'persist', 'adopted', 'adopted_gib', 'index_age_s']
+PASS stats_line_values 0/0 ttl_gib=0.19/0.00/0.00/0.00/0.00 ttl_classes=none/1h/1d/3d/exp persist=off adopted=0 adopted_gib=0.00 index_age_s=-1
+PASS worker_delete_then_rewrite_same_step 
+PASS worker_prune_delete_removes_file 
+SUMMARY 74/74 passed

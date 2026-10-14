@@ -1,0 +1,65 @@
+PASS b6_save_planned_in_build_meta_not_shipped_same_step same-step saves=[]
+PASS b6_save_shipped_next_step next-step saves=[1]
+PASS b6_engine_keeps_stepping_while_unsent 
+PASS b6_unsent_counts_as_pending 
+PASS b6_between_step_save_ships_with_next_build_meta 
+PASS sd_pinned_while_saving [1, 1, 1, 1]
+PASS sd_still_pinned_before_deadline 
+PASS sd_pins_released_at_deadline [0, 0, 0, 0]
+PASS sd_breaker_open save job 1 unanswered after 61 s (answers ok=1 fail=0 of 2)
+PASS sd_files_deleted_after_hung_job deletes=4
+PASS sd_no_pending_after_expiry 
+PASS sd_late_answer_ignored 
+PASS sd_breaker_blocks_new_saves 
+PASS ld_hang_rp_ok 
+PASS ld_hang_restore_started (None, False)
+PASS ld_hang_request_detached_to_prefill (0, False)
+PASS ld_hang_fresh_blocks_quarantined [1, 1, 1, 1]
+PASS ld_hang_breaker_open_no_busy_loop 
+[glm53-nvme-spill] save job 1 unanswered after 61.0 s (ok=1 fail=0 of 2 ranks): pins released
+[glm53-nvme-spill] BREAKER OPEN: save job 1 unanswered after 61 s (answers ok=1 fail=0 of 2) -> the spill tier is disabled on every rank until restart (requests take the normal prefill path)
+[glm53-nvme-spill] load job 2 unanswered after 31.0 s (ok=0 fail=0 of 2 ranks): req=r2 -> normal prefill, 4 blocks quarantined
+[glm53-nvme-spill] BREAKER OPEN: load job 2 unanswered after 31 s (answers ok=0 fail=0 of 2) -> the spill tier is disabled on every rank until restart (requests take the normal prefill path)
+[glm53-nvme-spill] load job 2 answered late (ok=True): 4 quarantined blocks freed
+PASS ld_hang_no_new_restore_after_breaker 
+PASS ld_hang_one_answer_not_enough 
+PASS ld_hang_late_answer_frees_quarantine [0, 0, 0, 0]
+PASS ld_hang_request_finish_clean 
+[glm53-nvme-spill] load job 2 unanswered after 31.0 s (ok=1 fail=0 of 2 ranks): req=r2 -> normal prefill, 4 blocks quarantined
+[glm53-nvme-spill] BREAKER OPEN: load job 2 unanswered after 31 s (answers ok=1 fail=0 of 2) -> the spill tier is disabled on every rank until restart (requests take the normal prefill path)
+[glm53-nvme-spill] BREAKER OPEN: 6 consecutive failed spill jobs -> the spill tier is disabled on every rank until restart (requests take the normal prefill path)
+PASS ld_noack_rp_ok 
+PASS ld_noack_restore_started (None, False)
+PASS ld_noack_request_detached_to_prefill (0, False)
+PASS ld_noack_fresh_blocks_quarantined [1, 1, 1, 1]
+PASS ld_noack_breaker_open_no_busy_loop 
+PASS ld_noack_no_new_restore_after_breaker 
+PASS ld_noack_quarantine_held_without_answer 
+PASS ld_noack_request_finish_clean 
+PASS cf_breaker_after_6_failures 6 consecutive failed spill jobs
+PASS cf_all_pins_released 
+[glm53-nvme-spill] BREAKER OPEN: 1 unexpected exception(s) on a worker I/O thread -> the spill tier is disabled on every rank until restart (requests take the normal prefill path)
+PASS cf_interleaved_failures_do_not_trip 
+PASS we_worker_exception_trips_breaker 
+PASS b7_no_disk_leak_after_dropped_rp_saved disk_bytes=0 files=0 deletes=4
+PASS pc_save_of_exclusive_blocks_over_cap_skipped 
+PASS pc_save_of_blocks_in_use_not_gated 
+PASS pc_exclusive_count_follows_ref_cnt 
+PASS pc_next_save_gated_while_exclusive_over_cap 
+PASS pc_restore_not_gated (None, False)
+PASS stats_line_fields [glm53-nvme-spill] stats breaker=closed pinned=0 save=0 save_excl=0 restore=0 quarantined=0 peak=0 excl_peak=0 cap=32 inflight_save=0 oldest_save_s=0.0 inflight_load=0 oldest_load_s=0.0 worker_exc=0 jobs_failed=0 save_timeouts=0 load_timeouts=0 written_gib_1h=0.00 disk_gib=0.00 rps=0 restores_ok=0 restores_failed=0 restores_fallback=0 restore_short=0 saves_ok=0 saves_failed=0 rp_pruned=0 pruned_gib=0.00 rp_evicted=0 keep=2 skipped_cap=0 expired=0 epoch_dropped=0 ttl0_skipped=0 ttl_rps=0/0/0/0/0 ttl_gib=0.00/0.00/0.00/0.00/0.00 ttl_classes=none/1h/1d/3d/exp persist=off adopted=0 adopted_gib=0.00 index_age_s=-1
+PASS w_save_ok {1: [1, 0]}
+[glm53-nvme-spill] rank 0: could not delete a.blk: PermissionError(13, 'Permission denied')
+[glm53-nvme-spill] rank 0: save job 2 failed: PermissionError(13, 'Permission denied')
+PASS w_writer_alive_after_eacces_delete stats=1
+PASS w_failed_save_answered {2: [0, 1]} exc=0
+[glm53-nvme-spill] rank 0: unexpected exception in save job 4: RuntimeError('boom')
+PASS w_next_save_ok {3: [1, 0]}
+PASS w_unexpected_exception_answered_and_reported {4: [0, 1]} exc=1
+[glm53-nvme-spill] rank 0: unexpected exception in load job 5: KeyError('boom')
+PASS w_reader_exception_answered {5: [0, 1]}
+[glm53-nvme-spill] rank 0: save job 6 failed: OSError(30, 'ro')
+[glm53-nvme-spill] rank 0: unexpected exception in w save job 6: OSError(30, 'ro unlink')
+PASS w_exception_out_of_cleanup_answered_once {6: [0, 1]} exc=1
+PASS w_stats_line [glm53-nvme-spill] rank 0 io: idle queued w=0 r=0 written=2 (0.00 GiB) write_failed=3 loaded=0 (0.00 GiB) load_failed=1 delete_failed=1 thread_exc=3 threads_alive=2/2
+SUMMARY 49/49 passed

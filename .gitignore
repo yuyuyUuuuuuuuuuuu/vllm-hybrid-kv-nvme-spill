@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+# rig work trees (a copy of the patched vLLM package) and rig outputs
+tests/rig/work/
+tests/rig/work_old/
+tests/rig/work2/
+rig-out/
+rig-scratch/
+test-out/

@@ -1,0 +1,13 @@
+# 46886ae (LRU evicts RPs sharing files with the new RP), rig work tree work2. Cap pressure (GIB=13) K=0/K=2, identity checks below the cap, heavy-LRU correctness (GIB=8, strict, drain)
+ck0.env on 1 4 cn_k0_s1 --no-drain
+ck0.env on 2 4 cn_k0_s2 --no-drain
+ck0.env on 3 4 cn_k0_s3 --no-drain
+ck2.env on 1 4 cn_k2_s1 --no-drain
+ck2.env on 2 4 cn_k2_s2 --no-drain
+ck2.env on 3 4 cn_k2_s3 --no-drain
+k2.env on 1 4 mn_k2_s1 --no-drain
+k2.env on 2 4 mn_k2_s2 --no-drain
+strict.env on 2 0.5 cn_on_s2
+a_plain.env on 2 0.5 an_plain_s2
+scap_k0.env on 2 0.5 scap_k0_s2
+scap_k2.env on 2 0.5 scap_k2_s2

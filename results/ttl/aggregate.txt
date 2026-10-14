@@ -1,0 +1,74 @@
+## (1) 4h x seeds (--no-drain): DSH re-read / collapses / writes
+| condition | n | DSH re-read | collapses [per seed] | all re-read | written GiB/rank | disk peak GiB/rank | restores ok | expired | epoch_dropped | ttl0_skipped | first-turn saves (TTL) | verify fail |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| m_new | 5 | 2,106,460 | 0.0 [0, 0, 0, 0, 0] | 3,419,177 | 14.39 | 11.85 | 20.2 | 0.0 | 0.0 | 0.0 | 0.0 | 0/0 |
+| m_ttl3 | 5 | 2,106,460 | 0.0 [0, 0, 0, 0, 0] | 3,419,177 | 14.68 | 11.85 | 20.2 | 0.0 | 0.0 | 0.0 | 3.0 | 0/0 |
+| m_ttl3r | 2 | 2,130,886 | 0.0 [0, 0] | 3,583,364 | 14.71 | 11.88 | 16.5 | 0.0 | 0.0 | 0.0 | 0.0 | 0/0 |
+| mx_off | 5 | 7,785,404 | 10.2 [10, 11, 9, 12, 9] | 8,538,494 | 0.00 | 0.00 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0/0 |
+| mx_on | 5 | 5,128,846 | 6.4 [7, 7, 7, 6, 5] | 5,956,993 | 12.54 | 11.09 | 133.4 | 0.4 | 2.0 | 8.6 | 3.0 | 0/0 |
+| mx2_off | 0 | - |
+| mx2_on | 0 | - |
+| mx2_nottl | 0 | - |
+| rs_off | 2 | 8,686,406 | 10.5 [10, 11] | 9,782,486 | 0.00 | 0.00 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0/0 |
+| rs_p0 | 5 | 3,965,127 | 3.0 [3, 3, 3, 3, 3] | 5,141,044 | 24.63 | 11.69 | 11.6 | 0.0 | 0.0 | 0.0 | 6.0 | 0/0 |
+| rs_p1 | 5 | 2,110,736 | 0.0 [0, 0, 0, 0, 0] | 3,400,730 | 14.46 | 11.77 | 19.6 | 0.0 | 0.0 | 0.0 | 3.0 | 0/0 |
+| rs_cr | 0 | - |
+
+## (2) restart at 7,200 s (engine down 600 s; in-flight requests resent after it)
+| condition | n | DSH re-read after restart | first turn of each conversation after it | collapses after | decision | adopted RPs | adopted GiB | dropped (missing/expired) | restores ok after | verify fail |
+|---|---|---|---|---|---|---|---|---|---|---|
+| rs_off | 2 | 4,575,668 [4689705, 4461631] | 1,882,795 | 7.0 | ['-'] | 0.0 | 0.00 | 0.0/0.0 | 0.0 | 0/0 |
+| rs_p0 | 5 | 2,028,530 [2049179, 2023488, 2036727, 2039657, 1993598] | 1,903,966 | 3.0 | ['-'] | 0.0 | 0.00 | 0.0/0.0 | 8.0 | 0/0 |
+| rs_p1 | 5 | 174,139 [202776, 179391, 171704, 136455, 180370] | 24,823 | 0.0 | ['adopted'] | 6.2 | 11.02 | 0.0/0.0 | 16.0 | 0/0 |
+    rs_p0 s1: first after restart c0 477,232->hit 0, c1 630,779->hit 0, c2 810,605->hit 13,824
+    rs_p0 s2: first after restart c0 469,646->hit 0, c1 628,254->hit 0, c2 817,187->hit 13,824
+    rs_p0 s3: first after restart c0 475,897->hit 0, c1 637,351->hit 13,824, c2 796,516->hit 0
+    rs_p0 s4: first after restart c0 470,703->hit 0, c1 632,950->hit 0, c2 837,500->hit 13,824
+    rs_p0 s5: first after restart c0 469,556->hit 0, c1 631,702->hit 0, c2 803,070->hit 13,824
+    rs_p1 s1: first after restart c0 477,232->hit 465,408, c1 630,779->hit 626,688, c2 810,605->hit 801,792
+    rs_p1 s2: first after restart c0 469,646->hit 460,800, c1 628,254->hit 622,080, c2 817,187->hit 806,400
+    rs_p1 s3: first after restart c0 475,897->hit 465,408, c1 637,351->hit 626,688, c2 796,516->hit 792,576
+    rs_p1 s4: first after restart c0 470,703->hit 470,016, c1 632,950->hit 626,688, c2 837,500->hit 829,440
+    rs_p1 s5: first after restart c0 469,556->hit 460,800, c1 631,702->hit 612,864, c2 803,070->hit 797,184
+
+## (3) TTL mix, overloaded (4 conversations incl. c3 300k; idle 75 min at 1 h; compaction at 2 h) per conversation (mx_off / mx_on, n=5/5)
+| conv | ttl | DSH re-read OFF | ON (fields) | change | ON (no fields) | collapses OFF / ON / ON no fields | admissions |
+|---|---|---|---|---|---|---|---|
+| c0 | 1h (idle) | 1,809,443 | 594,716 | -67.1% | 0 | 3.0 / 0.2 / 0.0 | 8.2/9.6/0.0 |
+| c1 | 1d (compaction) | 2,326,302 | 2,146,842 | -7.7% | 0 | 2.8 / 2.4 / 0.0 | 7.4/8.8/0.0 |
+| c2 | 3d | 2,689,319 | 832,860 | -69.0% | 0 | 2.4 / 0.0 / 0.0 | 7.6/9.2/0.0 |
+| c3 | 0 | 960,341 | 1,554,428 | +61.9% | 0 | 2.0 / 3.8 / 0.0 | 8.2/8.8/0.0 |
+| all | | 7,785,404 | 5,128,846 | -34.1% | 0 | | |
+    ON (fields): rp_expired=0.4 rp_epoch_dropped=2.0 rp_skipped_ttl0=8.6 rp_saved_stale=0.0 rp_epoch_marked=0.0 rp_marked_expired_busy=1.0 rp_saved_ttl_first=3.0 restore_started=133.4 restore_admitted=6.8 restore_timeouts=133.4
+
+## (4) correctness / fault runs (0.5 h, drain, strict per-step invariants)
+| run | injected | decision | adopted/dropped/orphans | restores ok/failed/fallback | saves ok/failed | breaker | verify blocks/fail, files/fail | END free/582 pinned quarantined unfinished | inv/hashviol/acct |
+|---|---|---|---|---|---|---|---|---|---|
+| a_abort_s4 | 0 | no usable index (no index file) | 0/0/0 | 9/0/0 | 22/0 | closed | 3644/0, 0/0 | 582 0 0 0 | 0/0/0 |
+| a_crc_s3 | 3 | no usable index (no index file) | 0/0/0 | 7/4/4 | 27/0 | closed | 4527/0, 0/0 | 582 0 0 0 | 0/0/0 |
+| a_plain_s2 | 0 | no usable index (no index file) | 0/0/0 | 14/0/0 | 32/0 | closed | 5716/0, 0/0 | 582 0 0 0 | 0/0/0 |
+| a_rofs_os_s2 | 0 | no usable index (no index file) | 0/0/0 | 0/0/0 | 0/11 | OPEN | 3564/0, 0/0 | 582 0 0 0 | 0/0/0 |
+| a_rofs_s2 | 1 | no usable index (no index file) | 0/0/0 | 0/0/0 | 0/1 | OPEN | 3470/0, 0/0 | 582 0 0 0 | 0/0/0 |
+| c_hw_s5 | 0 | no usable index (no index file) | 0/0/0 | 10/0/0 | 29/0 | closed | 5225/0, 1188/0 | 582 0 0 0 | 0/0/0 |
+| c_on_s2 | 0 | no usable index (no index file) | 0/0/0 | 12/0/0 | 32/0 | closed | 5381/0, 1236/0 | 582 0 0 0 | 0/0/0 |
+| f_crc_s3 | 2 | no usable index (no index file) | 0/0/0 | 6/2/2 | 29/0 | closed | 4519/0, 1196/0 | 582 0 0 0 | 0/0/0 |
+| f_missing_s2 | 5 | no usable index (no index file) | 0/0/0 | 12/5/5 | 33/0 | closed | 5114/0, 1602/0 | 582 0 0 0 | 0/0/0 |
+| f_save_s4 | 7 | no usable index (no index file) | 0/0/0 | 0/0/0 | 0/7 | OPEN | 3826/0, 959/0 | 582 0 0 0 | 0/0/0 |
+| h_load_s2 | 1 | no usable index (no index file) | 0/0/0 | 1/0/1 | 6/0 | OPEN | 3125/0, 0/0 | 565 17 17 0 | 0/0/0 |
+| h_loadlate_s2 | 1 | no usable index (no index file) | 0/0/0 | 1/0/1 | 6/0 | OPEN | 3962/0, 0/0 | 582 0 0 0 | 0/0/0 |
+| h_save_s2 | 1 | no usable index (no index file) | 0/0/0 | 1/0/0 | 1/1 | OPEN | 3470/0, 0/0 | 582 0 0 0 | 0/0/0 |
+| k_load_s2 | 1 | no usable index (no index file) | 0/0/0 | 1/0/1 | 6/0 | OPEN | 3704/0, 854/0 | 565 17 17 0 | 0/0/0 |
+| k_save_s2 | 1 | no usable index (no index file) | 0/0/0 | 1/0/0 | 2/1 | OPEN | 3470/0, 812/0 | 582 0 0 0 | 0/0/0 |
+| n_noload_s2 | 0 | no usable index (no index file) | 0/0/0 | 0/1/1 | 2/0 | OPEN | 3464/0, 468/0 | 582 0 0 0 | 0/0/0 |
+| pr_clean_s2 | 0 | adopted | 2/0/0 | 13/0/0 | 33/0 | closed | 5510/0, 1058/0 | 582 0 0 0 | 0/0/0 |
+| pr_clean_s3 | 0 | adopted | 2/0/0 | 7/0/0 | 30/0 | closed | 4505/0, 1022/0 | 582 0 0 0 | 0/0/0 |
+| pr_corrupt_index_s2 | corrupt_index (85929 B) | no usable index (index truncated or corrupted (length/sha256 | 0/0/0 | 12/0/0 | 34/0 | closed | 5276/0, 1260/0 | 582 0 0 0 | 0/0/0 |
+| pr_crash_s2 | 0 | adopted | 0/0/214 | 12/0/0 | 34/0 | closed | 5276/0, 1260/0 | 582 0 0 0 | 0/0/0 |
+| pr_crash_s4 | 0 | adopted | 0/0/214 | 8/0/0 | 32/0 | closed | 4870/0, 1242/0 | 582 0 0 0 | 0/0/0 |
+| pr_crc_file_s2 | crc_file 679becc82cd8 | adopted | 2/0/0 | 13/1/1 | 34/0 | closed | 5492/0, 1074/0 | 582 0 0 0 | 0/0/0 |
+| pr_missing_file_s2 | missing_file 679becc82cd8 | adopted | 1/1/15 | 13/0/0 | 34/0 | closed | 5506/0, 1074/0 | 582 0 0 0 | 0/0/0 |
+| pr_p0_s2 | 0 | - | 0/0/0 | 12/0/0 | 34/0 | closed | 5276/0, 1260/0 | 582 0 0 0 | 0/0/0 |
+| pr_rank1_sig_s2 | rank1_sig | rank signature differs (rank 1: salt) | 0/0/0 | 12/0/0 | 34/0 | closed | 5276/0, 1260/0 | 582 0 0 0 | 0/0/0 |
+| pr_sig_env_s2 | sig_env | scheduler signature differs: env | 0/0/0 | 12/0/0 | 34/0 | closed | 5276/0, 1260/0 | 582 0 0 0 | 0/0/0 |
+| pr_truncate_index_s2 | truncate_index (42964 B) | no usable index (index truncated or corrupted (length/sha256 | 0/0/0 | 12/0/0 | 34/0 | closed | 5276/0, 1260/0 | 582 0 0 0 | 0/0/0 |
+| race_new_s2 | 0 | no usable index (no index file) | 0/0/0 | 12/0/0 | 318/0 | closed | 5381/0, 2650/0 | 582 0 0 0 | 0/0/0 |

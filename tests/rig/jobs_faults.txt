@@ -1,0 +1,20 @@
+# 0.5 h, drain, strict per-step invariants
+strict.env on 2 0.5 c_on_s2
+hw.env on 5 0.5 c_hw_s5
+f_missing.env on 2 0.5 f_missing_s2
+f_crc.env on 3 0.5 f_crc_s3
+f_save.env on 4 0.5 f_save_s4
+a_plain.env on 2 0.5 a_plain_s2
+a_abort.env on 4 0.5 a_abort_s4
+a_crc.env on 3 0.5 a_crc_s3
+n_noload.env on 2 0.5 n_noload_s2
+a_rofs.env on 2 0.5 a_rofs_s2
+a_rofs_os.env on 2 0.5 a_rofs_os_s2
+h_load.env on 2 0.5 h_load_s2
+h_loadlate.env on 2 0.5 h_loadlate_s2
+h_save.env on 2 0.5 h_save_s2
+k_load.env on 2 0.5 k_load_s2
+k_save.env on 2 0.5 k_save_s2
+# B6 same-step race probe: fixed connector vs the pre-fix connector (work_old tree, e0315db; allocator conf empty there)
+race.env on 2 0.5 race_new_s2
+race.env on 2 0.5 race_oldcode_s2

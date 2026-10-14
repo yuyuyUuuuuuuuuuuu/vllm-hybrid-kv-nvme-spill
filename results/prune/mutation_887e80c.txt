@@ -1,0 +1,26 @@
+== m1_in_use_ignored.py
+FAIL busy_loading_rp_not_pruned [4, 5]
+FAIL busy_ready_pinned_rp_not_pruned [5, 6]
+FAIL busy_admitted_running_rp_not_pruned [6, 7]
+ValueError: too many values to unpack (expected 1)
+== m2_refcount_ignored.py
+FAIL lin_k1_pruned_count_and_bytes pruned=3 freed=395292672 (state file 21237760)
+FAIL lin_k1_mla_files_all_kept 
+FAIL lin_k1_disk_bytes_accounting 48869376 != 187027456
+FAIL lin_k2_pruned_count_and_bytes pruned=2 freed=235896832 (state file 21237760)
+FAIL lin_k2_mla_files_all_kept 
+FAIL lin_k2_disk_bytes_accounting 97738752 != 208265216
+FAIL lin_k3_pruned_count_and_bytes pruned=1 freed=104132608 (state file 21237760)
+FAIL lin_k3_mla_files_all_kept 
+== m3_branch_keep_off.py
+FAIL branch_sibling_in_flight_keeps_its_predecessor [4, 5, 5] kept_branch=0
+FAIL branch_predecessor_still_kept_for_live_sibling [5, 5, 6]
+SUMMARY 58/60 passed
+== m4_prune_on_plan_not_ok.py
+FAIL ship_no_prune_while_new_rp_saving 
+FAIL ship_no_prune_on_one_rank_answer 
+FAIL ship_prune_after_all_ranks_ok deletes=[]
+FAIL fail_older_rp_kept_when_new_save_fails []
+FAIL busy_loading_rp_not_pruned [3, 4, 5]
+FAIL branch_sibling_in_flight_keeps_its_predecessor [3, 4, 5, 5] kept_branch=2
+SUMMARY 54/60 passed

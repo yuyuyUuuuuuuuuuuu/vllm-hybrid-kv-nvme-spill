@@ -1,0 +1,136 @@
+PASS parse_valid SpillParams(ttl_s=86400, session='sess-1', epoch=3)
+PASS parse_missing_field_none 
+PASS parse_not_a_dict 
+PASS parse_bool_ttl (None, 's', None) want (None, 's', None)
+PASS parse_float_ttl (None, 's', None) want (None, 's', None)
+PASS parse_str_ttl (None, 's', None) want (None, 's', None)
+PASS parse_neg_ttl (None, 's', None) want (None, 's', None)
+PASS parse_ttl_over_7d (None, 's', None) want (None, 's', None)
+PASS parse_ttl_7d_ok (604800, None, None) want (604800, None, None)
+PASS parse_ttl_zero_ok (0, None, None) want (0, None, None)
+PASS parse_session_65_chars (60, None, None) want (60, None, None)
+PASS parse_session_64_chars (60, 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', None) want (60, 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', None)
+PASS parse_session_empty (60, None, None) want (60, None, None)
+PASS parse_session_not_str (60, None, None) want (60, None, None)
+PASS parse_epoch_neg (60, None, None) want (60, None, None)
+PASS parse_epoch_bool (60, None, None) want (60, None, None)
+PASS parse_all_invalid None want None
+PASS parse_never_raises 
+PASS ev_four_saved 4
+PASS ev_order_expired_default_shorter_longer ['D', 'A', 'E', 'F']
+PASS ev_default_then_short_ttl_lru_then_longer ['S', 'Q', 'R']
+PASS ev_counted_as_lru 3
+PASS sl_rp_has_ttl_session_epoch 
+PASS sl_extending_request_refreshes_last_used 
+PASS sl_not_expired_after_refresh 
+PASS sl_new_ttl_choice_applies 
+PASS sl_expired_rp_never_restored (0, False)
+PASS sl_sweep_drops_expired rps=0 expired=1 dels=4
+PASS sl_expired_but_loading_kept 
+PASS sl_used_rp_revived_by_its_request 
+PASS sl_swept_once_idle_past_ttl 
+PASS z_four_rps [3, 3, 4, 5]
+PASS z_ttl0_no_restore 
+PASS z_ttl0_expires_chain_and_session_not_other_session [('OTHER', 5)]
+PASS z_counted_expired 3
+PASS z_ttl0_not_saved 
+PASS ep_same_epoch_short_or_other_chain_pushes_nothing_out [3, 4, 5]
+PASS ep_child_session_touches_nothing 
+PASS ep_newer_epoch_waiting_marks_nothing 
+PASS ep_newer_epoch_marks_older_epoch_rps_stale [3, 4, 5] 3
+PASS ep_late_old_epoch_request_restores_within_grace (None, False)
+PASS ep_older_epoch_save_kept_but_stale_at_once 1760000900.0
+PASS ep_stale_unused_dropped_after_grace_used_ones_kept [3, 4, 5] 1
+PASS ep_last_stale_dropped_after_its_grace 
+PASS ep_new_epoch_saved 
+PASS ft_all_explicit_ttl_first_turn ['f']
+PASS ft_all_stats 1
+PASS ft_repeat_explicit_ttl_first_turn []
+PASS ft_repeat_stats 2
+PASS ft_ttl_min_tokens_only_for_explicit_keep ['k']
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS p_index_written 1
+PASS p_adopted on adopted
+PASS p_adopted_rps_identical 
+PASS p_adopted_wids_identical 
+PASS p_adopted_disk_bytes 306003968 306003968
+PASS p_no_wipe_no_orphans 
+PASS p_epochs_restored 
+PASS p_restore_after_restart_started (None, False) 5
+PASS p_load_carries_index_write_ids [(0, 1, '1077a41b85e1d2f3ee0c1a3416273a608c22247a.blk', '297d8cc9-1')]
+PASS p_restore_ready 
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS pa_rp_with_missing_file_dropped_others_kept [('50', 3), ('50', 4), ('51', 3)]
+PASS pa_orphans_per_rank {0: ['08231e2d6efb1aefdee04a233855f6fa483b8c25.blk', 'c4d2d0189a8b4374ada9c82a60154db364e1d577.blk', 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef.blk'], 1: ['c4d2d0189a8b4374ada9c82a60154db364e1d577.blk']}
+PASS pa_no_wipe 
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS mm_rank_disagreement_wipes_both rank signature differs (rank 1: x)
+PASS mm_after_wipe_new_index_consistent adopted
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS mm_env_change_wipes scheduler signature differs: env
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS mm_pool_size_change_still_adopts adopted
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS mm_page_layout_change_wipes scheduler signature differs: file_bytes,layout
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS mm_rank_error_wipes rank signature differs (rank 1: listdir: EIO)
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS cor_flip_wipes no usable index (index truncated or corrupted (length/sha256))
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS cor_truncate_wipes no usable index (index truncated or corrupted (length/sha256))
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS cor_garbage_wipes no usable index (index unparsable: ValueError)
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS cor_tmp_only_wipes no usable index (no index file)
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS cor_missing_wipes no usable index (no index file)
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS cor_version_wipes no usable index (index of another format/version)
+PASS ex_expired_dropped_at_adoption ['b', 'c']
+PASS ex_expired_files_deleted_on_both_ranks {0: ['4f45a98098532a6b8c66d3a7d972aae9ba8277f0.blk', '50edc262344620ebd2c9cabf9297150b2175819f.blk', '68998e2a3ce95831f903ce2073421826dced07bb.blk', '718fa87dff588a03adaf04794fe33ccb2c885349.blk', 'af610d21b66ee52a19efddf341aed5775ac8d5d1.blk'], 1: ['4f45a98098532a6b8c66d3a7d972aae9ba8277f0.blk', '50edc262344620ebd2c9cabf9297150b2175819f.blk', '68998e2a3ce95831f903ce2073421826dced07bb.blk', '718fa87dff588a03adaf04794fe33ccb2c885349.blk', 'af610d21b66ee52a19efddf341aed5775ac8d5d1.blk']}
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS dl_requests_wait_while_adopting_with_index adopting (None, False)
+PASS dl_missing_rank_report_wipes no start-up report from rank(s) [1] within 60 s
+PASS dl_requests_released 
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS hs_random_none_hash_disables_and_wipes block hashes are not reproducible across restarts (sha256:06ebc58b157269f8, PYTHONHASHSEED=set)
+PASS hs_disabled_run_still_spills_in_process_but_writes_no_index 
+PASS p_first_boot_no_index_wipes on no usable index (no index file)
+PASS cap_lowered_evicts_at_adoption 437768192 5
+[glm53-nvme-spill] BREAKER OPEN: test -> the spill tier is disabled on every rank until restart (requests take the normal prefill path)
+PASS br_breaker_writes_empty_index_next_start_deletes_all adopted {0: ['4f45a98098532a6b8c66d3a7d972aae9ba8277f0.blk', '50edc262344620ebd2c9cabf9297150b2175819f.blk', '68998e2a3ce95831f903ce2073421826dced07bb.blk', '718fa87dff588a03adaf04794fe33ccb2c885349.blk', 'af610d21b66ee52a19efddf341aed5775ac8d5d1.blk'], 1: ['4f45a98098532a6b8c66d3a7d972aae9ba8277f0.blk', '50edc262344620ebd2c9cabf9297150b2175819f.blk', '68998e2a3ce95831f903ce2073421826dced07bb.blk', '718fa87dff588a03adaf04794fe33ccb2c885349.blk', 'af610d21b66ee52a19efddf341aed5775ac8d5d1.blk']}
+PASS cad_throttled_every_5s_ttl0_at_once 1 1 2 2 3 4
+PASS cad_index_verifies_and_has_no_rp_after_ttl0 
+PASS wp_first_scan_report {'rank': 0, 'sig': 'edf2e052ff8f1d2a6a0f296b1176853e42e7cdbc5eb4b1df54ecb509e96af3b7', 'parts': {'env': 'E', 'site': 'S', 'rank': '0', 'rows': '137984a7d2d81243', 'header_sig': 'layoutsig'}, 'files': {}, 'file_bytes': [53248, 8192, 40960, 40960, 36864, 36864, 24576], 'partial': 0, 'scan_s': 0.0, 'error': None}
+PASS wp_save_with_wid 
+PASS wp_restart_scan_keeps_files_drops_partial {'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.blk': 40960, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.blk': 53248}
+PASS wp_signature_stable_across_restart 
+PASS wp_load_right_wid_ok_bytes_equal 
+[glm53-nvme-spill] rank 0: load job 3 failed: ValueError("[glm53-nvme-spill] aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.blk: written by another save ('boot-1' != 'other-7')")
+PASS wp_load_wrong_wid_fails_as_bad_file SpillWorkerMeta(done={3: [0, 1]}, bad=['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.blk'], exc=0, hello={})
+PASS wp_rank_deletes_only_own_list 
+PASS wp_wipe_runs_before_saves_of_the_same_step ['cccccccccccccccccccccccccccccccccccccccc.blk']
+PASS wp_unlistable_dir_reports_error {'rank': 1, 'sig': '159d7092028841e597dd25ac83b3b4b586d462228bd0f24ea8ca70ed7ede04c1', 'parts': {'env': 'E', 'site': 'S', 'rank': '1', 'rows': '137984a7d2d81243', 'header_sig': 'layoutsig'}, 'files': {}, 'file_bytes': [53248, 8192, 40960, 40960, 36864, 36864, 24576], 'partial': 0, 'scan_s': 0.0, 'error': "listdir: PermissionError(13, 'Permission denied')"}
+PASS wp_persist_off_wipes_at_register 
+PASS e2e_first_start_wipes_and_runs no usable index (no index file)
+PASS e2e_two_rps_saved 2
+PASS e2e_restart_adopts adopted rps=2 [('persist_adopted_rps', 2), ('persist_adopted_bytes', 153001984), ('persist_dropped_missing', 0), ('persist_dropped_expired', 0), ('persist_orphans', 0), ('persist_wipes', 0)]
+PASS e2e_restored_after_restart_byte_identical res=(None, False) state=ready checked=10 mismatches=0
+PASS e2e_crash_restart_consistent adopted rps=1 ref=5 r0=5
+PASS cfg_defaults SpillConfig(root='/tmp/x', cap_bytes=68719476736, min_tokens=65536, min_gain=16384, highwater=0.0, min_free_bytes=53687091200, pin_timeout_s=5.0, reserve_blocks=8, space_wait_s=20.0, stage_bytes=33554432, direct=True, max_write_bytes_per_h=0, max_restore_failures=2, max_restores_per_request=16, max_state_pins=64, save_policy='repeat', log=True, save_deadline_s=120.0, load_deadline_s=30.0, breaker_fails=6, max_pinned_blocks=0, log_every_s=60.0, keep_per_chain=2, persist=True, hash_seed='5353', index_every_s=5.0, adopt_deadline_s=60.0, ttl_sweep_s=30.0, ttl_save_policy='all', ttl_min_tokens=0)
+PASS cfg_reject_HASH_SEED_abc 
+PASS cfg_reject_HASH_SEED_4294967296 
+PASS cfg_reject_TTL_SAVE_POLICY_x 
+PASS cfg_reject_TTL_MIN_TOKENS_-1 
+PASS cfg_reject_INDEX_EVERY_S_0 
+PASS cfg_persist_off 
+PASS knobs_appended 
+PASS stats_has_expired=0 es_ok=2 saves_failed=0 rp_pruned=0 pruned_gib=0.00 rp_evicted=0 keep=2 skipped_cap=0 expired=0 epoch_dropped=0 ttl0_skipped=0 ttl_rps=1/1/0/0/0 ttl_gib=0.12/0.12/0.00/0.00/0.00 ttl_classes=none/1h/1d/3d/exp persist=off adopted=0 adopted_gib=0.00 index_age_s=-1
+PASS stats_has_epoch_dropped=0 es_ok=2 saves_failed=0 rp_pruned=0 pruned_gib=0.00 rp_evicted=0 keep=2 skipped_cap=0 expired=0 epoch_dropped=0 ttl0_skipped=0 ttl_rps=1/1/0/0/0 ttl_gib=0.12/0.12/0.00/0.00/0.00 ttl_classes=none/1h/1d/3d/exp persist=off adopted=0 adopted_gib=0.00 index_age_s=-1
+PASS stats_has_ttl0_skipped=0 es_ok=2 saves_failed=0 rp_pruned=0 pruned_gib=0.00 rp_evicted=0 keep=2 skipped_cap=0 expired=0 epoch_dropped=0 ttl0_skipped=0 ttl_rps=1/1/0/0/0 ttl_gib=0.12/0.12/0.00/0.00/0.00 ttl_classes=none/1h/1d/3d/exp persist=off adopted=0 adopted_gib=0.00 index_age_s=-1
+PASS stats_has_ttl_rps=1/1/0/0/0 es_ok=2 saves_failed=0 rp_pruned=0 pruned_gib=0.00 rp_evicted=0 keep=2 skipped_cap=0 expired=0 epoch_dropped=0 ttl0_skipped=0 ttl_rps=1/1/0/0/0 ttl_gib=0.12/0.12/0.00/0.00/0.00 ttl_classes=none/1h/1d/3d/exp persist=off adopted=0 adopted_gib=0.00 index_age_s=-1
+PASS stats_has_persist=off es_ok=2 saves_failed=0 rp_pruned=0 pruned_gib=0.00 rp_evicted=0 keep=2 skipped_cap=0 expired=0 epoch_dropped=0 ttl0_skipped=0 ttl_rps=1/1/0/0/0 ttl_gib=0.12/0.12/0.00/0.00/0.00 ttl_classes=none/1h/1d/3d/exp persist=off adopted=0 adopted_gib=0.00 index_age_s=-1
+PASS stats_has_adopted=0 es_ok=2 saves_failed=0 rp_pruned=0 pruned_gib=0.00 rp_evicted=0 keep=2 skipped_cap=0 expired=0 epoch_dropped=0 ttl0_skipped=0 ttl_rps=1/1/0/0/0 ttl_gib=0.12/0.12/0.00/0.00/0.00 ttl_classes=none/1h/1d/3d/exp persist=off adopted=0 adopted_gib=0.00 index_age_s=-1
+PASS stats_has_index_age_s=-1 es_ok=2 saves_failed=0 rp_pruned=0 pruned_gib=0.00 rp_evicted=0 keep=2 skipped_cap=0 expired=0 epoch_dropped=0 ttl0_skipped=0 ttl_rps=1/1/0/0/0 ttl_gib=0.12/0.12/0.00/0.00/0.00 ttl_classes=none/1h/1d/3d/exp persist=off adopted=0 adopted_gib=0.00 index_age_s=-1
+PASS stats_skipped_cap_still_before_new 
+SUMMARY 133/133 passed

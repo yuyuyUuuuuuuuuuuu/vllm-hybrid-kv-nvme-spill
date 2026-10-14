@@ -1,0 +1,12 @@
+spillq: log command rc=1: 
+PASS no_cached_no_log_line_fails no 'restore ready' line with rp >= 77400 in R's window (0 shallower); R-H=1.50s vs F1-H=45.50s (limit 0.25x)
+PASS log_unreadable_fails no evidence: the server reports no cached_tokens and the connector log could not be read
+PASS log_line_with_deep_rp_and_fast_R_passes log: restore ready rp=82944 in 0.600s; R-H=1.50s vs F1-H=45.50s (limit 0.25x)
+PASS shallow_restore_fails no 'restore ready' line with rp >= 77400 in R's window (1 shallower); R-H=1.50s vs F1-H=45.50s (limit 0.25x)
+PASS log_line_but_R_as_slow_as_full_prefill_fails log: restore ready rp=82944 in 0.600s; R-H=44.50s vs F1-H=45.50s (limit 0.25x)
+PASS cached_tokens_reported_and_fast_passes cached_tokens=86100 (need >= 77400); R-H=1.50s vs F1-H=45.50s (limit 0.25x)
+PASS cached_tokens_shallow_fails cached_tokens=4608 (need >= 77400); R-H=1.50s vs F1-H=45.50s (limit 0.25x)
+PASS log_regex_matches_connector_line INFO 10-13 [glm53-nvme-spill] restore ready req=cmpl-abc-0 rp=82944 in 0.612 s
+PASS restore_events_parses_command_output [('cmpl-abc-0', 82944, 0.612)]
+PASS restore_events_none_on_failing_command 
+SUMMARY 10/10 passed

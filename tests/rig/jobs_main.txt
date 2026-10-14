@@ -1,0 +1,17 @@
+# 4h x 5 seeds, same seeds = same request stream (--no-drain as the apc-reread metric runs)
+- on 1 4 m_on_s1 --no-drain
+- on 2 4 m_on_s2 --no-drain
+- on 3 4 m_on_s3 --no-drain
+- on 4 4 m_on_s4 --no-drain
+- on 5 4 m_on_s5 --no-drain
+- off 1 4 m_off_s1 --no-drain
+- off 2 4 m_off_s2 --no-drain
+- off 3 4 m_off_s3 --no-drain
+- off 4 4 m_off_s4 --no-drain
+- off 5 4 m_off_s5 --no-drain
+# async completion with rank skew (rank0 0-80 ms, rank1 0-250 ms I/O latency)
+x.env on 1 4 x_on_s1 --no-drain
+x.env on 2 4 x_on_s2 --no-drain
+x.env on 3 4 x_on_s3 --no-drain
+x.env on 4 4 x_on_s4 --no-drain
+x.env on 5 4 x_on_s5 --no-drain

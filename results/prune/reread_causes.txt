@@ -1,0 +1,30 @@
+DSH re-read split by cause (tokens per 4 h run). d = first prefill of a conversation; f = tokens new in that turn;
+e_granularity = previous reply + tail beyond the deepest state boundary; a/b/c as in the coordinator request.
+
+== m_k0
+ s1 total=2,126,007 d_first_prefill=1,783,944 f_new_turn_tokens=181,956 e_granularity=137,067 e_previous_turn_still_computing=23,040 | written 3.64 GiB/h/rank
+ s2 total=2,135,765 d_first_prefill=1,780,224 f_new_turn_tokens=191,937 e_granularity=135,956 e_previous_turn_still_computing=27,648 | written 3.71 GiB/h/rank
+ s3 total=2,085,058 d_first_prefill=1,781,298 f_new_turn_tokens=156,745 e_granularity=137,799 e_previous_turn_still_computing=9,216 | written 3.48 GiB/h/rank
+ s4 total=2,122,261 d_first_prefill=1,779,780 f_new_turn_tokens=200,364 e_granularity=123,685 e_previous_turn_still_computing=13,824 c_min_gain=4,608 | written 3.67 GiB/h/rank
+ s5 total=2,063,209 d_first_prefill=1,782,559 f_new_turn_tokens=160,416 e_granularity=111,018 e_previous_turn_still_computing=9,216 | written 3.48 GiB/h/rank
+ mean total=2,106,460 written=3.60 GiB/h/rank: d_first_prefill=1,781,561 (84.6%) f_new_turn_tokens=178,284 (8.5%) e_granularity=129,105 (6.1%) e_previous_turn_still_computing=16,589 (0.8%) c_min_gain=922 (0.0%)
+
+== m_all
+ s1 total=2,126,007 d_first_prefill=1,783,944 f_new_turn_tokens=181,956 e_granularity=137,067 e_previous_turn_still_computing=23,040 | written 4.48 GiB/h/rank
+ s2 total=2,135,765 d_first_prefill=1,780,224 f_new_turn_tokens=191,937 e_granularity=135,956 e_previous_turn_still_computing=27,648 | written 5.84 GiB/h/rank
+ s3 total=2,085,058 d_first_prefill=1,781,298 f_new_turn_tokens=156,745 e_granularity=137,799 e_previous_turn_still_computing=9,216 | written 4.83 GiB/h/rank
+ s4 total=2,122,261 d_first_prefill=1,779,780 f_new_turn_tokens=200,364 e_granularity=123,685 e_previous_turn_still_computing=13,824 c_min_gain=4,608 | written 4.01 GiB/h/rank
+ s5 total=2,063,209 d_first_prefill=1,782,559 f_new_turn_tokens=160,416 e_granularity=111,018 e_previous_turn_still_computing=9,216 | written 4.10 GiB/h/rank
+ mean total=2,106,460 written=4.65 GiB/h/rank: d_first_prefill=1,781,561 (84.6%) f_new_turn_tokens=178,284 (8.5%) e_granularity=129,105 (6.1%) e_previous_turn_still_computing=16,589 (0.8%) c_min_gain=922 (0.0%)
+
+== cn_k0
+ s1 total=2,126,007 d_first_prefill=1,783,944 f_new_turn_tokens=181,956 e_granularity=137,067 e_previous_turn_still_computing=23,040 | written 3.64 GiB/h/rank
+ s2 total=2,135,765 d_first_prefill=1,780,224 f_new_turn_tokens=191,937 e_granularity=135,956 e_previous_turn_still_computing=27,648 | written 3.71 GiB/h/rank
+ s3 total=2,085,058 d_first_prefill=1,781,298 f_new_turn_tokens=156,745 e_granularity=137,799 e_previous_turn_still_computing=9,216 | written 3.48 GiB/h/rank
+ mean total=2,115,610 written=3.61 GiB/h/rank: d_first_prefill=1,781,822 (84.2%) f_new_turn_tokens=176,879 (8.4%) e_granularity=136,941 (6.5%) e_previous_turn_still_computing=19,968 (0.9%)
+
+== cn_k2
+ s1 total=2,126,007 d_first_prefill=1,783,944 f_new_turn_tokens=181,956 e_granularity=137,067 e_previous_turn_still_computing=23,040 | written 3.64 GiB/h/rank
+ s2 total=2,135,765 d_first_prefill=1,780,224 f_new_turn_tokens=191,937 e_granularity=135,956 e_previous_turn_still_computing=27,648 | written 3.71 GiB/h/rank
+ s3 total=2,085,058 d_first_prefill=1,781,298 f_new_turn_tokens=156,745 e_granularity=137,799 e_previous_turn_still_computing=9,216 | written 3.48 GiB/h/rank
+ mean total=2,115,610 written=3.61 GiB/h/rank: d_first_prefill=1,781,822 (84.2%) f_new_turn_tokens=176,879 (8.4%) e_granularity=136,941 (6.5%) e_previous_turn_still_computing=19,968 (0.9%)

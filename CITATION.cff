@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this code or these measurements, please cite this repository."
+title: "vLLM KV connector: NVMe resume points for hybrid (MLA + Mamba / linear-attention) models, surviving engine restarts"
+type: software
+authors:
+  - alias: "yuyuyUuuuuuuuuuuu"
+repository-code: "https://github.com/yuyuyUuuuuuuuuuuu/vllm-hybrid-kv-nvme-spill"
+license: AGPL-3.0-only
+date-released: "2026-10-14"
+abstract: "A vLLM v1 KV connector (KVConnectorBase_V1) that saves per-conversation resume points of a hybrid model (MLA attention + indexer, four Mamba-style linear-attention state groups, speculative-decoding draft window) to local NVMe after the prompt is computed and restores them into the GPU prefix cache with the same keys and bytes instead of re-prefilling. Tensor parallelism 2 with all-rank agreement, deadlines, latched breaker and quarantine, pruning of superseded turns, per-request TTL via kv_transfer_params, and reuse across engine restarts through a persisted index, an identity signature and a fixed prefix-cache hash seed (vLLM without PYTHONHASHSEED draws NONE_HASH from os.urandom, so block hashes change on every restart). Measured on GLM-5.3-Flash with 2x NVIDIA DGX Spark (GB10): replay-rig re-read -66.9%, -91% after a restart; production decode and prefill unchanged."
+keywords: [vLLM, KV cache, KV connector, KVConnectorBase_V1, NVMe, KV offload, prefix caching, hybrid model, Mamba, linear attention, MLA, speculative decoding, PYTHONHASHSEED, NONE_HASH, block hash, restart, GLM-5.3-Flash, DGX Spark, GB10, tensor parallelism]

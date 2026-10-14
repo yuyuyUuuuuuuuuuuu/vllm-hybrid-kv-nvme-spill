@@ -1,0 +1,19 @@
+PASS geometry group_bytes=[27624960, 1672704, 21233664, 21233664, 18874368, 18874368, 11796480]
+PASS wipe_partial_at_start 
+PASS save_both_ranks agg={1: [2, 0]} 0.13s
+PASS file_sizes_4k_aligned [11800576, 18878464, 18878464, 21237760, 21237760, 27631616]
+PASS load_ok {2: [1, 0]} 0.06s
+PASS load_byte_identical_all_groups 
+PASS no_other_bytes_changed 
+PASS rank1_load_own_bytes 
+PASS ranks_differ 
+PASS crc_mismatch_fails_closed {4: [0, 1]}
+PASS wrong_group_fails 
+PASS foreign_rank_file_fails 
+PASS truncated_fails 
+PASS missing_fails 
+PASS one_rank_failure_fails_job {9: [1, 1]}
+PASS free_disk_floor_fails 
+PASS delete 
+PASS write_fails_midway_cleans {12: [0, 1]} left=[]
+SUMMARY 18/18 passed

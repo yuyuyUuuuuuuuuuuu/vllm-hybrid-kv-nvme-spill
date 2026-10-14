@@ -1,0 +1,30 @@
+{
+ "entries": 137,
+ "bytes": 3723575296,
+ "tokens_equiv": 603648,
+ "bw_alone_GBps": 228.3,
+ "write_s": 1.554,
+ "write_ok": true,
+ "write_GBps": 2.4,
+ "read_s": 1.382,
+ "read_ok": true,
+ "read_GBps": 2.69,
+ "read_byte_identical": true,
+ "write_with_bw_s": 3.406,
+ "bw_during_write_GBps": 226.5,
+ "write_with_bw_ok": true,
+ "read_with_bw_s": 3.014,
+ "bw_during_read_GBps": 227.7,
+ "read_with_bw_ok": true,
+ "worker_stats": {
+  "written": 2,
+  "write_failed": 0,
+  "loaded": 2,
+  "load_failed": 0,
+  "deleted": 0,
+  "write_s": 4.957317116903141,
+  "load_s": 4.394492395222187,
+  "written_bytes": 7447150592,
+  "loaded_bytes": 7447150592
+ }
+}

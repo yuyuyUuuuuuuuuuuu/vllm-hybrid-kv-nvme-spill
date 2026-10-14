@@ -1,0 +1,6 @@
+acv_k2_r1.env on 2 0.5 acv_k2_r1_s2
+acv_k2_r2.env on 2 0.5 acv_k2_r2_s2
+acv_k2_r3.env on 2 0.5 acv_k2_r3_s2
+acv_k0_r1.env on 2 0.5 acv_k0_r1_s2
+acv_k0_r2.env on 2 0.5 acv_k0_r2_s2
+acv_k0_r3.env on 2 0.5 acv_k0_r3_s2
