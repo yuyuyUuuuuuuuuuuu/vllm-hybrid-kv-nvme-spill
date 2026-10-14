@@ -104,7 +104,7 @@ Source: `results/m_off_s*.json`, `results/m_on_s*.json`, `results/aggregate.txt`
 | 3 | 6,115,328 → 2,085,058 | 7,152,407 → 3,197,541 | 7 → 0 | 3,214 → 1,498 | 44 → 49 | 6 (6) | 119 | 13.9 GiB |
 | 4 | 6,852,561 → 2,122,261 | 7,763,243 → 3,443,249 | 8 → 0 | 3,431 → 1,609 | 51 → 64 | 52 (9) | 608 | 14.7 GiB |
 | 5 | 5,277,269 → 2,063,209 | 6,270,280 → 3,288,369 | 6 → 0 | 2,917 → 1,541 | 47 → 55 | 10 (8) | 217 | 13.9 GiB |
-| Mean | **6,372,224 → 2,106,460 (−66.9%)** | 7,437,621 → 3,419,177 (−54.0%) | **7.2 → 0** | 3,449 → 1,599 (−54%) | +16% | 20.2 | 319 | 3.6 GiB/h |
+| Mean | **6,372,224 → 2,106,460 (−66.9%)** | 7,437,621 → 3,419,177 (−54.0%) | **7.2 → 0** | 3,449 → 1,599 (−54%) | 242 → 294 (+21.5%) | 20.2 | 319 | 3.6 GiB/h |
 
 - The remaining ~2.1 M DSH re-read tokens are the first ingest of the three conversations (430k + 590k + 760k + head,
   as measured). No collapse after the first turn in any seed.
@@ -458,7 +458,7 @@ c0: 1h, idle 100 min after its third turn. c1: 1d, DSH auto-compaction at its se
 
 ### 7.7 Fault injection and restart faults (final version)
 
-The 16 runs of sections 5.3 / 6.7 (without race_oldcode) plus 12 restart-fault runs, on the final version
+The 17 runs of sections 5.3 / 6.7 (without race_oldcode, incl. the negative control) plus 11 restart-fault runs (28 rows of table (4)), on the final version
 (`results/ttl/final_faults/aggregate.txt`, `results/ttl/final/aggregate.txt`): restores, saves, collapses and content
 checks equal section 6.7 (asynchronous runs within their spread); all runs end with 0 unfinished requests and 0 pins
 (the 17 quarantined blocks of h_load / k_load are by design); only the negative control n_noload detects 1,238

@@ -56,7 +56,7 @@ puts them back when the next turn arrives.
   the launcher's start-up patches) on CPU, 4 hours x 5 seeds with the same request sequence per seed: **DSH re-read
   tokens -66.9% (6.37M -> 2.11M; the rest is the first ingestion of the 3 conversations, which cannot be avoided),
   re-read tokens of all requests -54.0%, collapses (continuing-turn hit <= 23,040) 7.2 -> 0 (0 for every seed),
-  estimated generation stall 3,449 s -> 1,599 s (-54%), requests finished within 4 hours +16%**. Every restored block
+  estimated generation stall 3,449 s -> 1,599 s (-54%), requests finished within 4 hours 242 -> 294 summed over the 5 seeds (+21.5%)**. Every restored block
   was byte-checked on both ranks with 0 mismatches; 0 leaked blocks (after drain 582/582 free, ref 0, 0 connector
   pins); every injected fault (a file missing on one rank, CRC corruption, write failure) fell back to the normal
   prefill without leaks. (`results/aggregate.txt`, `results/m_*.json`; `docs/measurements.md`.)
@@ -197,10 +197,10 @@ construction).
 
 ### 2.6 Deleting resume points of older turns (prune release, `KEEP_PER_CHAIN`, default 2)
 
-* Observation from our production A/B log: when the next turn of a conversation writes a new RP, the old RP stays
+* Behaviour seen in our production A/B log (sizes measured; the growth rate below is an estimate): when the next turn of a conversation writes a new RP, the old RP stays
   until LRU removes it. MLA files are shared (reference counts), but each old RP keeps its 4 mamba states + DFlash
-  window (about 92 MB/rank/turn). Disk usage grew by about 10 GB/h/rank and reached the 200 GiB cap of our deployment
-  in less than a day; after that, RPs of **other** conversations were pushed out by LRU (`_make_room` does not delete an
+  window (about 92 MB/rank/turn). At the estimated ~10 GB/h/rank (measured total was 7.8 GB at the time pruning was added) disk usage would reach the
+  200 GiB cap of our deployment in less than a day (extrapolated, not observed); after that, RPs of **other** conversations were pushed out by LRU (`_make_room` does not delete an
   RP that shares files with the new RP, i.e. older turns of the same conversation, so it is other conversations that
   disappear).
 * When a new RP becomes `ok` **on every rank** (`_check_rp`), the true prefixes of its hash chain, i.e. the RPs of the
